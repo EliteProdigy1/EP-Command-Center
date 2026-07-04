@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EP Command Center — Elite Prodigy Media OS</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SIDEBAR NAVIGATION
+  ═══════════════════════════════════════════════════════════ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">EP</div>
+      <div class="logo-text">
+        <span class="logo-title">Command Center</span>
+        <span class="logo-sub">Elite Prodigy Media</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">OVERVIEW</div>
+      <a href="#" class="nav-item active" data-section="dashboard">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+      </a>
+      <a href="#" class="nav-item" data-section="clients">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Clients
+      </a>
+      <a href="#" class="nav-item" data-section="repos">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+        Repositories
+      </a>
+      <a href="#" class="nav-item" data-section="deploys">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Deployments
+      </a>
+
+      <div class="nav-section-label">OPERATIONS</div>
+      <a href="#" class="nav-item" data-section="tasks">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Tasks
+      </a>
+      <a href="#" class="nav-item" data-section="pipeline">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+        Pipeline
+      </a>
+      <a href="#" class="nav-item" data-section="maintenance">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        Maintenance
+      </a>
+
+      <div class="nav-section-label">INTELLIGENCE</div>
+      <a href="#" class="nav-item" data-section="revenue">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Revenue
+      </a>
+      <a href="#" class="nav-item" data-section="ai-tools">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        AI Tools
+      </a>
+      <a href="#" class="nav-item" data-section="assets">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        Asset Library
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-badge">
+        <div class="user-avatar">EP</div>
+        <div class="user-info">
+          <span class="user-name">Admin</span>
+          <span class="user-role">Elite Prodigy Media</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       MAIN CONTENT
+  ═══════════════════════════════════════════════════════════ -->
+  <main class="main-content">
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" id="hamburger" aria-label="Toggle sidebar">
+          <span></span><span></span><span></span>
+        </button>
+        <div class="topbar-title">
+          <h1 id="page-title">Dashboard</h1>
+          <span class="topbar-date" id="live-date"></span>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="status-pill status-live">
+          <span class="pulse-dot"></span>
+          System Operational
+        </div>
+        <div class="notification-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="notif-badge">3</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ─── DASHBOARD SECTION ─── -->
+    <section class="section active" id="section-dashboard">
+
+      <!-- KPI ROW -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">Active Clients</div>
+          <div class="kpi-value" data-count="7">0</div>
+          <div class="kpi-delta positive">+2 this quarter</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Live Deployments</div>
+          <div class="kpi-value" data-count="3">0</div>
+          <div class="kpi-delta positive">+1 this week</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Open Tasks</div>
+          <div class="kpi-value" data-count="14">0</div>
+          <div class="kpi-delta neutral">4 due today</div>
+        </div>
+        <div class="kpi-card gold">
+          <div class="kpi-label">MRR (Projected)</div>
+          <div class="kpi-value">$<span data-count="8400">0</span></div>
+          <div class="kpi-delta positive">+18% MoM</div>
+        </div>
+      </div>
+
+      <!-- MIDDLE ROW: Clients + Deploys -->
+      <div class="two-col-grid">
+
+        <!-- ACTIVE CLIENTS -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Active Clients</h2>
+            <span class="card-badge">7 Total</span>
+          </div>
+          <div class="client-list" id="client-list"></div>
+        </div>
+
+        <!-- DEPLOY STATUS -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Netlify Deployments</h2>
+            <span class="card-badge">3 Live</span>
+          </div>
+          <div class="deploy-list" id="deploy-list"></div>
+        </div>
+
+      </div>
+
+      <!-- BOTTOM ROW: Tasks + Revenue Snapshot -->
+      <div class="two-col-grid">
+
+        <!-- OPEN TASKS -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Priority Tasks</h2>
+            <span class="card-badge badge-warn">14 Open</span>
+          </div>
+          <div class="task-list" id="task-list-dash"></div>
+        </div>
+
+        <!-- REVENUE SNAPSHOT -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Revenue Snapshot</h2>
+            <span class="card-badge">Q3 2026</span>
+          </div>
+          <div class="revenue-chart-wrap">
+            <canvas id="revenue-chart" width="400" height="180"></canvas>
+          </div>
+          <div class="revenue-legend">
+            <div class="legend-item"><span class="legend-dot gold-dot"></span>Active Retainers</div>
+            <div class="legend-item"><span class="legend-dot silver-dot"></span>Project-Based</div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ─── CLIENTS SECTION ─── -->
+    <section class="section" id="section-clients">
+      <div class="section-header">
+        <h2>Client Roster</h2>
+        <button class="btn-primary">+ Add Client</button>
+      </div>
+      <div class="client-cards-grid" id="client-cards-grid"></div>
+    </section>
+
+    <!-- ─── REPOSITORIES SECTION ─── -->
+    <section class="section" id="section-repos">
+      <div class="section-header">
+        <h2>GitHub Repositories</h2>
+        <a href="https://github.com/EliteProdigy1" target="_blank" class="btn-ghost">View on GitHub ↗</a>
+      </div>
+      <div class="repo-table-wrap">
+        <table class="data-table" id="repo-table">
+          <thead>
+            <tr>
+              <th>Repository</th>
+              <th>Purpose</th>
+              <th>Status</th>
+              <th>Last Commit</th>
+              <th>Branches</th>
+            </tr>
+          </thead>
+          <tbody id="repo-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ─── DEPLOYMENTS SECTION ─── -->
+    <section class="section" id="section-deploys">
+      <div class="section-header">
+        <h2>Netlify Deployments</h2>
+        <button class="btn-ghost">Refresh Status</button>
+      </div>
+      <div class="deploy-cards" id="deploy-cards"></div>
+    </section>
+
+    <!-- ─── TASKS SECTION ─── -->
+    <section class="section" id="section-tasks">
+      <div class="section-header">
+        <h2>Task Queue</h2>
+        <button class="btn-primary">+ New Task</button>
+      </div>
+      <div class="task-board" id="task-board"></div>
+    </section>
+
+    <!-- ─── PIPELINE SECTION ─── -->
+    <section class="section" id="section-pipeline">
+      <div class="section-header">
+        <h2>Client Pipeline</h2>
+        <button class="btn-primary">+ Add Lead</button>
+      </div>
+      <div class="pipeline-board" id="pipeline-board"></div>
+    </section>
+
+    <!-- ─── MAINTENANCE SECTION ─── -->
+    <section class="section" id="section-maintenance">
+      <div class="section-header">
+        <h2>Maintenance Queue</h2>
+        <span class="card-badge badge-warn">3 Urgent</span>
+      </div>
+      <div class="maintenance-list" id="maintenance-list"></div>
+    </section>
+
+    <!-- ─── REVENUE SECTION ─── -->
+    <section class="section" id="section-revenue">
+      <div class="section-header">
+        <h2>Revenue Snapshot</h2>
+        <span class="card-badge">Q3 2026 — Placeholder Data</span>
+      </div>
+      <div class="revenue-grid">
+        <div class="kpi-card gold">
+          <div class="kpi-label">Monthly Retainers</div>
+          <div class="kpi-value">$5,200</div>
+          <div class="kpi-delta positive">4 active contracts</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Project Revenue</div>
+          <div class="kpi-value">$3,200</div>
+          <div class="kpi-delta positive">3 active projects</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Pipeline Value</div>
+          <div class="kpi-value">$18,500</div>
+          <div class="kpi-delta neutral">5 leads in review</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">YTD Revenue</div>
+          <div class="kpi-value">$41,800</div>
+          <div class="kpi-delta positive">+32% vs last year</div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:1.5rem;">
+        <div class="card-header">
+          <h2 class="card-title">Revenue by Client</h2>
+        </div>
+        <div class="revenue-breakdown" id="revenue-breakdown"></div>
+      </div>
+    </section>
+
+    <!-- ─── AI TOOLS SECTION ─── -->
+    <section class="section" id="section-ai-tools">
+      <div class="section-header">
+        <h2>AI Tool Stack</h2>
+      </div>
+      <div class="ai-tools-grid" id="ai-tools-grid"></div>
+    </section>
+
+    <!-- ─── ASSETS SECTION ─── -->
+    <section class="section" id="section-assets">
+      <div class="section-header">
+        <h2>Asset Library</h2>
+        <button class="btn-primary">+ Upload Asset</button>
+      </div>
+      <div class="asset-filters">
+        <button class="filter-btn active">All</button>
+        <button class="filter-btn">Logos</button>
+        <button class="filter-btn">Videos</button>
+        <button class="filter-btn">Photos</button>
+        <button class="filter-btn">Docs</button>
+      </div>
+      <div class="asset-grid" id="asset-grid"></div>
+    </section>
+
+  </main>
+
+  <!-- MOBILE OVERLAY -->
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
