@@ -44,6 +44,10 @@
       </a>
 
       <div class="nav-section-label">OPERATIONS</div>
+      <a href="#" class="nav-item" data-section="callmode">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        Call Mode
+      </a>
       <a href="#" class="nav-item" data-section="tasks">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
         Tasks
@@ -104,10 +108,9 @@
           <span class="pulse-dot"></span>
           System Operational
         </div>
-        <div class="notification-btn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-          <span class="notif-badge">3</span>
-        </div>
+        <button class="btn-ghost" id="btn-export" title="Download a JSON backup of leads, tasks, and call log">⬇ Backup</button>
+        <button class="btn-ghost" id="btn-import" title="Restore from a JSON backup">⬆ Restore</button>
+        <input type="file" id="import-file" accept="application/json" style="display:none;">
       </div>
     </header>
 
@@ -117,24 +120,24 @@
       <!-- KPI ROW -->
       <div class="kpi-grid">
         <div class="kpi-card">
-          <div class="kpi-label">Active Clients</div>
-          <div class="kpi-value" data-count="7">0</div>
-          <div class="kpi-delta positive">+2 this quarter</div>
+          <div class="kpi-label">Live Sites</div>
+          <div class="kpi-value" id="kpi-sites">—</div>
+          <div class="kpi-delta positive">All client demos deployed</div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-label">Live Deployments</div>
-          <div class="kpi-value" data-count="3">0</div>
-          <div class="kpi-delta positive">+1 this week</div>
+          <div class="kpi-label">Active Leads</div>
+          <div class="kpi-value" id="kpi-leads">—</div>
+          <div class="kpi-delta neutral">In pipeline</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-label">Open Tasks</div>
-          <div class="kpi-value" data-count="14">0</div>
-          <div class="kpi-delta neutral">4 due today</div>
+          <div class="kpi-value" id="kpi-tasks">—</div>
+          <div class="kpi-delta neutral">To do + in progress</div>
         </div>
         <div class="kpi-card gold">
-          <div class="kpi-label">MRR (Projected)</div>
-          <div class="kpi-value">$<span data-count="8400">0</span></div>
-          <div class="kpi-delta positive">+18% MoM</div>
+          <div class="kpi-label">Pipeline Value</div>
+          <div class="kpi-value" id="kpi-pipeline">—</div>
+          <div class="kpi-delta positive"><span id="kpi-calls-today">0</span> calls made today</div>
         </div>
       </div>
 
@@ -145,7 +148,7 @@
         <div class="card">
           <div class="card-header">
             <h2 class="card-title">Active Clients</h2>
-            <span class="card-badge">7 Total</span>
+            <span class="card-badge">Roster</span>
           </div>
           <div class="client-list" id="client-list"></div>
         </div>
@@ -154,7 +157,7 @@
         <div class="card">
           <div class="card-header">
             <h2 class="card-title">Netlify Deployments</h2>
-            <span class="card-badge">3 Live</span>
+            <span class="card-badge">Netlify</span>
           </div>
           <div class="deploy-list" id="deploy-list"></div>
         </div>
@@ -168,24 +171,18 @@
         <div class="card">
           <div class="card-header">
             <h2 class="card-title">Priority Tasks</h2>
-            <span class="card-badge badge-warn">14 Open</span>
+            <span class="card-badge badge-warn">Open</span>
           </div>
           <div class="task-list" id="task-list-dash"></div>
         </div>
 
-        <!-- REVENUE SNAPSHOT -->
+        <!-- TODAY'S OUTREACH -->
         <div class="card">
           <div class="card-header">
-            <h2 class="card-title">Revenue Snapshot</h2>
-            <span class="card-badge">Q3 2026</span>
+            <h2 class="card-title">Today's Outreach</h2>
+            <span class="card-badge">Live</span>
           </div>
-          <div class="revenue-chart-wrap">
-            <canvas id="revenue-chart" width="400" height="180"></canvas>
-          </div>
-          <div class="revenue-legend">
-            <div class="legend-item"><span class="legend-dot gold-dot"></span>Active Retainers</div>
-            <div class="legend-item"><span class="legend-dot silver-dot"></span>Project-Based</div>
-          </div>
+          <div id="outreach-today"></div>
         </div>
 
       </div>
@@ -196,7 +193,6 @@
     <section class="section" id="section-clients">
       <div class="section-header">
         <h2>Client Roster</h2>
-        <button class="btn-primary">+ Add Client</button>
       </div>
       <div class="client-cards-grid" id="client-cards-grid"></div>
     </section>
@@ -227,16 +223,81 @@
     <section class="section" id="section-deploys">
       <div class="section-header">
         <h2>Netlify Deployments</h2>
-        <button class="btn-ghost">Refresh Status</button>
+        <a href="https://app.netlify.com" target="_blank" rel="noopener" class="btn-ghost">Open Netlify ↗</a>
       </div>
       <div class="deploy-cards" id="deploy-cards"></div>
+    </section>
+
+    <!-- ─── CALL MODE SECTION ─── -->
+    <section class="section" id="section-callmode">
+      <div class="section-header">
+        <h2>Call Mode</h2>
+        <span class="card-badge">Work the queue top to bottom</span>
+      </div>
+
+      <div class="callmode-grid">
+        <div>
+          <div class="card" style="margin-bottom:1rem;">
+            <div class="card-header"><h2 class="card-title">Call Queue</h2></div>
+            <div id="call-queue"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h2 class="card-title">Call Log</h2></div>
+            <div id="call-log"></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="card script-card" style="margin-bottom:1rem;">
+            <div class="card-header"><h2 class="card-title">Opening Script</h2></div>
+            <div class="script-body">
+              <p>"Hey, this is Jonathan with Elite Prodigy Media here on the Gulf Coast. Quick question — who handles the website for [BUSINESS]?"</p>
+              <p class="script-branch">If it's them:</p>
+              <p>"Perfect. The reason I'm calling — we build clean, professional websites for [INDUSTRY] businesses around Baldwin County. Five pages, mobile-ready, contact form, Google Maps, done in about 48 to 72 hours, for a flat $1,000. No contracts, no surprises. Would it be worth 10 minutes for me to show you what that would look like for [BUSINESS]?"</p>
+              <p class="script-branch">If they have a demo site built (the 6 prospects):</p>
+              <p>"I actually went ahead and built a full working version of your website — it's live right now and I can text you the link while we're talking. Take a look and tell me what you think."</p>
+            </div>
+          </div>
+
+          <div class="card script-card" style="margin-bottom:1rem;">
+            <div class="card-header"><h2 class="card-title">Objections</h2></div>
+            <div class="script-body">
+              <p><strong>"We already have a website."</strong><br>"Totally fair — when's the last time it brought you a customer? I'll do a free side-by-side: your current site next to what we'd build. If yours wins, no hard feelings."</p>
+              <p><strong>"That's too much money."</strong><br>"One new customer likely covers it. And there's no monthly requirement — $1,000 once, you own it."</p>
+              <p><strong>"Not right now."</strong><br>"No problem. When should I check back — a month? I'll put it on my calendar." <em>(Log as Callback.)</em></p>
+              <p><strong>"Send me something."</strong><br>"Even better — I'll text you a live link, not a brochure. What's the best number?"</p>
+            </div>
+          </div>
+
+          <div class="card script-card">
+            <div class="card-header"><h2 class="card-title">Close + Next Step</h2></div>
+            <div class="script-body">
+              <p>"To get started it's a 50% deposit — $500 — Venmo or Cash App, and I'll have your draft live in 2–3 days. One round of revisions included. Sound good?"</p>
+              <p class="script-branch">Payment: Venmo @eliteprodigy · Cash App $ELITEPRODIGYLLC</p>
+              <p class="script-branch">After every call: press the outcome button on the lead card — it updates the pipeline automatically.</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- ─── TASKS SECTION ─── -->
     <section class="section" id="section-tasks">
       <div class="section-header">
         <h2>Task Queue</h2>
-        <button class="btn-primary">+ New Task</button>
+        <button class="btn-primary" onclick="toggleForm('task-form')">+ New Task</button>
+      </div>
+      <div class="inline-form" id="task-form" style="display:none;">
+        <div class="form-grid">
+          <input id="nt-title" type="text" placeholder="Task title *">
+          <input id="nt-client" type="text" placeholder="Client (optional)">
+          <select id="nt-priority"><option value="high">High</option><option value="medium" selected>Medium</option><option value="low">Low</option></select>
+          <input id="nt-due" type="text" placeholder="Due (e.g. Jul 7)">
+        </div>
+        <div class="form-actions">
+          <button class="btn-primary" onclick="addTaskFromForm()">Add Task</button>
+          <button class="btn-ghost" onclick="toggleForm('task-form', false)">Cancel</button>
+        </div>
       </div>
       <div class="task-board" id="task-board"></div>
     </section>
@@ -245,7 +306,21 @@
     <section class="section" id="section-pipeline">
       <div class="section-header">
         <h2>Client Pipeline</h2>
-        <button class="btn-primary">+ Add Lead</button>
+        <button class="btn-primary" onclick="toggleForm('lead-form')">+ Add Lead</button>
+      </div>
+      <div class="inline-form" id="lead-form" style="display:none;">
+        <div class="form-grid">
+          <input id="nl-name" type="text" placeholder="Business name *">
+          <input id="nl-contact" type="text" placeholder="Contact person">
+          <input id="nl-phone" type="tel" placeholder="Phone">
+          <input id="nl-industry" type="text" placeholder="Industry (e.g. Roofing)">
+          <input id="nl-value" type="number" placeholder="Deal value $ (default 1000)">
+          <input id="nl-notes" type="text" placeholder="Notes">
+        </div>
+        <div class="form-actions">
+          <button class="btn-primary" onclick="addLeadFromForm()">Add Lead</button>
+          <button class="btn-ghost" onclick="toggleForm('lead-form', false)">Cancel</button>
+        </div>
       </div>
       <div class="pipeline-board" id="pipeline-board"></div>
     </section>
@@ -254,7 +329,7 @@
     <section class="section" id="section-maintenance">
       <div class="section-header">
         <h2>Maintenance Queue</h2>
-        <span class="card-badge badge-warn">3 Urgent</span>
+        <span class="card-badge badge-warn">Action needed</span>
       </div>
       <div class="maintenance-list" id="maintenance-list"></div>
     </section>
@@ -262,36 +337,26 @@
     <!-- ─── REVENUE SECTION ─── -->
     <section class="section" id="section-revenue">
       <div class="section-header">
-        <h2>Revenue Snapshot</h2>
-        <span class="card-badge">Q3 2026 — Placeholder Data</span>
+        <h2>Revenue</h2>
+        <span class="card-badge">Computed from pipeline</span>
       </div>
       <div class="revenue-grid">
         <div class="kpi-card gold">
-          <div class="kpi-label">Monthly Retainers</div>
-          <div class="kpi-value">$5,200</div>
-          <div class="kpi-delta positive">4 active contracts</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Project Revenue</div>
-          <div class="kpi-value">$3,200</div>
-          <div class="kpi-delta positive">3 active projects</div>
+          <div class="kpi-label">Closed / Won</div>
+          <div class="kpi-value" id="rev-closed">—</div>
+          <div class="kpi-delta positive"><span id="rev-won">0</span> deals won</div>
         </div>
         <div class="kpi-card">
           <div class="kpi-label">Pipeline Value</div>
-          <div class="kpi-value">$18,500</div>
-          <div class="kpi-delta neutral">5 leads in review</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">YTD Revenue</div>
-          <div class="kpi-value">$41,800</div>
-          <div class="kpi-delta positive">+32% vs last year</div>
+          <div class="kpi-value" id="rev-pipeline">—</div>
+          <div class="kpi-delta neutral"><span id="rev-leads">0</span> active leads</div>
         </div>
       </div>
       <div class="card" style="margin-top:1.5rem;">
-        <div class="card-header">
-          <h2 class="card-title">Revenue by Client</h2>
-        </div>
-        <div class="revenue-breakdown" id="revenue-breakdown"></div>
+        <div class="card-header"><h2 class="card-title">Package Pricing (quote from this)</h2></div>
+        <div id="pricing-list"></div>
+        <div class="card-header" style="margin-top:18px;"><h2 class="card-title">Target Industries</h2></div>
+        <div class="ai-tool-tags" id="industry-chips" style="padding:0 0 6px;"></div>
       </div>
     </section>
 
@@ -307,14 +372,12 @@
     <section class="section" id="section-assets">
       <div class="section-header">
         <h2>Asset Library</h2>
-        <button class="btn-primary">+ Upload Asset</button>
       </div>
       <div class="asset-filters">
-        <button class="filter-btn active">All</button>
-        <button class="filter-btn">Logos</button>
-        <button class="filter-btn">Videos</button>
-        <button class="filter-btn">Photos</button>
-        <button class="filter-btn">Docs</button>
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="logo">Logos</button>
+        <button class="filter-btn" data-filter="photo">Photos</button>
+        <button class="filter-btn" data-filter="doc">Docs</button>
       </div>
       <div class="asset-grid" id="asset-grid"></div>
     </section>
