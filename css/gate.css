@@ -1,0 +1,365 @@
+/* ═══════════════════════════════════════════════════════════════
+   EP COMMAND CENTER — GATE.CSS
+   Cinematic lock screen · Elite Prodigy Media
+═══════════════════════════════════════════════════════════════ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --gold:        #c9a84c;
+  --gold-light:  #e8c96a;
+  --gold-dim:    #6b5520;
+  --bg:          #060608;
+  --text:        #f0f0f0;
+  --text-muted:  rgba(240,240,240,0.38);
+  --font-ui:     'Space Grotesk', -apple-system, sans-serif;
+  --font-body:   'Inter', -apple-system, sans-serif;
+}
+
+html, body {
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  overflow: hidden;
+}
+
+/* ─── FILM GRAIN ─── */
+.grain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 256px;
+  animation: grain 0.4s steps(1) infinite;
+}
+@keyframes grain {
+  0%   { background-position: 0 0; }
+  20%  { background-position: -60px -25px; }
+  40%  { background-position: 25px 55px; }
+  60%  { background-position: -45px -12px; }
+  80%  { background-position: 35px -40px; }
+  100% { background-position: 0 0; }
+}
+
+/* ─── GRID OVERLAY ─── */
+.grid-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  background-image:
+    linear-gradient(rgba(201,168,76,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201,168,76,0.035) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: radial-gradient(ellipse 75% 75% at 50% 50%, black 20%, transparent 75%);
+  mask-image: radial-gradient(ellipse 75% 75% at 50% 50%, black 20%, transparent 75%);
+}
+
+/* ─── AMBIENT GLOW ─── */
+.glow {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background:
+    radial-gradient(ellipse 60% 40% at 50% 50%, rgba(201,168,76,0.06) 0%, transparent 60%);
+}
+
+/* ─── GATE WRAPPER ─── */
+.gate-wrap {
+  position: relative;
+  z-index: 20;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+/* ─── TOP STATUS BAR ─── */
+.gate-topbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid rgba(201,168,76,0.08);
+  background: rgba(6,6,8,0.85);
+  backdrop-filter: blur(16px);
+  z-index: 30;
+}
+.gate-status-dot {
+  width: 6px; height: 6px;
+  background: var(--gold);
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: pulse-dot 2s ease infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(201,168,76,0.5); }
+  50%       { opacity: 0.75; box-shadow: 0 0 0 5px rgba(201,168,76,0); }
+}
+.gate-status-text {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  color: var(--gold);
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+/* ─── CENTER CONTENT ─── */
+.gate-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0;
+  position: relative;
+  margin-bottom: 52px;
+}
+
+/* ─── MONOGRAM ─── */
+.gate-monogram {
+  position: relative;
+  width: 96px; height: 96px;
+  margin-bottom: 32px;
+}
+.monogram-ring {
+  position: absolute;
+  inset: 0;
+  border: 1.5px solid rgba(201,168,76,0.28);
+  border-radius: 50%;
+  animation: spin 14s linear infinite;
+}
+.monogram-ring::before {
+  content: '';
+  position: absolute;
+  top: -3px; left: 50%;
+  transform: translateX(-50%);
+  width: 5px; height: 5px;
+  background: var(--gold);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--gold);
+}
+.monogram-ring-outer {
+  position: absolute;
+  inset: -10px;
+  border: 1px solid rgba(201,168,76,0.1);
+  border-radius: 50%;
+  animation: spin 22s linear infinite reverse;
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.monogram-bg {
+  position: absolute;
+  inset: 8px;
+  background: radial-gradient(ellipse at center, rgba(201,168,76,0.12), transparent 70%);
+  border-radius: 50%;
+}
+.monogram-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-ui);
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--gold-light);
+  letter-spacing: 0.04em;
+  text-shadow: 0 0 30px rgba(201,168,76,0.6);
+}
+
+/* ─── TITLES ─── */
+.gate-title {
+  font-family: var(--font-ui);
+  font-size: clamp(26px, 4vw, 44px);
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.02em;
+  margin-bottom: 8px;
+}
+.gate-subtitle {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--text-muted);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 44px;
+}
+
+/* ─── PASSCODE ─── */
+.gate-passcode {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 14px;
+  position: relative;
+}
+.pc-dots {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.pc-dot {
+  width: 13px; height: 13px;
+  border: 1.5px solid rgba(201,168,76,0.35);
+  border-radius: 50%;
+  transition: all 0.25s ease;
+}
+.pc-dot.filled {
+  background: var(--gold);
+  border-color: var(--gold);
+  box-shadow: 0 0 14px rgba(201,168,76,0.55);
+}
+.pc-input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 1px; height: 1px;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: transparent;
+  caret-color: transparent;
+  font-size: 16px;
+}
+.pc-error {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #f87171;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  height: 14px;
+}
+.pc-error.show { opacity: 1; }
+.gate-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+
+/* ─── CLICK-TO-TYPE LAYER ─── */
+.pc-touch {
+  position: absolute;
+  inset: -20px;
+  cursor: text;
+  z-index: 5;
+}
+
+/* ─── UNLOCK OVERLAY ─── */
+.gate-unlock {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+  z-index: 10;
+}
+.gate-unlock.show { opacity: 1; pointer-events: auto; }
+.unlock-ring {
+  width: 72px; height: 72px;
+  border: 2px solid var(--gold);
+  border-radius: 50%;
+  animation: unlock-glow 0.6s ease infinite alternate;
+}
+@keyframes unlock-glow {
+  from { box-shadow: 0 0 16px rgba(201,168,76,0.3); }
+  to   { box-shadow: 0 0 48px rgba(201,168,76,0.7), inset 0 0 24px rgba(201,168,76,0.15); }
+}
+.unlock-text {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  color: var(--gold);
+  text-transform: uppercase;
+}
+
+/* ─── PORTALS ─── */
+.gate-portals {
+  position: fixed;
+  bottom: 56px; left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  width: 100%;
+  max-width: 680px;
+  padding: 0 24px;
+  z-index: 25;
+}
+.portals-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(201,168,76,0.4);
+  margin-bottom: 14px;
+}
+.portals-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+.portal-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 15px;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 100px;
+  background: rgba(255,255,255,0.03);
+  color: rgba(240,240,240,0.55);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.portal-link:hover {
+  border-color: rgba(201,168,76,0.3);
+  color: var(--gold-light);
+  background: rgba(201,168,76,0.06);
+}
+.portal-icon { font-size: 13px; }
+.portal-arrow { font-size: 10px; opacity: 0.45; }
+
+/* ─── FOOTER ─── */
+.gate-footer {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 10px;
+  color: rgba(255,255,255,0.18);
+  border-top: 1px solid rgba(255,255,255,0.04);
+}
+
+@media (max-width: 600px) {
+  .gate-status-text { display: none; }
+  .portals-grid { gap: 6px; }
+  .portal-link { padding: 6px 12px; font-size: 11px; }
+  .gate-title { font-size: 28px; }
+}

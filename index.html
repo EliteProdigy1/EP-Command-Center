@@ -3,390 +3,145 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EP Command Center — Elite Prodigy Media OS</title>
+  <title>EP Command Center</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="css/gate.css" />
 </head>
 <body>
 
-  <!-- ═══════════════════════════════════════════════════════════
-       SIDEBAR NAVIGATION
-  ═══════════════════════════════════════════════════════════ -->
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-logo">
-      <div class="logo-mark">EP</div>
-      <div class="logo-text">
-        <span class="logo-title">Command Center</span>
-        <span class="logo-sub">Elite Prodigy Media</span>
+  <div class="grain"></div>
+  <div class="grid-bg"></div>
+  <div class="glow"></div>
+
+  <!-- STATUS BAR -->
+  <div class="gate-topbar">
+    <span class="gate-status-dot"></span>
+    <span class="gate-status-text">Elite Prodigy Media · Command Center 2.0 · Authorized Access Only</span>
+  </div>
+
+  <!-- GATE -->
+  <div class="gate-wrap">
+    <div class="gate-center">
+
+      <!-- MONOGRAM -->
+      <div class="gate-monogram">
+        <div class="monogram-ring-outer"></div>
+        <div class="monogram-ring"></div>
+        <div class="monogram-bg"></div>
+        <div class="monogram-text">EP</div>
       </div>
+
+      <h1 class="gate-title">Command Center</h1>
+      <p class="gate-subtitle">Elite Prodigy Media · Operating System</p>
+
+      <!-- PASSCODE INPUT -->
+      <div class="gate-passcode" id="gate-passcode">
+        <div class="pc-dots" id="pc-dots">
+          <span class="pc-dot" id="dot0"></span>
+          <span class="pc-dot" id="dot1"></span>
+          <span class="pc-dot" id="dot2"></span>
+        </div>
+        <input class="pc-input" id="pc-input" type="password" maxlength="3" autocomplete="off" inputmode="numeric" />
+        <div class="pc-touch" id="pc-touch" title="Click to type"></div>
+        <div class="pc-error" id="pc-error">Access Denied</div>
+      </div>
+
+      <p class="gate-hint">Click anywhere · enter your 3-digit code</p>
+
+      <!-- UNLOCK OVERLAY -->
+      <div class="gate-unlock" id="gate-unlock">
+        <div class="unlock-ring"></div>
+        <div class="unlock-text">Access Granted</div>
+      </div>
+
     </div>
+  </div>
 
-    <nav class="sidebar-nav">
-      <div class="nav-section-label">OVERVIEW</div>
-      <a href="#" class="nav-item active" data-section="dashboard">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-        Dashboard
+  <!-- QUICK PORTALS -->
+  <div class="gate-portals">
+    <div class="portals-label">Quick Portals</div>
+    <div class="portals-grid">
+      <a href="dashboard.html" class="portal-link">
+        <span class="portal-icon">⚙️</span>
+        <span class="portal-name">Dashboard</span>
+        <span class="portal-arrow">→</span>
       </a>
-      <a href="#" class="nav-item" data-section="clients">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        Clients
+      <a href="https://eliteprodigysportsgroup.netlify.app" target="_blank" rel="noopener" class="portal-link">
+        <span class="portal-icon">🏆</span>
+        <span class="portal-name">EP Sports Group</span>
+        <span class="portal-arrow">↗</span>
       </a>
-      <a href="#" class="nav-item" data-section="repos">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
-        Repositories
+      <a href="https://eliteprodigysportsgroup.netlify.app/eliteprodigy.html" target="_blank" rel="noopener" class="portal-link">
+        <span class="portal-icon">⚡</span>
+        <span class="portal-name">EP Youth</span>
+        <span class="portal-arrow">↗</span>
       </a>
-      <a href="#" class="nav-item" data-section="deploys">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-        Deployments
+      <a href="https://github.com/EliteProdigy1" target="_blank" rel="noopener" class="portal-link">
+        <span class="portal-icon">💻</span>
+        <span class="portal-name">GitHub</span>
+        <span class="portal-arrow">↗</span>
       </a>
-
-      <div class="nav-section-label">OPERATIONS</div>
-      <a href="#" class="nav-item" data-section="callmode">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-        Call Mode
+      <a href="https://app.netlify.com" target="_blank" rel="noopener" class="portal-link">
+        <span class="portal-icon">🚀</span>
+        <span class="portal-name">Netlify</span>
+        <span class="portal-arrow">↗</span>
       </a>
-      <a href="#" class="nav-item" data-section="tasks">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-        Tasks
+      <a href="https://eliteprodigy.leagueapps.com" target="_blank" rel="noopener" class="portal-link">
+        <span class="portal-icon">🏅</span>
+        <span class="portal-name">LeagueApps</span>
+        <span class="portal-arrow">↗</span>
       </a>
-      <a href="#" class="nav-item" data-section="pipeline">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-        Pipeline
-      </a>
-      <a href="#" class="nav-item" data-section="maintenance">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-        Maintenance
-      </a>
-
-      <div class="nav-section-label">INTELLIGENCE</div>
-      <a href="#" class="nav-item" data-section="revenue">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-        Revenue
-      </a>
-      <a href="#" class="nav-item" data-section="ai-tools">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-        AI Tools
-      </a>
-      <a href="#" class="nav-item" data-section="assets">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-        Asset Library
-      </a>
-    </nav>
-
-    <div class="sidebar-footer">
-      <div class="user-badge">
-        <div class="user-avatar">EP</div>
-        <div class="user-info">
-          <span class="user-name">Admin</span>
-          <span class="user-role">Elite Prodigy Media</span>
-        </div>
-      </div>
     </div>
-  </aside>
+  </div>
 
-  <!-- ═══════════════════════════════════════════════════════════
-       MAIN CONTENT
-  ═══════════════════════════════════════════════════════════ -->
-  <main class="main-content">
+  <!-- FOOTER -->
+  <div class="gate-footer">
+    <span>© 2026 Elite Prodigy Media</span>
+    <span>·</span>
+    <span>Internal Use Only</span>
+    <span>·</span>
+    <span>Not for public distribution</span>
+  </div>
 
-    <!-- TOP BAR -->
-    <header class="topbar">
-      <div class="topbar-left">
-        <button class="hamburger" id="hamburger" aria-label="Toggle sidebar">
-          <span></span><span></span><span></span>
-        </button>
-        <div class="topbar-title">
-          <h1 id="page-title">Dashboard</h1>
-          <span class="topbar-date" id="live-date"></span>
-        </div>
-      </div>
-      <div class="topbar-right">
-        <div class="status-pill status-live">
-          <span class="pulse-dot"></span>
-          System Operational
-        </div>
-        <button class="btn-ghost" id="btn-export" title="Download a JSON backup of leads, tasks, and call log">⬇ Backup</button>
-        <button class="btn-ghost" id="btn-import" title="Restore from a JSON backup">⬆ Restore</button>
-        <input type="file" id="import-file" accept="application/json" style="display:none;">
-      </div>
-    </header>
+  <script>
+    const input   = document.getElementById('pc-input');
+    const touch   = document.getElementById('pc-touch');
+    const dots    = [0,1,2].map(i => document.getElementById('dot' + i));
+    const errEl   = document.getElementById('pc-error');
+    const unlock  = document.getElementById('gate-unlock');
+    const CODE    = '251';
 
-    <!-- ─── DASHBOARD SECTION ─── -->
-    <section class="section active" id="section-dashboard">
+    function focusInput() { input.focus(); }
+    document.getElementById('gate-passcode').addEventListener('click', focusInput);
+    touch.addEventListener('click', focusInput);
+    document.body.addEventListener('keydown', focusInput, { once: false });
+    focusInput();
 
-      <!-- KPI ROW -->
-      <div class="kpi-grid">
-        <div class="kpi-card">
-          <div class="kpi-label">Live Sites</div>
-          <div class="kpi-value" id="kpi-sites">—</div>
-          <div class="kpi-delta positive">All client demos deployed</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Active Leads</div>
-          <div class="kpi-value" id="kpi-leads">—</div>
-          <div class="kpi-delta neutral">In pipeline</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Open Tasks</div>
-          <div class="kpi-value" id="kpi-tasks">—</div>
-          <div class="kpi-delta neutral">To do + in progress</div>
-        </div>
-        <div class="kpi-card gold">
-          <div class="kpi-label">Pipeline Value</div>
-          <div class="kpi-value" id="kpi-pipeline">—</div>
-          <div class="kpi-delta positive"><span id="kpi-calls-today">0</span> calls made today</div>
-        </div>
-      </div>
+    input.addEventListener('input', () => {
+      const val = input.value.replace(/\D/g, '').slice(0, 3);
+      input.value = val;
+      dots.forEach((d, i) => d.classList.toggle('filled', i < val.length));
+      errEl.classList.remove('show');
 
-      <!-- MIDDLE ROW: Clients + Deploys -->
-      <div class="two-col-grid">
-
-        <!-- ACTIVE CLIENTS -->
-        <div class="card">
-          <div class="card-header">
-            <h2 class="card-title">Active Clients</h2>
-            <span class="card-badge">Roster</span>
-          </div>
-          <div class="client-list" id="client-list"></div>
-        </div>
-
-        <!-- DEPLOY STATUS -->
-        <div class="card">
-          <div class="card-header">
-            <h2 class="card-title">Netlify Deployments</h2>
-            <span class="card-badge">Netlify</span>
-          </div>
-          <div class="deploy-list" id="deploy-list"></div>
-        </div>
-
-      </div>
-
-      <!-- BOTTOM ROW: Tasks + Revenue Snapshot -->
-      <div class="two-col-grid">
-
-        <!-- OPEN TASKS -->
-        <div class="card">
-          <div class="card-header">
-            <h2 class="card-title">Priority Tasks</h2>
-            <span class="card-badge badge-warn">Open</span>
-          </div>
-          <div class="task-list" id="task-list-dash"></div>
-        </div>
-
-        <!-- TODAY'S OUTREACH -->
-        <div class="card">
-          <div class="card-header">
-            <h2 class="card-title">Today's Outreach</h2>
-            <span class="card-badge">Live</span>
-          </div>
-          <div id="outreach-today"></div>
-        </div>
-
-      </div>
-
-    </section>
-
-    <!-- ─── CLIENTS SECTION ─── -->
-    <section class="section" id="section-clients">
-      <div class="section-header">
-        <h2>Client Roster</h2>
-      </div>
-      <div class="client-cards-grid" id="client-cards-grid"></div>
-    </section>
-
-    <!-- ─── REPOSITORIES SECTION ─── -->
-    <section class="section" id="section-repos">
-      <div class="section-header">
-        <h2>GitHub Repositories</h2>
-        <a href="https://github.com/EliteProdigy1" target="_blank" class="btn-ghost">View on GitHub ↗</a>
-      </div>
-      <div class="repo-table-wrap">
-        <table class="data-table" id="repo-table">
-          <thead>
-            <tr>
-              <th>Repository</th>
-              <th>Purpose</th>
-              <th>Status</th>
-              <th>Last Commit</th>
-              <th>Branches</th>
-            </tr>
-          </thead>
-          <tbody id="repo-tbody"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- ─── DEPLOYMENTS SECTION ─── -->
-    <section class="section" id="section-deploys">
-      <div class="section-header">
-        <h2>Netlify Deployments</h2>
-        <a href="https://app.netlify.com" target="_blank" rel="noopener" class="btn-ghost">Open Netlify ↗</a>
-      </div>
-      <div class="deploy-cards" id="deploy-cards"></div>
-    </section>
-
-    <!-- ─── CALL MODE SECTION ─── -->
-    <section class="section" id="section-callmode">
-      <div class="section-header">
-        <h2>Call Mode</h2>
-        <span class="card-badge">Work the queue top to bottom</span>
-      </div>
-
-      <div class="callmode-grid">
-        <div>
-          <div class="card" style="margin-bottom:1rem;">
-            <div class="card-header"><h2 class="card-title">Call Queue</h2></div>
-            <div id="call-queue"></div>
-          </div>
-          <div class="card">
-            <div class="card-header"><h2 class="card-title">Call Log</h2></div>
-            <div id="call-log"></div>
-          </div>
-        </div>
-
-        <div>
-          <div class="card script-card" style="margin-bottom:1rem;">
-            <div class="card-header"><h2 class="card-title">Opening Script</h2></div>
-            <div class="script-body">
-              <p>"Hey, this is Jonathan with Elite Prodigy Media here on the Gulf Coast. Quick question — who handles the website for [BUSINESS]?"</p>
-              <p class="script-branch">If it's them:</p>
-              <p>"Perfect. The reason I'm calling — we build clean, professional websites for [INDUSTRY] businesses around Baldwin County. Five pages, mobile-ready, contact form, Google Maps, done in about 48 to 72 hours, for a flat $1,000. No contracts, no surprises. Would it be worth 10 minutes for me to show you what that would look like for [BUSINESS]?"</p>
-              <p class="script-branch">If they have a demo site built (the 6 prospects):</p>
-              <p>"I actually went ahead and built a full working version of your website — it's live right now and I can text you the link while we're talking. Take a look and tell me what you think."</p>
-            </div>
-          </div>
-
-          <div class="card script-card" style="margin-bottom:1rem;">
-            <div class="card-header"><h2 class="card-title">Objections</h2></div>
-            <div class="script-body">
-              <p><strong>"We already have a website."</strong><br>"Totally fair — when's the last time it brought you a customer? I'll do a free side-by-side: your current site next to what we'd build. If yours wins, no hard feelings."</p>
-              <p><strong>"That's too much money."</strong><br>"One new customer likely covers it. And there's no monthly requirement — $1,000 once, you own it."</p>
-              <p><strong>"Not right now."</strong><br>"No problem. When should I check back — a month? I'll put it on my calendar." <em>(Log as Callback.)</em></p>
-              <p><strong>"Send me something."</strong><br>"Even better — I'll text you a live link, not a brochure. What's the best number?"</p>
-            </div>
-          </div>
-
-          <div class="card script-card">
-            <div class="card-header"><h2 class="card-title">Close + Next Step</h2></div>
-            <div class="script-body">
-              <p>"To get started it's a 50% deposit — $500 — Venmo or Cash App, and I'll have your draft live in 2–3 days. One round of revisions included. Sound good?"</p>
-              <p class="script-branch">Payment: Venmo @eliteprodigy · Cash App $ELITEPRODIGYLLC</p>
-              <p class="script-branch">After every call: press the outcome button on the lead card — it updates the pipeline automatically.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ─── TASKS SECTION ─── -->
-    <section class="section" id="section-tasks">
-      <div class="section-header">
-        <h2>Task Queue</h2>
-        <button class="btn-primary" onclick="toggleForm('task-form')">+ New Task</button>
-      </div>
-      <div class="inline-form" id="task-form" style="display:none;">
-        <div class="form-grid">
-          <input id="nt-title" type="text" placeholder="Task title *">
-          <input id="nt-client" type="text" placeholder="Client (optional)">
-          <select id="nt-priority"><option value="high">High</option><option value="medium" selected>Medium</option><option value="low">Low</option></select>
-          <input id="nt-due" type="text" placeholder="Due (e.g. Jul 7)">
-        </div>
-        <div class="form-actions">
-          <button class="btn-primary" onclick="addTaskFromForm()">Add Task</button>
-          <button class="btn-ghost" onclick="toggleForm('task-form', false)">Cancel</button>
-        </div>
-      </div>
-      <div class="task-board" id="task-board"></div>
-    </section>
-
-    <!-- ─── PIPELINE SECTION ─── -->
-    <section class="section" id="section-pipeline">
-      <div class="section-header">
-        <h2>Client Pipeline</h2>
-        <button class="btn-primary" onclick="toggleForm('lead-form')">+ Add Lead</button>
-      </div>
-      <div class="inline-form" id="lead-form" style="display:none;">
-        <div class="form-grid">
-          <input id="nl-name" type="text" placeholder="Business name *">
-          <input id="nl-contact" type="text" placeholder="Contact person">
-          <input id="nl-phone" type="tel" placeholder="Phone">
-          <input id="nl-industry" type="text" placeholder="Industry (e.g. Roofing)">
-          <input id="nl-value" type="number" placeholder="Deal value $ (default 1000)">
-          <input id="nl-notes" type="text" placeholder="Notes">
-        </div>
-        <div class="form-actions">
-          <button class="btn-primary" onclick="addLeadFromForm()">Add Lead</button>
-          <button class="btn-ghost" onclick="toggleForm('lead-form', false)">Cancel</button>
-        </div>
-      </div>
-      <div class="pipeline-board" id="pipeline-board"></div>
-    </section>
-
-    <!-- ─── MAINTENANCE SECTION ─── -->
-    <section class="section" id="section-maintenance">
-      <div class="section-header">
-        <h2>Maintenance Queue</h2>
-        <span class="card-badge badge-warn">Action needed</span>
-      </div>
-      <div class="maintenance-list" id="maintenance-list"></div>
-    </section>
-
-    <!-- ─── REVENUE SECTION ─── -->
-    <section class="section" id="section-revenue">
-      <div class="section-header">
-        <h2>Revenue</h2>
-        <span class="card-badge">Computed from pipeline</span>
-      </div>
-      <div class="revenue-grid">
-        <div class="kpi-card gold">
-          <div class="kpi-label">Closed / Won</div>
-          <div class="kpi-value" id="rev-closed">—</div>
-          <div class="kpi-delta positive"><span id="rev-won">0</span> deals won</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-label">Pipeline Value</div>
-          <div class="kpi-value" id="rev-pipeline">—</div>
-          <div class="kpi-delta neutral"><span id="rev-leads">0</span> active leads</div>
-        </div>
-      </div>
-      <div class="card" style="margin-top:1.5rem;">
-        <div class="card-header"><h2 class="card-title">Package Pricing (quote from this)</h2></div>
-        <div id="pricing-list"></div>
-        <div class="card-header" style="margin-top:18px;"><h2 class="card-title">Target Industries</h2></div>
-        <div class="ai-tool-tags" id="industry-chips" style="padding:0 0 6px;"></div>
-      </div>
-    </section>
-
-    <!-- ─── AI TOOLS SECTION ─── -->
-    <section class="section" id="section-ai-tools">
-      <div class="section-header">
-        <h2>AI Tool Stack</h2>
-      </div>
-      <div class="ai-tools-grid" id="ai-tools-grid"></div>
-    </section>
-
-    <!-- ─── ASSETS SECTION ─── -->
-    <section class="section" id="section-assets">
-      <div class="section-header">
-        <h2>Asset Library</h2>
-      </div>
-      <div class="asset-filters">
-        <button class="filter-btn active" data-filter="all">All</button>
-        <button class="filter-btn" data-filter="logo">Logos</button>
-        <button class="filter-btn" data-filter="photo">Photos</button>
-        <button class="filter-btn" data-filter="doc">Docs</button>
-      </div>
-      <div class="asset-grid" id="asset-grid"></div>
-    </section>
-
-  </main>
-
-  <!-- MOBILE OVERLAY -->
-  <div class="sidebar-overlay" id="sidebar-overlay"></div>
-
-  <script src="app.js"></script>
+      if (val.length === 3) {
+        if (val === CODE) {
+          unlock.classList.add('show');
+          document.body.style.pointerEvents = 'none';
+          setTimeout(() => { window.location.href = 'dashboard.html'; }, 1600);
+        } else {
+          errEl.classList.add('show');
+          setTimeout(() => {
+            input.value = '';
+            dots.forEach(d => d.classList.remove('filled'));
+            errEl.classList.remove('show');
+            focusInput();
+          }, 1200);
+        }
+      }
+    });
+  </script>
 </body>
 </html>
