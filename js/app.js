@@ -652,6 +652,15 @@ function logCall(id, outcome) {
     if (l.stage === 'Lead') l.stage = 'Contacted';
     l.next = 'Try again';
   }
+  // Notion is the source of truth: write the call note + update the prospect.
+  if (window.EPIntake) {
+    EPIntake.callNote({ business: l.name, outcome: outcome, notes: l.notes || '', nextFollowUp: outcome === 'Callback' ? (l.next || '') : '', agent: 'Human', source: 'Typed' })
+      .then(res => { if (res && res.ok) toast('Call note → Notion ✓'); });
+  }
+  if (window.notionService && l.notionId) {
+    const st = outcome === 'Not Interested' ? 'Lost' : outcome === 'Interested' ? 'Interested' : 'Contacted';
+    notionService.updateProspect(l.notionId, { status: st, note: 'Call: ' + outcome, nextFollowUp: outcome === 'Callback' ? (l.next || '') : undefined });
+  }
   save();
 }
 
@@ -733,6 +742,14 @@ function addProspect() {
   ['pf-name', 'pf-industry', 'pf-location', 'pf-phone', 'pf-notes'].forEach(i => document.getElementById(i).value = '');
   toggleForm('prospect-form', false);
   save();
+  // Write through to Notion (source of truth) and keep the page id.
+  const rec = S.prospects[0];
+  if (window.notionService && notionService.createProspect) {
+    notionService.createProspect(rec).then(res => {
+      if (res && res.ok) { rec.notionId = res.id || ''; rec.notionUrl = res.url || ''; toast('“' + rec.businessName + '” saved to Notion ✓'); save(); }
+      else { toast('“' + rec.businessName + '” added · Notion: ' + ((res && res.reason) || 'not saved'), true); }
+    });
+  }
 }
 
 function scoreBar(label, val) {
@@ -887,7 +904,7 @@ function promoteProspect(id) {
     id: uid(), name: p.businessName, contact: p.contactName || '', phone: p.phone || '',
     industry: p.industry, value: 1000, stage: 'Lead',
     notes: (p.websiteStatus ? p.websiteStatus + '. ' : '') + (p.recommendedAction || ''),
-    next: 'First call',
+    next: 'First call', notionId: p.notionId || '', // carry the Notion page so calls write back
   });
   p.pipelineStatus = 'Contacted';
   save();
@@ -1155,7 +1172,7 @@ async function addCandidateToProspects(id) {
   // Auto-create the Notion CRM record — no re-entry. Non-blocking.
   if (window.notionService && notionService.createProspect) {
     notionService.createProspect(record).then(res => {
-      if (res && res.ok) { record.notionUrl = res.url || ''; toast('“' + record.businessName + '” saved to Notion CRM ✓'); save(); }
+      if (res && res.ok) { record.notionId = res.id || ''; record.notionUrl = res.url || ''; toast('“' + record.businessName + '” saved to Notion CRM ✓'); save(); }
       else { toast('“' + record.businessName + '” added · Notion: ' + ((res && res.reason) || 'not saved'), true); }
     });
   }

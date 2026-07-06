@@ -82,6 +82,21 @@
     }
   }
 
+  // Single Notion write primitive. db → ?db= route, action → create|update.
+  // Always resolves (never throws) to { ok, ... } so the UI can confirm.
+  function writeNotion(db, action, payload) {
+    return fetch(ENDPOINT + '?db=' + encodeURIComponent(db) + '&action=' + encodeURIComponent(action), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(payload || {}),
+    }).then(function (res) {
+      if (res.status === 501) return { ok: false, reason: 'Notion not configured' };
+      return res.json().then(function (d) {
+        return res.ok ? Object.assign({ ok: true }, d) : { ok: false, reason: (d && (d.detail || d.error)) || ('HTTP ' + res.status) };
+      }).catch(function () { return { ok: false, reason: 'HTTP ' + res.status }; });
+    }).catch(function (e) { return { ok: false, reason: String(e && e.message || e) }; });
+  }
+
   window.notionService = {
     status: STATUS,
     sourceLabels: SOURCE_LABELS,
@@ -94,21 +109,23 @@
     getRevenue:             function () { return fetchDB('revenue'); },
     getWebsiteIntelligence: function () { return fetchDB('website'); },
 
-    // Create a CRM record from an enriched prospect (Sprint 6). Resolves to
-    // { ok, url } on success, or { ok:false, reason } if Notion isn't wired —
-    // the local prospect is kept either way, so nothing is ever lost.
-    createProspect: function (record) {
-      return fetch(ENDPOINT + '?db=prospects&action=create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify({ record: record }),
-      }).then(function (res) {
-        if (res.status === 501) return { ok: false, reason: 'Notion not configured — saved locally only' };
-        return res.json().then(function (d) {
-          return res.ok ? { ok: true, url: d.url, id: d.id } : { ok: false, reason: (d && (d.detail || d.error)) || ('HTTP ' + res.status) };
-        });
-      }).catch(function (e) { return { ok: false, reason: String(e && e.message || e) }; });
-    },
+    // ── ONE reusable write layer (Sprint 5A) ────────────────────────
+    // Every Notion write goes through writeNotion(). It resolves to
+    // { ok:true, ... } or { ok:false, reason } so callers can show a
+    // visible success/failure confirmation. No duplicated Notion code.
+    write: writeNotion,
+
+    // Thin, named helpers on top of the single writer — the whole app uses
+    // these, never raw fetch. Records are plain objects, so a future
+    // "Talk to Junior" voice feature can build the same object and call the
+    // same helper with zero backend changes.
+    createProspect:      function (record) { return writeNotion('prospects', 'create', { record: record }); },
+    updateProspect:      function (pageId, patch) { return pageId ? writeNotion('prospects', 'update', { pageId: pageId, patch: patch || {} }) : Promise.resolve({ ok: false, reason: 'no notion id' }); },
+    createCallNote:      function (record) { return writeNotion('callnotes', 'create', { record: record }); },
+    createMeeting:       function (record) { return writeNotion('meetings', 'create', { record: record }); },
+    createWebsiteProject:function (record) { return writeNotion('projects', 'create', { record: record }); },
+    updateProjectStatus: function (pageId, patch) { return pageId ? writeNotion('projects', 'update', { pageId: pageId, patch: (typeof patch === 'string' ? { stage: patch, status: patch } : (patch || {})) }) : Promise.resolve({ ok: false, reason: 'no notion id' }); },
+    appendTimelineEvent: function (pageId, text, db) { return pageId ? writeNotion(db || 'prospects', 'update', { pageId: pageId, patch: { note: text } }) : Promise.resolve({ ok: false, reason: 'no notion id' }); },
 
     // Roll up per-source status into one indicator for the topbar.
     overall: function () {

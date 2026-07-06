@@ -41,6 +41,8 @@ const DB_ENV = {
   ai:        ['NOTION_DATABASE_AI_WORKFORCE', 'NOTION_DATABASE_AI'],
   revenue:   ['NOTION_DATABASE_REVENUE'],
   website:   ['NOTION_DATABASE_WEBSITE', 'NOTION_DATABASE_PROSPECTS'],
+  callnotes: ['NOTION_DATABASE_CALLNOTES'],
+  meetings:  ['NOTION_DATABASE_MEETINGS'],
 };
 
 // First env var in the list that has a value, else '' (keeping the primary
@@ -203,6 +205,22 @@ const MAPPERS = { prospects: mapProspect, projects: mapProject, tasks: mapTask, 
 // Only real columns are set; extras (socials, GBP, address, logo, photo URLs)
 // are packed into Notes so no data is lost even without dedicated columns.
 const LEAD_SOURCE_OK = { Firecrawl: 1, Apollo: 1, Referral: 1, Manual: 1, 'Cold Outreach': 1 };
+// Prospects "Status" is a status-type column with fixed options (Not started /
+// In progress / Done). Map the dashboard's pipeline stage onto one of those.
+function mapPipelineToNotionStatus(stage) {
+  var s = String(stage || '').toLowerCase();
+  if (/(won)/.test(s)) return 'Done';
+  if (/(not fit|lost)/.test(s)) return 'Done';
+  if (/(new prospect|needs research)/.test(s)) return 'Not started';
+  return 'In progress'; // audit / concept / contacted / follow-up / proposal
+}
+// Freeform follow-up text → ISO date if we can parse it, else '' (folded to note).
+function toISODate(str) {
+  var s = String(str || '').trim();
+  if (!s || /^(tbd|tomorrow|next week|this week)$/i.test(s)) return '';
+  var d = new Date(/\d{4}/.test(s) ? s : s + ' ' + new Date().getFullYear());
+  return isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10);
+}
 function notesBlock(r) {
   var lines = [];
   if (r.address) lines.push('Address: ' + r.address);
@@ -238,6 +256,51 @@ function buildProspectProperties(r) {
   if (notes) p['Notes'] = { rich_text: [{ text: { content: notes.slice(0, 1900) } }] };
   return p;
 }
+function rt(v) { return v ? { rich_text: [{ text: { content: String(v).slice(0, 1900) } }] } : undefined; }
+function ti(v) { return { title: [{ text: { content: String(v || 'Untitled').slice(0, 200) } }] }; }
+function sel(v) { return v ? { select: { name: String(v).slice(0, 100) } } : undefined; }
+function dt(v, dflt) { var iso = toISODate(v); return (iso || dflt) ? { date: { start: iso || dflt } } : undefined; }
+function strip(p) { Object.keys(p).forEach(function (k) { if (p[k] === undefined) delete p[k]; }); return p; }
+
+// Call Notes DB — every call outcome + note.
+function buildCallNoteProperties(r) {
+  var today = new Date().toISOString().slice(0, 10);
+  return strip({
+    'Name': ti(r.title || ('Call — ' + (r.business || 'prospect') + ' · ' + (r.date || today))),
+    'Business': rt(r.business),
+    'Outcome': sel(r.outcome),
+    'Notes': rt(r.notes),
+    'Date': dt(r.date, today),
+    'Next Follow Up': dt(r.nextFollowUp, ''),
+    'Agent': sel(r.agent || 'Human'),
+    'Source': sel(r.source || 'Typed'),
+  });
+}
+// Meetings DB — typed today; voice ("Talk to Junior") later, same shape.
+function buildMeetingProperties(r) {
+  var today = new Date().toISOString().slice(0, 10);
+  return strip({
+    'Name': ti(r.title || 'Meeting'),
+    'With': rt(r.with),
+    'Date': dt(r.date, today),
+    'Attendees': rt(r.attendees),
+    'Type': sel(r.type),
+    'Notes': rt(r.notes),
+    'Source': sel(r.source || 'Typed'),
+  });
+}
+// Projects DB — website projects.
+function buildProjectProperties(r) {
+  var domain = r.site || r.domain || '';
+  return strip({
+    'Client': ti(r.name || r.client),
+    'Stage': sel(r.stage || 'Discovery'),
+    'Status': { status: { name: 'Not started' } },
+    'Domain': domain ? { url: (/^https?:/i.test(domain) ? domain : 'https://' + domain) } : undefined,
+    'Notes': rt(r.notes),
+  });
+}
+const CREATE_BUILDERS = { prospects: buildProspectProperties, callnotes: buildCallNoteProperties, meetings: buildMeetingProperties, projects: buildProjectProperties };
 
 exports.handler = async function (event) {
   const db = (event.queryStringParameters && event.queryStringParameters.db) || '';
@@ -259,19 +322,66 @@ exports.handler = async function (event) {
     });
   }
 
-  // CREATE a CRM record (enriched prospect → Notion page). No data re-entry.
+  // UPDATE a prospect's Notion page — call notes, follow-ups, status, scores.
+  // This is how "call notes write to Notion" keeps Notion the source of truth.
+  if (action === 'update') {
+    let body = {};
+    try { body = JSON.parse(event.body || '{}'); } catch (e) { return json(400, { error: 'Bad JSON body' }); }
+    const pageId = body.pageId;
+    const patch = body.patch || {};
+    if (!pageId) return json(400, { error: 'pageId required' });
+    const authH = { 'Authorization': 'Bearer ' + key, 'Notion-Version': NOTION_VERSION, 'Content-Type': 'application/json' };
+    try {
+      const props = {};
+      if (patch.status) { const s = mapPipelineToNotionStatus(patch.status); if (s) props['Status'] = { status: { name: s } }; }
+      if (patch.stage) props['Stage'] = { select: { name: String(patch.stage).slice(0, 100) } }; // Projects DB
+      if (typeof patch.websiteScore === 'number') props['Website Score'] = { number: patch.websiteScore };
+      if (typeof patch.opportunityScore === 'number') props['Opportunity Score'] = { number: patch.opportunityScore };
+      if (patch.phone) props['Phone'] = { phone_number: String(patch.phone) };
+      if (patch.email) props['Email'] = { email: String(patch.email) };
+      // Follow-up: set the date if parseable; otherwise fold it into the note.
+      let noteExtra = '';
+      if (patch.nextFollowUp) {
+        const iso = toISODate(patch.nextFollowUp);
+        if (iso) props['Next Follow Up'] = { date: { start: iso } };
+        else noteExtra = 'Follow-up: ' + patch.nextFollowUp;
+      }
+      // Append a note to the existing Notes (read-then-write preserves history).
+      const noteText = [patch.note, noteExtra].filter(Boolean).join(' · ');
+      if (noteText) {
+        let existing = '';
+        try {
+          const g = await fetch('https://api.notion.com/v1/pages/' + pageId, { headers: authH });
+          if (g.ok) { const pg = await g.json(); existing = readText((pg.properties || {})['Notes']) || ''; }
+        } catch (e) { /* keep going with just the new note */ }
+        const stamp = new Date().toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+        const combined = (existing ? existing + '\n' : '') + '[' + stamp + '] ' + noteText;
+        props['Notes'] = { rich_text: [{ text: { content: combined.slice(-1900) } }] };
+      }
+      if (!Object.keys(props).length) return json(200, { ok: true, noop: true });
+      const res = await fetch('https://api.notion.com/v1/pages/' + pageId, { method: 'PATCH', headers: authH, body: JSON.stringify({ properties: props }) });
+      const text = await res.text();
+      if (!res.ok) return json(502, { error: 'Notion update failed', status: res.status, detail: text.slice(0, 400) });
+      return json(200, { ok: true, id: pageId });
+    } catch (e) {
+      return json(502, { error: 'Notion update request failed', detail: String(e && e.message || e).slice(0, 300) });
+    }
+  }
+
+  // CREATE a record in any writable DB (prospects/callnotes/meetings/projects).
   if (action === 'create') {
     let record = {};
     try { record = JSON.parse(event.body || '{}').record || {}; } catch (e) { return json(400, { error: 'Bad JSON body' }); }
-    if (!record.businessName) return json(400, { error: 'record.businessName required' });
+    const builder = CREATE_BUILDERS[db];
+    if (!builder) return json(400, { error: 'No create builder for db "' + db + '"' });
     try {
       const res = await fetch('https://api.notion.com/v1/pages', {
         method: 'POST',
         headers: { 'Authorization': 'Bearer ' + key, 'Notion-Version': NOTION_VERSION, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ parent: { database_id: dbId }, properties: buildProspectProperties(record) }),
+        body: JSON.stringify({ parent: { database_id: dbId }, properties: builder(record) }),
       });
       const text = await res.text();
-      if (!res.ok) return json(502, { error: 'Notion create failed', status: res.status, detail: text.slice(0, 400) });
+      if (!res.ok) return json(502, { error: 'Notion create failed', db, status: res.status, detail: text.slice(0, 400) });
       const page = JSON.parse(text);
       return json(200, { ok: true, id: page.id, url: page.url });
     } catch (e) {

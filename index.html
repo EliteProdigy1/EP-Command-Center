@@ -96,6 +96,9 @@
         </div>
       </div>
       <div class="top-actions">
+        <button class="btn btn-gold btn-sm" title="Quick add a prospect straight to Notion" onclick="openQuickAddProspect()">＋ Prospect</button>
+        <button class="btn btn-ghost btn-sm" title="Save meeting notes to Notion" onclick="openMeetingNotes()">🗓 Meeting</button>
+        <button class="btn btn-ghost btn-sm" title="Pull the latest from Notion" onclick="syncFromNotion()">⟳ Sync</button>
         <button class="btn btn-ghost btn-sm" id="data-status-pill" title="Data source status — click for details" onclick="goSection('datastatus')"><span class="ds-dot" id="ds-dot"></span> <span id="ds-label">Data</span></button>
         <button class="btn btn-ghost btn-sm" id="btn-focus" title="Dim everything that isn't urgent">◐ Focus</button>
         <button class="btn btn-ghost btn-sm" id="btn-export" title="Download JSON backup of your working data">⬇ Backup</button>
@@ -386,5 +389,6 @@
 <script src="js/sales-agent.js"></script>
 <script src="services/notion.js"></script>
 <script src="services/firecrawl.js"></script>
+<script src="js/notion-io.js"></script>
 </body>
 </html>

@@ -167,6 +167,22 @@ Notion CRM record** with all enriched data + asset URLs (no manual re-entry), an
 **Website Intelligence** leads with a Contact & Presence block and feeds the real
 assets into the Claude Code export. See `docs/SPRINT-6-DISCOVERY-QUALITY-CRM.md`.
 
+## Sprint 5A — Notion as the Single Source of Truth
+Notion is the master database: the dashboard reads on open and writes back on
+every change. One reusable write layer (`writeNotion` in `services/notion.js`)
+backs all helpers — `createProspect`, `updateProspect`, `createCallNote`,
+`createMeeting`, `createWebsiteProject`, `updateProjectStatus`,
+`appendTimelineEvent` — each returning `{ok}` with a visible toast. Topbar adds
+**＋ Prospect** (Quick Add modal → Notion, no reload), **🗓 Meeting** (Meeting
+Notes modal), and **⟳ Sync**. Call Mode outcomes write a Call Note + update the
+prospect. All writes flow through `window.EPIntake.*`, so a future voice feature
+submits the same records with zero backend change.
+
+**Add two Netlify env vars** (new databases, created under EP OPERATING SYSTEM):
+`NOTION_DATABASE_CALLNOTES=cfb42da5a0c04ae88a4ab1b24a8776ad` and
+`NOTION_DATABASE_MEETINGS=10d1b652f19b418d9e9a6e0fc0c5b510`, then redeploy.
+See `docs/SPRINT-5A-NOTION-SOURCE-OF-TRUTH.md`.
+
 ## Security
 - The **251 passcode gate** (js/gate.js) is obscurity, not security — it keeps
   casual eyes out but is trivially bypassed. Treat this dashboard as public.
