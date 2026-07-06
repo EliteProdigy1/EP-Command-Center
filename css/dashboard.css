@@ -410,3 +410,39 @@ body.focus .mc-card:not(.urgent) { opacity: 0.35; filter: saturate(0.5); }
 .ds-yellow { background: var(--yellow); box-shadow: 0 0 8px rgba(250,204,21,0.5); }
 .ds-red    { background: var(--red);    box-shadow: 0 0 8px rgba(248,113,113,0.5); }
 #data-status-pill { gap: 6px; }
+
+/* ═══════════════════════════════════════════════════════════════
+   SPRINT 3 — PROSPECT DISCOVERY (Firecrawl Intelligence, mock/test)
+═══════════════════════════════════════════════════════════════ */
+.disc-bar {
+  display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap;
+}
+.disc-field { display: flex; flex-direction: column; gap: 4px; }
+.disc-field span {
+  font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3);
+}
+.disc-field select {
+  min-width: 170px; padding: 9px 11px; background: var(--panel-strong);
+  border: 1px solid var(--hairline); border-radius: 9px; color: var(--text);
+  font-family: var(--sans); font-size: 13px;
+}
+.disc-card {
+  border: 1px solid var(--hairline); border-radius: 12px; padding: 15px 16px;
+  margin-bottom: 11px; background: var(--panel); transition: border-color 0.25s var(--ease);
+}
+.disc-card:hover { border-color: var(--gold-dim); }
+.disc-card.no-site { border-left: 2px solid var(--gold); }
+.disc-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.disc-name { font-family: var(--serif); font-size: 16px; color: var(--text); }
+.disc-sub { font-size: 11.5px; color: var(--text-3); margin-top: 3px; }
+.disc-signal { font-size: 12.5px; color: var(--text-2); margin-top: 8px; line-height: 1.5; }
+.disc-audit {
+  margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--hairline);
+}
+.disc-scorerow {
+  display: flex; gap: 12px; flex-wrap: wrap; align-items: center;
+  font-size: 11.5px; color: var(--text-2); font-variant-numeric: tabular-nums; margin: 4px 0 8px;
+}
+.disc-findings { margin: 0; padding-left: 18px; }
+.disc-findings li { font-size: 12px; color: var(--text-2); line-height: 1.6; }
+.disc-acts { display: flex; gap: 9px; align-items: center; flex-wrap: wrap; margin-top: 12px; }

@@ -10,9 +10,11 @@ css/dashboard.css        — cinematic design system (black/gold/glass/grain)
 js/app.js                — mockData + module registry + all render functions
 js/gate.js               — 251 passcode gate (obscurity, not security)
 services/notion.js       — data service: reads through Notion, falls back to mockData
-netlify/functions/notion.js — serverless Notion proxy (keeps the API key server-side)
+services/firecrawl.js    — discovery service: prospect search + audits (mock until live)
+netlify/functions/notion.js    — serverless Notion proxy (keeps the API key server-side)
+netlify/functions/firecrawl.js — serverless Firecrawl proxy (mock-gated; no live calls by default)
 .env.example             — environment variable template (names only, no secrets)
-docs/                    — as-built spec + Phase 2 API plan + Sprint 1/2 notes
+docs/                    — as-built spec + Phase 2 API plan + Sprint 1/2/3 notes
 assets/                  — images/icons/video (reserved)
 ```
 
@@ -120,6 +122,20 @@ if you rename a column:
 audits) and **Apollo** (contact enrichment). Same pattern — a Netlify Function
 holds the key, a getter is added, render code stays the same. `FIRECRAWL_API_KEY`
 and `APOLLO_API_KEY` are placeholders only; nothing calls them yet.
+
+## Sprint 3 — Firecrawl Intelligence (prospect pool, MOCK/TEST)
+Sidebar → **Prospect Discovery**. Runs the pipeline **Discover → Website
+Intelligence → Opportunity Score → Prospects → Call Queue**, no-website
+businesses first. Press **Run Discovery (test)**, **Run Website Intelligence**
+on a candidate, then **Add to Prospects** — the **Call Queue** ranks everything
+hottest-first with tap-to-dial.
+
+**Mock/test only — no live calls, credits, enrichment, or messaging.** The
+Netlify Function returns 501 (frontend uses `mockData.discoveryPool`) unless
+**both** `FIRECRAWL_API_KEY` and `FIRECRAWL_LIVE=true` are set. To go live:
+set those two env vars, uncomment the capped live blocks in
+`netlify/functions/firecrawl.js`, and redeploy — the UI and scoring do not
+change. See `docs/SPRINT-3-FIRECRAWL-INTELLIGENCE.md`.
 
 ## Security
 - The **251 passcode gate** (js/gate.js) is obscurity, not security — it keeps

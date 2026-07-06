@@ -298,6 +298,31 @@ const mockData = {
     { name: 'Zapier → CRM sync',             status: 'Planned',   lastRun: '—',       note: 'Push qualified prospects into HighLevel' },
     { name: 'Netlify form → Gmail',          status: 'Connected', lastRun: 'Live',    note: 'Client-site inquiries already flow to the inbox' },
   ],
+
+  /* ═══════════════════════════════════════════════════════════════
+     SPRINT 3 — FIRECRAWL INTELLIGENCE  (discovery pool — MOCK/TEST)
+     Pipeline: Discover → Website Intelligence → Opportunity Score →
+               Prospects → Call Queue.  No-website businesses first.
+     This pool is what a Firecrawl / Google / Yelp search WOULD return.
+     services/firecrawl.js reads it in mock mode; the Netlify Function
+     replaces it with live results only when FIRECRAWL_LIVE=true.
+  ═══════════════════════════════════════════════════════════════ */
+  discoveryPool: [
+    // ── No-website businesses (highest opportunity — EP's core offer) ──
+    { id: 'd1', businessName: 'Gulf Breeze Mobile Detailing', industry: 'Auto Detailing',  location: 'Gulf Shores, AL',  source: 'Google', hasWebsite: false, websiteUrl: '', phone: '', rating: 4.9, reviews: 62, signal: 'Booked solid off Instagram DMs, zero website' },
+    { id: 'd2', businessName: 'Coastal Kut Lawn Care',        industry: 'Landscaping',      location: 'Foley, AL',        source: 'Yelp',   hasWebsite: false, websiteUrl: '', phone: '', rating: 4.7, reviews: 28, signal: 'Facebook page only — same industry as Azalea & Warren demos' },
+    { id: 'd3', businessName: 'Bama Coast Pressure Washing',  industry: 'Pressure Washing', location: 'Orange Beach, AL', source: 'Firecrawl', hasWebsite: false, websiteUrl: '', phone: '', rating: 4.8, reviews: 41, signal: 'No site at all, strong reviews — instant SiteDrop concept' },
+    { id: 'd4', businessName: 'Sweet Bay Fish Co.',           industry: 'Restaurant',       location: 'Fairhope, AL',     source: 'Google', hasWebsite: false, websiteUrl: '', phone: '', rating: 4.6, reviews: 90, signal: 'Menu lives in Facebook photos — no real site' },
+    { id: 'd5', businessName: 'Reel Time Inshore Charters',   industry: 'Fishing Charter',  location: 'Dauphin Island, AL', source: 'Yelp', hasWebsite: false, websiteUrl: '', phone: '', rating: 5.0, reviews: 34, signal: 'Books trips by phone/DM only — needs a booking site' },
+    { id: 'd6', businessName: 'Faith & Fades Barber Studio',  industry: 'Barber / Studio',  location: 'Daphne, AL',       source: 'Google', hasWebsite: false, websiteUrl: '', phone: '', rating: 4.9, reviews: 55, signal: 'No online booking, no site — appointment chaos' },
+    // ── Weak / outdated sites (still strong opportunity) ──
+    { id: 'd7', businessName: 'Baldwin Breeze HVAC',          industry: 'HVAC',             location: 'Robertsdale, AL',  source: 'Firecrawl', hasWebsite: true, websiteUrl: 'baldwinbreezehvac.com', siteQuality: 'outdated', phone: '', rating: 4.4, reviews: 47, signal: 'Site is ~2015, not mobile — busy season now' },
+    { id: 'd8', businessName: 'Eastern Shore Roofing Pros',   industry: 'Roofing',          location: 'Spanish Fort, AL', source: 'Google', hasWebsite: true, websiteUrl: 'esroofingpros.com', siteQuality: 'weak', phone: '', rating: 4.5, reviews: 33, signal: 'Generic template, weak CTA — before/after pitch' },
+    { id: 'd9', businessName: 'Magnolia Nail Bar',            industry: 'Beauty / Studio',  location: 'Fairhope, AL',     source: 'Yelp',   hasWebsite: true, websiteUrl: 'magnolianailbar.square.site', siteQuality: 'weak', phone: '', rating: 4.7, reviews: 71, signal: 'Running on a generic Square page — needs branding' },
+    { id: 'd10', businessName: 'Perdido Key Kayak Rentals',   industry: 'Recreation',       location: 'Perdido Key, AL',  source: 'Firecrawl', hasWebsite: true, websiteUrl: 'perdidokayaks.net', siteQuality: 'outdated', phone: '', rating: 4.6, reviews: 52, signal: 'Slow, dated site — no online reservations' },
+    // ── Already-strong site (low priority — proves scoring works) ──
+    { id: 'd11', businessName: 'Bay Area Dental Group',       industry: 'Medical / Wellness', location: 'Daphne, AL',     source: 'Google', hasWebsite: true, websiteUrl: 'bayareadentalgroup.com', siteQuality: 'ok', phone: '', rating: 4.8, reviews: 210, signal: 'Solid site already — growth-plan fit only' },
+  ],
 };
 
 /* ═══ MODULE REGISTRY — Mission Control renders every enabled module ═══ */
@@ -305,6 +330,7 @@ const dashboardModules = [
   { id: 'priorities',        title: 'Priority Queue',      enabled: true, size: 'large',  section: 'tasks',        summary: sumPriorities },
   { id: 'callmode',          title: 'Call Mode',           enabled: true, size: 'large',  section: 'callmode',     summary: sumCallMode, urgent: true },
   { id: 'intelligence',      title: 'Intelligence Center', enabled: true, size: 'large',  section: 'intelligence', summary: sumIntelligence, urgent: true },
+  { id: 'prospect-discovery', title: 'Prospect Discovery', enabled: true, size: 'large',  section: 'discovery',    summary: sumDiscovery, urgent: true },
   { id: 'potential-clients', title: 'Potential Clients',   enabled: true, size: 'large',  section: 'prospects',    summary: sumProspects, urgent: true },
   { id: 'opportunity-scoring', title: 'Opportunity Scoring', enabled: true, size: 'medium', section: 'intelligence', summary: sumScoring },
   { id: 'lead-source-tracker', title: 'Lead Source Tracker', enabled: true, size: 'medium', section: 'intelligence', summary: sumSources },
@@ -438,6 +464,10 @@ function sumIntelligence() {
 }
 function sumScoring() {
   return `<div class="mc-list">Lower web score = bigger opportunity. Bands: <b>High</b> ≤45 · <b>Medium</b> ≤65 · <b>Low</b> >65.</div>`;
+}
+function sumDiscovery() {
+  const noSite = (mockData.discoveryPool || []).filter(b => !b.hasWebsite).length;
+  return `<div class="mc-big">${(mockData.discoveryPool || []).length}</div><div class="mc-list"><b>${noSite}</b> no-website businesses ready to discover &amp; score · <span style="color:var(--yellow);">mock mode</span></div>`;
 }
 function sumSources() {
   return `<div class="mc-big">${mockData.leadSources.length}</div><div class="mc-list">lead sources · Firecrawl, Google Maps, Apollo, manual</div>`;
@@ -935,6 +965,174 @@ function renderIntelligenceCenter() {
   }
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   SPRINT 3 — FIRECRAWL INTELLIGENCE (prospect-pool pipeline · MOCK)
+   Discover → Website Intelligence → Opportunity Score → Prospects →
+   Call Queue.  No-website businesses first. Runs on mock data via
+   services/firecrawl.js until FIRECRAWL_LIVE=true. No live enrichment
+   or messaging happens here.
+═══════════════════════════════════════════════════════════════ */
+
+// One rubric for the whole dashboard: audit signals → opportunity.
+// Lower overall score = bigger opportunity for EP Media.
+function computeOpportunity(audit) {
+  if (!audit || audit.hasWebsite === false) {
+    return { overall: 10, level: 'High', cls: 'good', websiteStatus: 'No website found' };
+  }
+  const overall = Math.round((audit.mobile || 0) * 0.35 + (audit.seo || 0) * 0.30 + (audit.design || 0) * 0.35);
+  const band = opportunityBand(overall); // High ≤45 · Medium ≤65 · Low >65
+  const status = overall < 45 ? 'Poor website' : overall < 65 ? 'Outdated website' : 'Good website / low priority';
+  return { overall, level: band.level, cls: band.cls, websiteStatus: status };
+}
+
+let discoveryResults = [];
+const discoveryPicker = { industry: 'All', location: 'All' };
+
+function discoveryEngineLabel() {
+  const svc = window.firecrawlService;
+  if (svc && svc.status && svc.status.discover === 'connected') return '<span class="badge b-good">LIVE — Firecrawl</span>';
+  return '<span class="badge b-warn">MOCK MODE — test data, no live calls</span>';
+}
+
+function renderDiscoveryControls() {
+  const el = document.getElementById('discovery-controls');
+  if (!el) return;
+  const inds = ['All', ...Array.from(new Set((mockData.discoveryPool || []).map(b => b.industry)))];
+  const locs = ['All', ...Array.from(new Set((mockData.discoveryPool || []).map(b => b.location)))];
+  el.innerHTML = `
+    <div class="disc-bar">
+      <label class="disc-field"><span>Industry</span>
+        <select id="disc-industry" onchange="discoveryPicker.industry=this.value">${inds.map(i => `<option ${i === discoveryPicker.industry ? 'selected' : ''}>${esc(i)}</option>`).join('')}</select>
+      </label>
+      <label class="disc-field"><span>Location</span>
+        <select id="disc-location" onchange="discoveryPicker.location=this.value">${locs.map(l => `<option ${l === discoveryPicker.location ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select>
+      </label>
+      <button class="btn btn-gold" onclick="runDiscovery()">⌕ Run Discovery <span style="opacity:.7;">(test)</span></button>
+      <span style="margin-left:auto;">${discoveryEngineLabel()}</span>
+    </div>`;
+}
+
+async function runDiscovery() {
+  const el = document.getElementById('discovery-results');
+  if (el) el.innerHTML = '<div class="empty">Searching ' + esc(discoveryPicker.industry) + ' in ' + esc(discoveryPicker.location) + '…</div>';
+  const svc = window.firecrawlService;
+  let candidates = [];
+  try {
+    candidates = svc ? await svc.discover(discoveryPicker.industry, discoveryPicker.location) : [];
+  } catch (e) { candidates = []; }
+  // Attach live-run state (audit + added) without mutating the source pool.
+  discoveryResults = candidates.map(c => Object.assign({}, c, { audit: null, added: false }));
+  renderDiscoveryControls();
+  renderDiscovery();
+}
+
+function renderDiscovery() {
+  const el = document.getElementById('discovery-results');
+  if (!el) return;
+  if (!discoveryResults.length) {
+    el.innerHTML = '<div class="empty">Pick an industry + location and press <b>Run Discovery</b>. No-website businesses surface first — those are the strongest opportunities.</div>';
+    renderCallQueue();
+    return;
+  }
+  el.innerHTML = discoveryResults.map(c => {
+    const a = c.audit;
+    const opp = a ? computeOpportunity(a) : null;
+    const inProspects = S.prospects.some(p => p.businessName === c.businessName);
+    return `
+      <div class="disc-card ${!c.hasWebsite ? 'no-site' : ''}">
+        <div class="disc-top">
+          <div>
+            <div class="disc-name">${esc(c.businessName)}</div>
+            <div class="disc-sub">${esc(c.industry)} · ${esc(c.location)} · via ${esc(c.source)} · ★ ${c.rating || '—'} (${c.reviews || 0})</div>
+          </div>
+          ${c.hasWebsite
+            ? `<span class="badge b-info">Has site</span>`
+            : `<span class="badge b-gold">NO WEBSITE</span>`}
+        </div>
+        <div class="disc-signal">${esc(c.signal)}</div>
+        ${a ? `
+          <div class="disc-audit">
+            ${scoreBar('Overall opportunity score', opp.overall)}
+            <div class="disc-scorerow">
+              <span>Grade <b>${esc(a.grade)}</b></span>
+              <span>Mobile ${a.mobile}</span>
+              <span>SEO ${a.seo}</span>
+              <span>Design ${a.design}</span>
+              ${badge(opp.level)}
+            </div>
+            <ul class="disc-findings">${a.findings.map(f => '<li>' + esc(f) + '</li>').join('')}</ul>
+          </div>` : ''}
+        <div class="disc-acts">
+          ${!a ? `<button class="btn btn-ghost btn-sm" onclick="auditCandidate('${c.id}')">◍ Run Website Intelligence</button>` : ''}
+          ${inProspects
+            ? `<span class="badge b-good">✓ In Prospects</span>`
+            : `<button class="btn btn-gold btn-sm" onclick="addCandidateToProspects('${c.id}')">→ Add to Prospects</button>`}
+        </div>
+      </div>`;
+  }).join('');
+  renderCallQueue();
+}
+
+async function auditCandidate(id) {
+  const c = discoveryResults.find(x => x.id === id);
+  if (!c) return;
+  const svc = window.firecrawlService;
+  c.audit = svc ? await svc.audit(c) : null;
+  renderDiscovery();
+}
+
+async function addCandidateToProspects(id) {
+  const c = discoveryResults.find(x => x.id === id);
+  if (!c) return;
+  if (!c.audit) { c.audit = window.firecrawlService ? await window.firecrawlService.audit(c) : null; }
+  const opp = computeOpportunity(c.audit);
+  if (S.prospects.some(p => p.businessName === c.businessName)) { renderDiscovery(); return; }
+  S.prospects.unshift({
+    id: uid(), businessName: c.businessName, industry: c.industry, location: c.location,
+    websiteUrl: c.websiteUrl || '', websiteStatus: opp.websiteStatus,
+    websiteScore: opp.overall,
+    mobileScore: c.audit ? (c.audit.mobile || 0) : 0,
+    seoScore: c.audit ? (c.audit.seo || 0) : 0,
+    designScore: c.audit ? (c.audit.design || 0) : 0,
+    sourceTool: c.source === 'Google' ? 'Google Maps' : c.source,
+    opportunityLevel: opp.level, pipelineStatus: 'Website Audit',
+    recommendedAction: c.hasWebsite ? 'Audit done — prep a before/after and call' : 'Build a SiteDrop concept, then cold call — they have no site at all',
+    contactName: '', phone: c.phone || '', email: '', socialLinks: {},
+    lastChecked: todayStr(), nextFollowUp: '',
+    notes: c.signal + ' (discovered via ' + c.source + ', mock run)',
+  });
+  c.added = true;
+  save(); // persists + re-renders everything (incl. discovery + call queue)
+}
+
+// ── Call Queue: prospects ready to dial, ranked by opportunity ──
+function callQueueProspects() {
+  return S.prospects
+    .filter(p => !['Won', 'Not Fit'].includes(p.pipelineStatus))
+    .filter(p => !S.leads.some(l => l.name === p.businessName)) // not already in pipeline
+    .sort((a, b) => a.websiteScore - b.websiteScore) // lowest = biggest opportunity, no-website first
+    .slice(0, 8);
+}
+function renderCallQueue() {
+  const el = document.getElementById('call-queue-list');
+  if (!el) return;
+  const q = callQueueProspects();
+  el.innerHTML = q.length ? q.map(p => `
+    <div class="row">
+      <div class="row-main">
+        <div class="row-title" style="cursor:pointer;" onclick="goSection('prospects');openProspect('${p.id}')">${esc(p.businessName)} ${p.websiteStatus === 'No website found' ? '<span class="badge b-gold">NO SITE</span>' : ''}</div>
+        <div class="row-sub">${esc(p.industry)} · ${esc(p.location)} · ${esc(p.recommendedAction)}</div>
+      </div>
+      <div class="row-end">
+        ${badge(p.opportunityLevel)}<span class="badge b-dim" style="font-variant-numeric:tabular-nums;">${p.websiteScore}</span>
+        ${p.phone ? `<a class="mini" href="tel:${esc(p.phone)}">☎</a>` : ''}
+        <button class="mini" onclick="promoteProspect('${p.id}')">→ Call Mode</button>
+      </div>
+    </div>`).join('') : '<div class="empty">Add discovered businesses to Prospects and they queue here, hottest first.</div>';
+  const cnt = document.getElementById('call-queue-count');
+  if (cnt) cnt.textContent = q.length + ' ready';
+}
+
 /* ═══ PIPELINE ═══ */
 function renderPipeline() {
   const el = document.getElementById('pipe-board');
@@ -1212,7 +1410,7 @@ function closePanel() {
 /* ═══ CHROME ═══ */
 const TITLES = {
   mission: 'Mission <em>Control</em>', callmode: 'Call <em>Mode</em>', prospects: 'Potential <em>Clients</em>',
-  intelligence: 'Intelligence <em>Center</em>',
+  intelligence: 'Intelligence <em>Center</em>', discovery: 'Prospect <em>Discovery</em>',
   pipeline: 'Client <em>Pipeline</em>', tasks: 'Task <em>Queue</em>', clients: 'Active <em>Clients</em>',
   deploys: 'Sites &amp; <em>Repos</em>', revenue: 'Revenue &amp; <em>Pricing</em>', aiteam: 'AI <em>Team</em>',
   growth: 'Growth <em>Stack</em>', integrations: 'Integrations <em>Map</em>', workforce: 'Agent <em>Workforce</em>',
@@ -1274,6 +1472,8 @@ function renderAll() {
   renderMissionControl();
   renderCallMode();
   renderIntelligenceCenter();
+  renderDiscoveryControls();
+  renderDiscovery();
   renderProspectFilters();
   renderProspects();
   renderPipeline();
