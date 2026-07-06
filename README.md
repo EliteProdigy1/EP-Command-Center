@@ -130,12 +130,23 @@ businesses first. Press **Run Discovery (test)**, **Run Website Intelligence**
 on a candidate, then **Add to Prospects** — the **Call Queue** ranks everything
 hottest-first with tap-to-dial.
 
-**Mock/test only — no live calls, credits, enrichment, or messaging.** The
-Netlify Function returns 501 (frontend uses `mockData.discoveryPool`) unless
-**both** `FIRECRAWL_API_KEY` and `FIRECRAWL_LIVE=true` are set. To go live:
-set those two env vars, uncomment the capped live blocks in
-`netlify/functions/firecrawl.js`, and redeploy — the UI and scoring do not
-change. See `docs/SPRINT-3-FIRECRAWL-INTELLIGENCE.md`.
+**Safe by default — no live calls, credits, enrichment, or messaging** until you
+opt in. The live path (Firecrawl Search for discovery, Scrape for audits, capped
+at 10 results, no messaging endpoint) is **wired**. It stays in mock mode
+(frontend uses `mockData.discoveryPool`) until **both** `FIRECRAWL_API_KEY` and
+`FIRECRAWL_LIVE=true` are set in Netlify. Set those two env vars and redeploy to
+go live — the UI and scoring don't change, the engine badge flips MOCK → LIVE.
+See `docs/SPRINT-3-FIRECRAWL-INTELLIGENCE.md`.
+
+## Sprint 5 — Sales Agent (pipeline orchestration)
+Sidebar → **Sales Agent**. One agent runs the whole workflow — discovery,
+website intelligence, opportunity scoring, proposals, Claude Code & SiteDrop
+exports, follow-up tracking, maintenance recommendations, and dashboard KPIs —
+by **coordinating the existing modules, not duplicating them**. It shows KPIs, a
+live pipeline funnel (Discovery → Signed Client), and a **Next Best Action** for
+every prospect with a one-click button that runs the right module. Engine:
+`js/sales-agent.js` (holds no scoring/pricing/brief logic of its own). See
+`docs/SPRINT-5-SALES-AGENT.md`.
 
 ## Sprint 4 — Website Intelligence (prospect → proposal → buildable site)
 Open any prospect → **◍ Website Intelligence**. Generates (locally, no API/keys)

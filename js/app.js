@@ -329,6 +329,7 @@ const mockData = {
 const dashboardModules = [
   { id: 'priorities',        title: 'Priority Queue',      enabled: true, size: 'large',  section: 'tasks',        summary: sumPriorities },
   { id: 'callmode',          title: 'Call Mode',           enabled: true, size: 'large',  section: 'callmode',     summary: sumCallMode, urgent: true },
+  { id: 'sales-agent',       title: 'Sales Agent',         enabled: true, size: 'large',  section: 'agent',        summary: sumSalesAgent, urgent: true },
   { id: 'intelligence',      title: 'Intelligence Center', enabled: true, size: 'large',  section: 'intelligence', summary: sumIntelligence, urgent: true },
   { id: 'prospect-discovery', title: 'Prospect Discovery', enabled: true, size: 'large',  section: 'discovery',    summary: sumDiscovery, urgent: true },
   { id: 'potential-clients', title: 'Potential Clients',   enabled: true, size: 'large',  section: 'prospects',    summary: sumProspects, urgent: true },
@@ -468,6 +469,11 @@ function sumScoring() {
 function sumDiscovery() {
   const noSite = (mockData.discoveryPool || []).filter(b => !b.hasWebsite).length;
   return `<div class="mc-big">${(mockData.discoveryPool || []).length}</div><div class="mc-list"><b>${noSite}</b> no-website businesses ready to discover &amp; score · <span style="color:var(--yellow);">mock mode</span></div>`;
+}
+function sumSalesAgent() {
+  return (typeof window.sumSalesAgentBody === 'function')
+    ? window.sumSalesAgentBody()
+    : `<div class="mc-list">Coordinates discovery → intelligence → proposal → follow-up → client.</div>`;
 }
 function sumSources() {
   return `<div class="mc-big">${mockData.leadSources.length}</div><div class="mc-list">lead sources · Firecrawl, Google Maps, Apollo, manual</div>`;
@@ -1413,7 +1419,7 @@ function closePanel() {
 /* ═══ CHROME ═══ */
 const TITLES = {
   mission: 'Mission <em>Control</em>', callmode: 'Call <em>Mode</em>', prospects: 'Potential <em>Clients</em>',
-  intelligence: 'Intelligence <em>Center</em>', discovery: 'Prospect <em>Discovery</em>',
+  intelligence: 'Intelligence <em>Center</em>', discovery: 'Prospect <em>Discovery</em>', agent: 'Sales <em>Agent</em>',
   pipeline: 'Client <em>Pipeline</em>', tasks: 'Task <em>Queue</em>', clients: 'Active <em>Clients</em>',
   deploys: 'Sites &amp; <em>Repos</em>', revenue: 'Revenue &amp; <em>Pricing</em>', aiteam: 'AI <em>Team</em>',
   growth: 'Growth <em>Stack</em>', integrations: 'Integrations <em>Map</em>', workforce: 'Agent <em>Workforce</em>',
@@ -1475,6 +1481,7 @@ function renderAll() {
   renderMissionControl();
   renderCallMode();
   renderIntelligenceCenter();
+  if (typeof renderSalesAgent === 'function') renderSalesAgent();
   renderDiscoveryControls();
   renderDiscovery();
   renderProspectFilters();
