@@ -37,6 +37,16 @@ Any static server, e.g. `python3 -m http.server 8080` → http://localhost:8080
 Netlify → Import from GitHub → EP-Command-Center → main → publish `.`
 (netlify.toml included).
 
+
+## Sprint 1 — Prospecting Engine
+The Intelligence Center + Potential Clients answer "who should EP Media reach
+out to next?" Prospects carry 20 fields, filter six ways, score by opportunity
+(lower web score = bigger opportunity), and expose six action hooks (Run Audit,
+Build SiteDrop Concept, Move to CRM, Mark Contacted, Schedule Follow-Up,
+Generate Outreach Message) ready for Apollo / Firecrawl / Google Maps / SiteDrop
+/ Zapier in Phase 2. All data lives in `mockData` (js/app.js); nothing is
+hardcoded in HTML. See docs/SPRINT-1-PROSPECTING-ENGINE.md.
+
 ## Security
 - There is **no passcode gate** — and the old 251 gate was never security.
 - **Before adding anything sensitive: enable Netlify password protection**

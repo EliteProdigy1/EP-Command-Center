@@ -57,3 +57,37 @@ Connected tools → agent reports → Command Center state
 6. ElevenLabs morning briefing
 7. Stripe/QuickBooks read-only revenue
 8. Robinhood read-only (last; strictest security)
+
+
+## Sprint 1 — Prospecting Engine API targets
+
+| Integration | Replaces / fills | Example endpoint |
+|---|---|---|
+| Firecrawl | `prospect.websiteScore/mobileScore/seoScore/designScore`, `prospectAudits` | `POST /.netlify/functions/audit { url }` |
+| Google Maps (Places) | discovery → new `prospects` | `POST /.netlify/functions/discover { industry, area }` |
+| Apollo | `prospect.contactName/phone/email`, `leadSources` counts | `POST /.netlify/functions/enrich { businessName }` |
+| SiteDrop | "Build SiteDrop Concept" hook → concept preview URL | `POST /.netlify/functions/sitedrop-concept { prospect }` |
+| CRM / HighLevel | "Move to CRM" hook; long-term source of truth for prospects | `POST /.netlify/functions/crm-upsert { prospect }` |
+| Google Calendar | "Schedule Follow-Up" → real calendar event | `POST /.netlify/functions/calendar-event { when, prospect }` |
+| Claude / ChatGPT | "Generate Outreach Message" → tailored copy | `POST /.netlify/functions/draft-outreach { prospect }` |
+| Zapier | `automationHealth` connection status | webhook health check |
+
+### Prospecting workflow (target state)
+```
+Firecrawl / Site Source / Google Maps research
+  -> find local businesses
+  -> detect website quality or missing website
+  -> score opportunity (weighted: website/mobile/seo/design)
+  -> prospect appears in Command Center (Potential Clients)
+  -> optional SiteDrop concept build
+  -> qualified prospect moves to CRM (HighLevel)
+  -> outreach sequence starts
+```
+The Command Center **displays** prospect state; the CRM / prospecting tools
+own the data long-term. The six action buttons are the wiring points — each
+has a `// PHASE 2:` comment in js/app.js.
+
+### Security (unchanged, restated)
+No API keys in frontend JavaScript. Every call above runs through a Netlify
+Function (or backend) with environment variables. Prospect PII (phone/email)
+and any personal/finance data stay server-side.

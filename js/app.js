@@ -165,13 +165,151 @@ const mockData = {
     { when: 'Tomorrow 4:00 PM', what: 'Log outcomes, set callbacks, backup data', kind: 'Ops' },
     { when: 'This week',        what: 'Netlify form notifications on all client sites', kind: 'Ops' },
   ],
+
+  /* ═══════════════════════════════════════════════════════════════
+     SPRINT 1 — PROSPECTING ENGINE  (mock data; Phase 2 API targets noted)
+     Answers: "Who should EP Media reach out to next?"
+  ═══════════════════════════════════════════════════════════════ */
+
+  // ── prospects ──────────────────────────────────────────────────
+  // PHASE 2: replace with GET /.netlify/functions/prospects — merged
+  //          output of Apollo (contacts), Firecrawl/Google Maps
+  //          (discovery), and audit scores. Never expose keys client-side.
+  prospects: [
+    {
+      id: 'p1', businessName: 'Gulf Shore Pressure Washing', industry: 'Pressure Washing', location: 'Gulf Shores, AL',
+      websiteUrl: '', websiteStatus: 'No website found', websiteScore: 18, mobileScore: 0, seoScore: 5, designScore: 0,
+      sourceTool: 'Firecrawl', opportunityLevel: 'High', pipelineStatus: 'New Prospect',
+      recommendedAction: 'Build a quick SiteDrop concept, then cold call the owner',
+      contactName: '', phone: '', email: '', socialLinks: { facebook: '', instagram: '' },
+      lastChecked: 'Jul 5', nextFollowUp: 'Jul 6', notes: 'No site at all — strongest opportunity. Runs off a Facebook page only.',
+    },
+    {
+      id: 'p2', businessName: 'Baldwin County Roofing', industry: 'Roofing', location: 'Foley, AL',
+      websiteUrl: 'baldwincountyroofing.com', websiteStatus: 'Outdated website', websiteScore: 34, mobileScore: 28, seoScore: 40, designScore: 30,
+      sourceTool: 'Google Maps', opportunityLevel: 'High', pipelineStatus: 'Needs Research',
+      recommendedAction: 'Run audit, prep a before/after side-by-side for the pitch',
+      contactName: '', phone: '', email: '', socialLinks: { facebook: '' },
+      lastChecked: 'Jul 5', nextFollowUp: 'Jul 6', notes: 'Site is ~2015 template, not mobile-friendly. Good roofing reviews though.',
+    },
+    {
+      id: 'p3', businessName: 'Coastal Comfort HVAC', industry: 'HVAC', location: 'Daphne, AL',
+      websiteUrl: 'coastalcomforthvac.com', websiteStatus: 'Slow mobile site', websiteScore: 46, mobileScore: 32, seoScore: 55, designScore: 50,
+      sourceTool: 'Yelp', opportunityLevel: 'Medium', pipelineStatus: 'Outreach Needed',
+      recommendedAction: 'Call with the mobile-speed + booking-form angle',
+      contactName: '', phone: '', email: '', socialLinks: { facebook: '', instagram: '' },
+      lastChecked: 'Jul 5', nextFollowUp: 'Jul 7', notes: 'Loads slow on phones; no online booking. Busy season is now.',
+    },
+    {
+      id: 'p4', businessName: 'Orange Beach Fishing Charters', industry: 'Fishing Charter', location: 'Orange Beach, AL',
+      websiteUrl: 'obfishingcharters.com', websiteStatus: 'No clear CTA', websiteScore: 54, mobileScore: 60, seoScore: 48, designScore: 55,
+      sourceTool: 'Instagram', opportunityLevel: 'Medium', pipelineStatus: 'New Prospect',
+      recommendedAction: 'Concept with a big "Book a Trip" CTA and gallery',
+      contactName: '', phone: '', email: '', socialLinks: { instagram: '@obfishing' },
+      lastChecked: 'Jul 5', nextFollowUp: 'Jul 7', notes: 'Strong IG following, weak site conversion. Booking happens by DM.',
+    },
+    {
+      id: 'p5', businessName: 'Fairhope Auto Detailing', industry: 'Auto Detailing', location: 'Fairhope, AL',
+      websiteUrl: '', websiteStatus: 'No website found', websiteScore: 15, mobileScore: 0, seoScore: 8, designScore: 0,
+      sourceTool: 'Apollo', opportunityLevel: 'High', pipelineStatus: 'Concept Ready',
+      recommendedAction: 'Concept is built — send the demo link on first call',
+      contactName: 'Marcus', phone: '', email: '', socialLinks: { instagram: '@fairhopedetail' },
+      lastChecked: 'Jul 5', nextFollowUp: 'Jul 6', notes: 'Mobile detailing, booked solid but zero web presence. Owner name Marcus.',
+    },
+    {
+      id: 'p6', businessName: 'Bayside Barbers', industry: 'Barber / Studio', location: 'Spanish Fort, AL',
+      websiteUrl: 'baysidebarbers.square.site', websiteStatus: 'Poor website', websiteScore: 40, mobileScore: 55, seoScore: 25, designScore: 35,
+      sourceTool: 'Google Maps', opportunityLevel: 'Medium', pipelineStatus: 'Needs Research',
+      recommendedAction: 'Audit the Square page; pitch a real branded site + booking',
+      contactName: '', phone: '', email: '', socialLinks: { instagram: '@baysidebarbers' },
+      lastChecked: 'Jul 5', nextFollowUp: 'Jul 8', notes: 'Running on a generic Square site. Room to brand them properly.',
+    },
+    {
+      id: 'p7', businessName: 'Eastern Shore Med Spa', industry: 'Medical / Wellness', location: 'Fairhope, AL',
+      websiteUrl: 'easternshoremedspa.com', websiteStatus: 'Good website / low priority', websiteScore: 78, mobileScore: 80, seoScore: 72, designScore: 82,
+      sourceTool: 'Apollo', opportunityLevel: 'Low', pipelineStatus: 'Not Fit',
+      recommendedAction: 'Already has a solid site — low priority, revisit for growth plan',
+      contactName: '', phone: '', email: '', socialLinks: { instagram: '' },
+      lastChecked: 'Jul 5', nextFollowUp: '', notes: 'Site is already strong. Only a fit for a monthly growth plan later.',
+    },
+    {
+      id: 'p8', businessName: 'Mobile Bay Landscaping', industry: 'Landscaping', location: 'Mobile, AL',
+      websiteUrl: 'mobilebaylandscaping.net', websiteStatus: 'Outdated website', websiteScore: 36, mobileScore: 30, seoScore: 42, designScore: 34,
+      sourceTool: 'Firecrawl', opportunityLevel: 'High', pipelineStatus: 'Outreach Needed',
+      recommendedAction: 'Lead with the two landscaping demos already live (Azalea, Warren)',
+      contactName: '', phone: '', email: '', socialLinks: { facebook: '' },
+      lastChecked: 'Jul 5', nextFollowUp: 'Jul 6', notes: 'Same industry as two live demos — proof is ready. Strong angle.',
+    },
+  ],
+
+  // ── leadSources ────────────────────────────────────────────────
+  // PHASE 2: counts populate from each tool's API (Apollo, Firecrawl,
+  //          Google Maps Places, manual entry, Zapier inbound).
+  leadSources: [
+    { tool: 'Firecrawl',    role: 'Website discovery + audit scraping',   count: 2, connected: 'Planned',   note: 'Will auto-audit sites and score opportunity' },
+    { tool: 'Google Maps',  role: 'Local business discovery by area',      count: 2, connected: 'Planned',   note: 'Places API pulls businesses by industry + radius' },
+    { tool: 'Apollo',       role: 'Contact + company enrichment',          count: 2, connected: 'Pending',   note: 'Names, phones, emails for discovered businesses' },
+    { tool: 'Yelp',         role: 'Reviews + service-business signals',    count: 1, connected: 'Manual',    note: 'Manual for now; API later' },
+    { tool: 'Instagram',    role: 'Social presence + DM-booking signals',  count: 1, connected: 'Manual',    note: 'Spot high-follower, weak-site businesses' },
+    { tool: 'Manual',       role: 'Hand-entered prospects',                count: 0, connected: 'Active',    note: 'Add via the Potential Clients form' },
+  ],
+
+  // ── opportunityScores ──────────────────────────────────────────
+  // Scoring rubric: overall websiteScore is the weighted blend of the
+  // four sub-scores. Lower score = bigger opportunity for EP Media.
+  // PHASE 2: sub-scores come from Firecrawl audit + Lighthouse/PSI.
+  opportunityScores: {
+    weights: { website: 0.30, mobile: 0.30, seo: 0.20, design: 0.20 },
+    bands: [
+      { level: 'High',   max: 45,  action: 'Build a concept + reach out now',        cls: 'good' },
+      { level: 'Medium', max: 65,  action: 'Audit, then pitch the weakest area',      cls: 'warn' },
+      { level: 'Low',    max: 100, action: 'Low priority — revisit for a growth plan', cls: 'info' },
+    ],
+    note: 'A business scoring under 45 is a strong opportunity: their web presence is costing them customers.',
+  },
+
+  // ── prospectAudits ─────────────────────────────────────────────
+  // PHASE 2: replace with Firecrawl + PageSpeed Insights audit results.
+  prospectAudits: [
+    { businessName: 'Baldwin County Roofing', date: 'Jul 5', overall: 34, mobile: 28, seo: 40, design: 30, findings: ['Not mobile-responsive', 'No SSL on contact form', 'No Google Business embed'] },
+    { businessName: 'Coastal Comfort HVAC',   date: 'Jul 5', overall: 46, mobile: 32, seo: 55, design: 50, findings: ['5.8s mobile load', 'No online booking', 'Weak call-to-action'] },
+    { businessName: 'Bayside Barbers',         date: 'Jul 5', overall: 40, mobile: 55, seo: 25, design: 35, findings: ['Generic Square template', 'No local SEO', 'No brand identity'] },
+  ],
+
+  // ── dailyLeadReport ────────────────────────────────────────────
+  // Template values; live counts are computed at render from working
+  // prospect state. PHASE 2: generated each morning and optionally
+  // voiced by ElevenLabs as the morning briefing.
+  dailyLeadReport: {
+    date: 'Today',
+    goalCalls: 15,
+    goalConcepts: 2,
+    note: 'Work the High-opportunity list first — those businesses have the most to gain.',
+  },
+
+  // ── automationHealth ───────────────────────────────────────────
+  // PHASE 2: each row reflects real connection status + last run time
+  //          from the tool's API or Zapier task history.
+  automationHealth: [
+    { name: 'Firecrawl website audits',      status: 'Planned',   lastRun: '—',       note: 'Scrape + score prospect sites automatically' },
+    { name: 'Google Maps discovery',         status: 'Planned',   lastRun: '—',       note: 'Pull new businesses by industry + area nightly' },
+    { name: 'Apollo contact enrichment',     status: 'Pending',   lastRun: '—',       note: 'Fill names/phones/emails on new prospects' },
+    { name: 'SiteDrop concept builds',       status: 'Manual',    lastRun: 'Jul 5',   note: 'Triggered by hand from the prospect panel for now' },
+    { name: 'Zapier → CRM sync',             status: 'Planned',   lastRun: '—',       note: 'Push qualified prospects into HighLevel' },
+    { name: 'Netlify form → Gmail',          status: 'Connected', lastRun: 'Live',    note: 'Client-site inquiries already flow to the inbox' },
+  ],
 };
 
 /* ═══ MODULE REGISTRY — Mission Control renders every enabled module ═══ */
 const dashboardModules = [
   { id: 'priorities',        title: 'Priority Queue',      enabled: true, size: 'large',  section: 'tasks',        summary: sumPriorities },
   { id: 'callmode',          title: 'Call Mode',           enabled: true, size: 'large',  section: 'callmode',     summary: sumCallMode, urgent: true },
+  { id: 'intelligence',      title: 'Intelligence Center', enabled: true, size: 'large',  section: 'intelligence', summary: sumIntelligence, urgent: true },
   { id: 'potential-clients', title: 'Potential Clients',   enabled: true, size: 'large',  section: 'prospects',    summary: sumProspects, urgent: true },
+  { id: 'opportunity-scoring', title: 'Opportunity Scoring', enabled: true, size: 'medium', section: 'intelligence', summary: sumScoring },
+  { id: 'lead-source-tracker', title: 'Lead Source Tracker', enabled: true, size: 'medium', section: 'intelligence', summary: sumSources },
+  { id: 'daily-lead-report', title: 'Daily Lead Report',   enabled: true, size: 'medium', section: 'intelligence', summary: sumDailyReport },
+  { id: 'automation-health', title: 'Automation Health',   enabled: true, size: 'medium', section: 'intelligence', summary: sumAutomationHealth },
   { id: 'pipeline',          title: 'Client Pipeline',     enabled: true, size: 'large',  section: 'pipeline',     summary: sumPipeline, urgent: true },
   { id: 'clients',           title: 'Active Clients',      enabled: true, size: 'medium', section: 'clients',      summary: sumClients },
   { id: 'deployments',       title: 'Sites & Repos',       enabled: true, size: 'medium', section: 'deploys',      summary: sumDeploys },
@@ -217,12 +355,8 @@ const SEED = {
       { id: 't8', title: 'Command Center 2.0 build',                    client: 'Internal', priority: 'high', due: 'Jul 5' },
     ],
   },
-  prospects: [
-    { id: 'p1', businessName: 'Sample Pressure Washing Co.', industry: 'Pressure Washing', location: 'Gulf Shores, AL',   phone: '', websiteStatus: 'No website found',  websiteScore: 20, source: 'Firecrawl',      opportunity: 'High',   pipelineStatus: 'New Prospect',   recommendedAction: 'Create quick concept and contact owner' },
-    { id: 'p2', businessName: 'Sample Roofing LLC',          industry: 'Roofing',          location: 'Foley, AL',          phone: '', websiteStatus: 'Outdated website',  websiteScore: 38, source: 'Google Search',  opportunity: 'High',   pipelineStatus: 'Needs Research', recommendedAction: 'Audit site, prep before/after pitch' },
-    { id: 'p3', businessName: 'Sample HVAC Services',        industry: 'HVAC',             location: 'Daphne, AL',         phone: '', websiteStatus: 'Slow mobile site', websiteScore: 45, source: 'Yelp',           opportunity: 'Medium', pipelineStatus: 'Outreach Needed', recommendedAction: 'Call with mobile-speed angle' },
-    { id: 'p4', businessName: 'Sample Fishing Charters',     industry: 'Fishing Charter',  location: 'Orange Beach, AL',   phone: '', websiteStatus: 'No clear CTA',     websiteScore: 52, source: 'Instagram',      opportunity: 'Medium', pipelineStatus: 'New Prospect',   recommendedAction: 'Concept with booking CTA' },
-  ],
+  // Prospects seed from the canonical mockData.prospects (20-field records).
+  prospects: JSON.parse(JSON.stringify(mockData.prospects)),
   callLog: [],
 };
 
@@ -233,6 +367,10 @@ function load() {
     if (raw) {
       const d = JSON.parse(raw);
       if (!d.prospects) d.prospects = JSON.parse(JSON.stringify(SEED.prospects)); // migrate v2 → 2.0
+      // migrate 2.0 → Sprint 1: old 4-field prospects lack websiteUrl → reseed with full records
+      if (d.prospects.length && d.prospects[0].websiteUrl === undefined) {
+        d.prospects = JSON.parse(JSON.stringify(SEED.prospects));
+      }
       return d;
     }
   } catch (e) { /* fall through */ }
@@ -290,8 +428,27 @@ function sumCallMode() {
   return `<div class="mc-big">${q.length}</div><div class="mc-list"><b>${callsToday().length}</b> calls logged today · queue is loaded — <b>start dialing</b></div>`;
 }
 function sumProspects() {
-  const hot = S.prospects.filter(p => p.opportunity === 'High' && !['Won', 'Not Fit'].includes(p.pipelineStatus));
+  const hot = S.prospects.filter(p => p.opportunityLevel === 'High' && !['Won', 'Not Fit'].includes(p.pipelineStatus));
   return `<div class="mc-big">${S.prospects.length}</div><div class="mc-list"><b>${hot.length}</b> high-opportunity prospects waiting for outreach</div>`;
+}
+function sumIntelligence() {
+  const tp = (typeof topProspects === 'function') ? topProspects(1)[0] : null;
+  const hot = S.prospects.filter(p => p.opportunityLevel === 'High' && !['Won', 'Not Fit'].includes(p.pipelineStatus)).length;
+  return `<div class="mc-big">${hot}</div><div class="mc-list">high-opportunity leads${tp ? ' · call <b>' + esc(tp.businessName) + '</b> first' : ''}</div>`;
+}
+function sumScoring() {
+  return `<div class="mc-list">Lower web score = bigger opportunity. Bands: <b>High</b> ≤45 · <b>Medium</b> ≤65 · <b>Low</b> >65.</div>`;
+}
+function sumSources() {
+  return `<div class="mc-big">${mockData.leadSources.length}</div><div class="mc-list">lead sources · Firecrawl, Google Maps, Apollo, manual</div>`;
+}
+function sumDailyReport() {
+  const active = S.prospects.filter(p => !['Won', 'Not Fit'].includes(p.pipelineStatus)).length;
+  return `<div class="mc-big">${active}</div><div class="mc-list">prospects to work today · goal <b>${mockData.dailyLeadReport.goalCalls}</b> calls</div>`;
+}
+function sumAutomationHealth() {
+  const conn = mockData.automationHealth.filter(a => a.status === 'Connected').length;
+  return `<div class="mc-big">${conn}</div><div class="mc-list">automations live · <b>${mockData.automationHealth.length - conn}</b> pending/planned</div>`;
 }
 function sumPipeline() {
   return `<div class="mc-big">${money(pipelineValue())}</div><div class="mc-list"><b>${activeLeads().length}</b> active deals · <b>${S.leads.filter(l => l.stage === 'Proposal Sent').length}</b> at Proposal Sent</div>`;
@@ -451,105 +608,221 @@ function logCall(id, outcome) {
 }
 
 /* ═══ POTENTIAL CLIENTS ═══ */
-const prospectFilters = { opportunity: 'All', source: 'All', status: 'All' };
+/* ═══ POTENTIAL CLIENTS — 6 filters, 20-field records ═══ */
+const prospectFilters = { industry: 'All', location: 'All', opportunity: 'All', source: 'All', status: 'All', website: 'All' };
+
+function uniq(key) { return ['All', ...Array.from(new Set(S.prospects.map(p => p[key]).filter(Boolean)))]; }
 
 function renderProspectFilters() {
   const el = document.getElementById('prospect-filters');
   if (!el) return;
-  const mk = (group, label) => `<button class="chip ${prospectFilters[group] === label ? 'on' : ''}" onclick="setProspectFilter('${group}','${esc(label)}')">${esc(label)}</button>`;
-  el.innerHTML =
-    ['All', 'High', 'Medium', 'Low'].map(o => mk('opportunity', o)).join('') +
-    '<span style="width:10px;"></span>' +
-    ['All', 'New Prospect', 'Outreach Needed', 'Contacted', 'Follow-Up', 'Proposal Sent'].map(s => mk('status', s)).join('');
+  const chip = (group, label) => `<button class="chip ${prospectFilters[group] === label ? 'on' : ''}" onclick="setProspectFilter('${group}','${esc(label)}')">${esc(label)}</button>`;
+  const groups = [
+    ['Opportunity', 'opportunity', ['All', 'High', 'Medium', 'Low']],
+    ['Status', 'status', ['All', ...PROSPECT_STAGES]],
+    ['Website', 'website', ['All', 'No website found', 'Poor website', 'Outdated website', 'Slow mobile site', 'No clear CTA', 'Good website / low priority']],
+    ['Industry', 'industry', uniq('industry')],
+    ['Location', 'location', uniq('location')],
+    ['Source', 'source', uniq('sourceTool')],
+  ];
+  el.innerHTML = groups.map(([label, group, opts]) =>
+    `<div class="filter-group"><span class="filter-label">${label}</span>${opts.map(o => chip(group, o)).join('')}</div>`
+  ).join('');
 }
 function setProspectFilter(group, val) { prospectFilters[group] = val; renderProspectFilters(); renderProspects(); }
+
+function prospectMatches(p) {
+  const q = (document.getElementById('prospect-search')?.value || '').toLowerCase();
+  return (prospectFilters.industry === 'All' || p.industry === prospectFilters.industry)
+    && (prospectFilters.location === 'All' || p.location === prospectFilters.location)
+    && (prospectFilters.opportunity === 'All' || p.opportunityLevel === prospectFilters.opportunity)
+    && (prospectFilters.source === 'All' || p.sourceTool === prospectFilters.source)
+    && (prospectFilters.status === 'All' || p.pipelineStatus === prospectFilters.status)
+    && (prospectFilters.website === 'All' || p.websiteStatus === prospectFilters.website)
+    && (!q || (p.businessName + p.industry + p.location + p.sourceTool + (p.contactName || '')).toLowerCase().includes(q));
+}
 
 function renderProspects() {
   const el = document.getElementById('prospect-table');
   if (!el) return;
-  const q = (document.getElementById('prospect-search')?.value || '').toLowerCase();
-  let rows = S.prospects.filter(p =>
-    (prospectFilters.opportunity === 'All' || p.opportunity === prospectFilters.opportunity) &&
-    (prospectFilters.status === 'All' || p.pipelineStatus === prospectFilters.status) &&
-    (!q || (p.businessName + p.industry + p.location + p.source).toLowerCase().includes(q))
-  );
+  const rows = S.prospects.filter(prospectMatches);
   el.innerHTML = `
-    <thead><tr><th>Business</th><th>Website</th><th>Score</th><th>Opportunity</th><th>Status</th><th></th></tr></thead>
+    <thead><tr><th>Business</th><th>Website</th><th>Score</th><th>Opportunity</th><th>Source</th><th>Status</th><th></th></tr></thead>
     <tbody>${rows.map(p => `
       <tr>
         <td data-k="Business"><b style="color:var(--text);cursor:pointer;" onclick="openProspect('${p.id}')">${esc(p.businessName)}</b><br><span style="font-size:11px;color:var(--text-3);">${esc(p.industry)} · ${esc(p.location)}</span></td>
         <td data-k="Website">${esc(p.websiteStatus)}</td>
-        <td data-k="Score">${p.websiteScore}</td>
-        <td data-k="Opportunity">${badge(p.opportunity)}</td>
+        <td data-k="Score"><span style="font-variant-numeric:tabular-nums;">${p.websiteScore}</span></td>
+        <td data-k="Opportunity">${badge(p.opportunityLevel)}</td>
+        <td data-k="Source">${esc(p.sourceTool)}</td>
         <td data-k="Status">${badge(p.pipelineStatus)}</td>
         <td data-k="Actions"><div class="acts">
           <button class="mini" onclick="openProspect('${p.id}')">Open</button>
           <button class="mini" onclick="promoteProspect('${p.id}')">→ Pipeline</button>
         </div></td>
-      </tr>`).join('') || '<tr><td colspan="6" class="empty">No prospects match.</td></tr>'}
+      </tr>`).join('') || '<tr><td colspan="7" class="empty">No prospects match these filters.</td></tr>'}
     </tbody>`;
+  const cnt = document.getElementById('prospect-count');
+  if (cnt) cnt.textContent = rows.length + ' of ' + S.prospects.length;
 }
 
 function addProspect() {
   const name = document.getElementById('pf-name').value.trim();
   if (!name) return alert('Prospect needs a business name.');
+  const web = document.getElementById('pf-web').value;
   S.prospects.unshift({
     id: uid(), businessName: name,
-    industry: document.getElementById('pf-industry').value.trim(),
-    location: document.getElementById('pf-location').value.trim(),
-    phone: document.getElementById('pf-phone').value.trim(),
-    websiteStatus: document.getElementById('pf-web').value,
-    websiteScore: 0,
-    source: document.getElementById('pf-source').value,
-    opportunity: document.getElementById('pf-opp').value,
+    industry: document.getElementById('pf-industry').value.trim() || '—',
+    location: document.getElementById('pf-location').value.trim() || '—',
+    websiteUrl: '', websiteStatus: web, websiteScore: 0, mobileScore: 0, seoScore: 0, designScore: 0,
+    sourceTool: document.getElementById('pf-source').value,
+    opportunityLevel: document.getElementById('pf-opp').value,
     pipelineStatus: 'New Prospect',
     recommendedAction: document.getElementById('pf-notes').value.trim() || 'Research + first call',
+    contactName: '', phone: document.getElementById('pf-phone').value.trim(), email: '',
+    socialLinks: {}, lastChecked: todayStr(), nextFollowUp: '', notes: '',
   });
   ['pf-name', 'pf-industry', 'pf-location', 'pf-phone', 'pf-notes'].forEach(i => document.getElementById(i).value = '');
   toggleForm('prospect-form', false);
   save();
 }
 
+function scoreBar(label, val) {
+  var col = val < 45 ? 'var(--red)' : val < 65 ? 'var(--yellow)' : 'var(--green)';
+  return `<div style="margin-bottom:8px;">
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-3);margin-bottom:3px;"><span>${label}</span><span style="font-variant-numeric:tabular-nums;">${val}</span></div>
+    <div style="height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;"><div style="height:100%;width:${Math.max(2, val)}%;background:${col};"></div></div>
+  </div>`;
+}
+
 function openProspect(id) {
   const p = S.prospects.find(x => x.id === id);
   if (!p) return;
+  const social = Object.entries(p.socialLinks || {}).filter(([, v]) => v).map(([k, v]) => `${k}: ${esc(v)}`).join(' · ') || '—';
   openPanel(`
     <div class="panel-title">${esc(p.businessName)}</div>
-    <div class="panel-sub">${esc(p.industry)} · ${esc(p.location)} · via ${esc(p.source)}</div>
-    <div class="panel-kv">
-      <div><div class="kv-k">Website</div><div class="kv-v">${esc(p.websiteStatus)}</div></div>
-      <div><div class="kv-k">Audit Score</div><div class="kv-v">${p.websiteScore}/100</div></div>
-      <div><div class="kv-k">Opportunity</div><div class="kv-v">${badge(p.opportunity)}</div></div>
-      <div><div class="kv-k">Status</div><div class="kv-v">${badge(p.pipelineStatus)}</div></div>
-      <div><div class="kv-k">Phone</div><div class="kv-v">${p.phone ? `<a href="tel:${esc(p.phone)}" style="color:var(--gold);">${esc(p.phone)}</a>` : '—'}</div></div>
-      <div><div class="kv-k">Recommended</div><div class="kv-v">${esc(p.recommendedAction)}</div></div>
+    <div class="panel-sub">${esc(p.industry)} · ${esc(p.location)} · via ${esc(p.sourceTool)}</div>
+
+    <div class="kv-k" style="margin-bottom:8px;">Opportunity Scoring</div>
+    <div style="margin-bottom:16px;">
+      ${scoreBar('Website (overall)', p.websiteScore)}
+      ${scoreBar('Mobile', p.mobileScore)}
+      ${scoreBar('SEO', p.seoScore)}
+      ${scoreBar('Design', p.designScore)}
     </div>
+
+    <div class="panel-kv">
+      <div><div class="kv-k">Opportunity</div><div class="kv-v">${badge(p.opportunityLevel)}</div></div>
+      <div><div class="kv-k">Pipeline</div><div class="kv-v">${badge(p.pipelineStatus)}</div></div>
+      <div><div class="kv-k">Website</div><div class="kv-v">${p.websiteUrl ? `<a href="https://${esc(p.websiteUrl)}" target="_blank" rel="noopener" style="color:var(--gold);">${esc(p.websiteUrl)} ↗</a>` : esc(p.websiteStatus)}</div></div>
+      <div><div class="kv-k">Status</div><div class="kv-v">${esc(p.websiteStatus)}</div></div>
+      <div><div class="kv-k">Contact</div><div class="kv-v">${esc(p.contactName || '—')}</div></div>
+      <div><div class="kv-k">Phone</div><div class="kv-v">${p.phone ? `<a href="tel:${esc(p.phone)}" style="color:var(--gold);">${esc(p.phone)}</a>` : '—'}</div></div>
+      <div><div class="kv-k">Email</div><div class="kv-v">${p.email ? `<a href="mailto:${esc(p.email)}" style="color:var(--gold);">${esc(p.email)}</a>` : '—'}</div></div>
+      <div><div class="kv-k">Social</div><div class="kv-v" style="font-size:11px;">${social}</div></div>
+      <div><div class="kv-k">Last Checked</div><div class="kv-v">${esc(p.lastChecked || '—')}</div></div>
+      <div><div class="kv-k">Next Follow-Up</div><div class="kv-v">${esc(p.nextFollowUp || '—')}</div></div>
+    </div>
+
+    <div class="kv-k" style="margin-bottom:6px;">Recommended Action</div>
+    <div style="font-size:13px;color:var(--text);line-height:1.6;margin-bottom:8px;">${esc(p.recommendedAction)}</div>
+    ${p.notes ? `<div class="kv-k" style="margin-bottom:6px;">Notes</div><div style="font-size:12.5px;color:var(--text-2);line-height:1.6;margin-bottom:18px;">${esc(p.notes)}</div>` : '<div style="margin-bottom:12px;"></div>'}
+
     <div style="display:flex;flex-direction:column;gap:9px;">
       <button class="btn btn-gold" onclick="promoteProspect('${p.id}');closePanel();">→ Move to Pipeline (start selling)</button>
-      <button class="btn btn-ghost" onclick="advanceProspect('${p.id}')">Advance status: ${esc(nextProspectStage(p.pipelineStatus))}</button>
+      <button class="btn btn-ghost" onclick="hookRunAudit('${p.id}')">Run Audit</button>
+      <button class="btn btn-ghost" onclick="hookBuildConcept('${p.id}')">Build SiteDrop Concept</button>
+      <button class="btn btn-ghost" onclick="hookMoveToCRM('${p.id}')">Move to CRM</button>
+      <button class="btn btn-ghost" onclick="hookMarkContacted('${p.id}')">Mark Contacted</button>
+      <button class="btn btn-ghost" onclick="hookScheduleFollowUp('${p.id}')">Schedule Follow-Up</button>
+      <button class="btn btn-ghost" onclick="hookOutreachMessage('${p.id}')">Generate Outreach Message</button>
       <button class="btn btn-ghost" onclick="editProspect('${p.id}')">✎ Edit details</button>
-      <button class="btn btn-ghost" title="Phase 2: Firecrawl audit hook" onclick="alert('Phase 2: this button runs a Firecrawl website audit and fills the score automatically.')">Run Audit (Phase 2)</button>
-      <button class="btn btn-ghost" title="Phase 2: SiteDrop concept hook" onclick="alert('Phase 2: this button kicks off a SiteDrop concept build for this prospect.')">Build Concept (Phase 2)</button>
-      <button class="btn btn-ghost" title="Phase 2: CRM hook" onclick="alert('Phase 2: this button pushes the prospect into the CRM (HighLevel).')">Move to CRM (Phase 2)</button>
       <button class="btn btn-ghost" style="color:var(--red);" onclick="dropProspect('${p.id}')">Mark Not Fit</button>
     </div>`);
 }
-function nextProspectStage(s) {
-  const i = PROSPECT_STAGES.indexOf(s);
-  return PROSPECT_STAGES[Math.min(i + 1, PROSPECT_STAGES.length - 3)];
+
+/* ── Placeholder action hooks — Phase 2 wires each to a real tool ──
+   Each keeps the UI functional now (updates local state) and carries a
+   clear comment for where the API call goes. No keys client-side. */
+function hookRunAudit(id) {
+  const p = S.prospects.find(x => x.id === id); if (!p) return;
+  // PHASE 2: POST /.netlify/functions/audit { url } → Firecrawl + PageSpeed
+  //          returns { websiteScore, mobileScore, seoScore, designScore, findings }
+  alert('Run Audit — Phase 2 hook.\n\nWill call a Firecrawl + PageSpeed audit and fill the scores for ' + p.businessName + ' automatically. For now, use “Edit details” to enter scores by hand.');
+  if (p.pipelineStatus === 'New Prospect') { p.pipelineStatus = 'Website Audit'; p.lastChecked = todayStr(); save(); openProspect(id); }
 }
-function advanceProspect(id) {
-  const p = S.prospects.find(x => x.id === id);
-  if (!p) return;
-  p.pipelineStatus = nextProspectStage(p.pipelineStatus);
+function hookBuildConcept(id) {
+  const p = S.prospects.find(x => x.id === id); if (!p) return;
+  // PHASE 2: POST /.netlify/functions/sitedrop-concept { businessName, industry }
+  alert('Build SiteDrop Concept — Phase 2 hook.\n\nWill kick off a SiteDrop concept build for ' + p.businessName + ' and attach the preview link here.');
+  p.pipelineStatus = 'Concept Ready'; save(); openProspect(id);
+}
+function hookMoveToCRM(id) {
+  const p = S.prospects.find(x => x.id === id); if (!p) return;
+  // PHASE 2: POST /.netlify/functions/crm-upsert { prospect } → HighLevel
+  alert('Move to CRM — Phase 2 hook.\n\nWill push ' + p.businessName + ' into HighLevel and start an outreach sequence. For now it also drops into your Pipeline.');
+  promoteProspect(id); closePanel();
+}
+function hookMarkContacted(id) {
+  const p = S.prospects.find(x => x.id === id); if (!p) return;
+  p.pipelineStatus = 'Contacted'; p.lastChecked = todayStr();
+  S.callLog.push({ ts: Date.now(), leadId: id, name: p.businessName, outcome: 'Contacted (prospect)' });
   save(); openProspect(id);
 }
+function hookScheduleFollowUp(id) {
+  const p = S.prospects.find(x => x.id === id); if (!p) return;
+  const when = prompt('Follow-up when? (e.g. "Jul 9")', p.nextFollowUp || 'Jul 9');
+  if (when === null) return;
+  p.nextFollowUp = when.trim(); if (p.pipelineStatus === 'Contacted') p.pipelineStatus = 'Follow-Up';
+  // PHASE 2: also create a Google Calendar event via secure backend
+  S.tasks.todo.unshift({ id: uid(), title: 'Follow up — ' + p.businessName, client: 'Outreach', priority: 'medium', due: p.nextFollowUp || 'TBD' });
+  save(); openProspect(id);
+}
+function hookOutreachMessage(id) {
+  const p = S.prospects.find(x => x.id === id); if (!p) return;
+  // PHASE 2: call an LLM (Claude/ChatGPT) via backend to draft tailored copy.
+  const msg =
+`Hi${p.contactName ? ' ' + p.contactName : ''} — this is Jonathan with Elite Prodigy Media on the Gulf Coast.\n\n` +
+`I came across ${p.businessName} while looking at ${p.industry.toLowerCase()} businesses around ${p.location}. ` +
+`${p.websiteStatus === 'No website found'
+  ? "I noticed you don't have a website yet — that's likely sending customers to competitors who do."
+  : 'I took a look at your site and saw a few quick wins (' + p.websiteStatus.toLowerCase() + ') that are probably costing you calls.'}\n\n` +
+`We build clean, mobile-ready 5-page sites for local businesses — flat $1,000, live in 48–72 hours. ` +
+`I can text you a working preview built just for ${p.businessName}. Worth a look?\n\n— Jonathan · 251.223.0812`;
+  openPanel(`
+    <div class="panel-title">Outreach Draft</div>
+    <div class="panel-sub">${esc(p.businessName)} · edit before sending (Phase 2 tailors this via AI)</div>
+    <textarea id="outreach-text" style="width:100%;min-height:280px;line-height:1.6;">${esc(msg)}</textarea>
+    <div style="display:flex;gap:9px;margin-top:12px;">
+      <button class="btn btn-gold" onclick="copyOutreach()">Copy</button>
+      <button class="btn btn-ghost" onclick="openProspect('${p.id}')">← Back</button>
+    </div>`);
+}
+function copyOutreach() {
+  const t = document.getElementById('outreach-text');
+  if (!t) return;
+  t.select();
+  navigator.clipboard && navigator.clipboard.writeText(t.value).then(
+    () => { const b = event.target; const o = b.textContent; b.textContent = 'Copied ✓'; setTimeout(() => b.textContent = o, 1400); },
+    () => alert('Select the text and copy manually.')
+  );
+}
+
 function editProspect(id) {
   const p = S.prospects.find(x => x.id === id);
   if (!p) return;
+  const contact = prompt('Contact name:', p.contactName || ''); if (contact !== null) p.contactName = contact.trim();
   const phone = prompt('Phone:', p.phone || ''); if (phone !== null) p.phone = phone.trim();
-  const score = prompt('Website audit score (0–100):', p.websiteScore); if (score !== null && !isNaN(Number(score))) p.websiteScore = Number(score);
+  const email = prompt('Email:', p.email || ''); if (email !== null) p.email = email.trim();
+  const site = prompt('Website URL:', p.websiteUrl || ''); if (site !== null) p.websiteUrl = site.trim().replace(/^https?:\/\//, '');
+  const ws = prompt('Overall website score (0–100):', p.websiteScore); if (ws !== null && !isNaN(Number(ws))) p.websiteScore = Number(ws);
+  const ms = prompt('Mobile score (0–100):', p.mobileScore); if (ms !== null && !isNaN(Number(ms))) p.mobileScore = Number(ms);
+  const ss = prompt('SEO score (0–100):', p.seoScore); if (ss !== null && !isNaN(Number(ss))) p.seoScore = Number(ss);
+  const ds = prompt('Design score (0–100):', p.designScore); if (ds !== null && !isNaN(Number(ds))) p.designScore = Number(ds);
   const act = prompt('Recommended action:', p.recommendedAction || ''); if (act !== null) p.recommendedAction = act.trim();
+  const notes = prompt('Notes:', p.notes || ''); if (notes !== null) p.notes = notes.trim();
+  // keep opportunityLevel honest to the score if user changed it
+  p.opportunityLevel = p.websiteScore < 45 ? 'High' : p.websiteScore < 65 ? 'Medium' : 'Low';
   save(); openProspect(id);
 }
 function dropProspect(id) {
@@ -561,7 +834,7 @@ function promoteProspect(id) {
   if (!p) return;
   if (S.leads.some(l => l.name === p.businessName)) return alert('Already in the pipeline.');
   S.leads.unshift({
-    id: uid(), name: p.businessName, contact: '', phone: p.phone || '',
+    id: uid(), name: p.businessName, contact: p.contactName || '', phone: p.phone || '',
     industry: p.industry, value: 1000, stage: 'Lead',
     notes: (p.websiteStatus ? p.websiteStatus + '. ' : '') + (p.recommendedAction || ''),
     next: 'First call',
@@ -569,6 +842,97 @@ function promoteProspect(id) {
   p.pipelineStatus = 'Contacted';
   save();
   alert(p.businessName + ' added to Pipeline + Call Mode queue.');
+}
+
+/* ═══ INTELLIGENCE CENTER — the prospecting hub ═══
+   Answers: "Who should EP Media reach out to next?" */
+function opportunityBand(score) {
+  const b = mockData.opportunityScores.bands;
+  for (let i = 0; i < b.length; i++) if (score <= b[i].max) return b[i];
+  return b[b.length - 1];
+}
+function topProspects(n) {
+  return S.prospects
+    .filter(p => !['Won', 'Not Fit'].includes(p.pipelineStatus))
+    .sort((a, b) => a.websiteScore - b.websiteScore) // lowest score = biggest opportunity
+    .slice(0, n || 5);
+}
+
+function renderIntelligenceCenter() {
+  // Daily lead report
+  const dr = document.getElementById('daily-report');
+  if (dr) {
+    const active = S.prospects.filter(p => !['Won', 'Not Fit'].includes(p.pipelineStatus));
+    const high = active.filter(p => p.opportunityLevel === 'High');
+    const dueToday = active.filter(p => p.nextFollowUp && p.nextFollowUp !== '').length;
+    const rep = mockData.dailyLeadReport;
+    dr.innerHTML = `
+      <div class="grid cols-4" style="margin-bottom:14px;">
+        <div class="stat-tile" style="padding:14px;"><div class="stat-num">${active.length}</div><div class="stat-label">Active Prospects</div></div>
+        <div class="stat-tile" style="padding:14px;"><div class="stat-num">${high.length}</div><div class="stat-label">High Opportunity</div></div>
+        <div class="stat-tile" style="padding:14px;"><div class="stat-num">${mockData.prospectAudits.length}</div><div class="stat-label">Audits On File</div></div>
+        <div class="stat-tile" style="padding:14px;"><div class="stat-num">${dueToday}</div><div class="stat-label">Follow-Ups Set</div></div>
+      </div>
+      <div class="row-sub" style="margin-bottom:12px;">${esc(rep.note)} Goal: <b style="color:var(--gold-light);">${rep.goalCalls} calls</b> · <b style="color:var(--gold-light);">${rep.goalConcepts} concepts</b> today.</div>
+      <div class="kv-k" style="margin-bottom:8px;">Call these first (lowest web score = biggest opportunity)</div>
+      ${topProspects(5).map(p => `
+        <div class="row">
+          <div class="row-main"><div class="row-title" style="cursor:pointer;" onclick="goSection('prospects');openProspect('${p.id}')">${esc(p.businessName)}</div><div class="row-sub">${esc(p.industry)} · ${esc(p.location)} · ${esc(p.recommendedAction)}</div></div>
+          <div class="row-end">${badge(p.opportunityLevel)}<span class="badge b-dim" style="font-variant-numeric:tabular-nums;">${p.websiteScore}</span></div>
+        </div>`).join('')}`;
+  }
+
+  // Opportunity scoring rubric
+  const os = document.getElementById('scoring-rubric');
+  if (os) {
+    const w = mockData.opportunityScores.weights;
+    os.innerHTML = `
+      <div class="row-sub" style="margin-bottom:12px;">${esc(mockData.opportunityScores.note)}</div>
+      <div class="kv-k" style="margin-bottom:6px;">Weights → overall score</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+        <span class="chip" style="cursor:default;">Website ${Math.round(w.website*100)}%</span>
+        <span class="chip" style="cursor:default;">Mobile ${Math.round(w.mobile*100)}%</span>
+        <span class="chip" style="cursor:default;">SEO ${Math.round(w.seo*100)}%</span>
+        <span class="chip" style="cursor:default;">Design ${Math.round(w.design*100)}%</span>
+      </div>
+      ${mockData.opportunityScores.bands.map(b => `
+        <div class="row">
+          <div class="row-main"><div class="row-title">${badge(b.level)} <span style="color:var(--text-3);font-size:12px;">score ≤ ${b.max}</span></div><div class="row-sub">${esc(b.action)}</div></div>
+        </div>`).join('')}`;
+  }
+
+  // Lead source tracker
+  const ls = document.getElementById('lead-sources');
+  if (ls) {
+    // recompute counts live from working prospects
+    const live = {};
+    S.prospects.forEach(p => { live[p.sourceTool] = (live[p.sourceTool] || 0) + 1; });
+    ls.innerHTML = mockData.leadSources.map(s => `
+      <div class="row">
+        <div class="row-main"><div class="row-title">${esc(s.tool)} <span style="font-variant-numeric:tabular-nums;color:var(--gold-light);">· ${live[s.tool] || 0}</span></div><div class="row-sub">${esc(s.role)} — ${esc(s.note)}</div></div>
+        ${badge(s.connected)}
+      </div>`).join('');
+  }
+
+  // Automation health
+  const ah = document.getElementById('automation-health');
+  if (ah) {
+    ah.innerHTML = mockData.automationHealth.map(a => `
+      <div class="row">
+        <div class="row-main"><div class="row-title">${esc(a.name)}</div><div class="row-sub">${esc(a.note)} · last run: ${esc(a.lastRun)}</div></div>
+        ${badge(a.status)}
+      </div>`).join('');
+  }
+
+  // Recent audits
+  const au = document.getElementById('recent-audits');
+  if (au) {
+    au.innerHTML = mockData.prospectAudits.map(a => `
+      <div class="row">
+        <div class="row-main"><div class="row-title">${esc(a.businessName)} <span style="color:var(--text-3);font-size:11px;">· ${esc(a.date)}</span></div><div class="row-sub">${a.findings.map(esc).join(' · ')}</div></div>
+        <div class="row-end"><span class="badge ${opportunityBand(a.overall).cls === 'good' ? 'b-good' : opportunityBand(a.overall).cls === 'warn' ? 'b-warn' : 'b-info'}" style="font-variant-numeric:tabular-nums;">${a.overall}/100</span></div>
+      </div>`).join('');
+  }
 }
 
 /* ═══ PIPELINE ═══ */
@@ -848,6 +1212,7 @@ function closePanel() {
 /* ═══ CHROME ═══ */
 const TITLES = {
   mission: 'Mission <em>Control</em>', callmode: 'Call <em>Mode</em>', prospects: 'Potential <em>Clients</em>',
+  intelligence: 'Intelligence <em>Center</em>',
   pipeline: 'Client <em>Pipeline</em>', tasks: 'Task <em>Queue</em>', clients: 'Active <em>Clients</em>',
   deploys: 'Sites &amp; <em>Repos</em>', revenue: 'Revenue &amp; <em>Pricing</em>', aiteam: 'AI <em>Team</em>',
   growth: 'Growth <em>Stack</em>', integrations: 'Integrations <em>Map</em>', workforce: 'Agent <em>Workforce</em>',
@@ -907,6 +1272,7 @@ function renderAll() {
   renderKPIs();
   renderMissionControl();
   renderCallMode();
+  renderIntelligenceCenter();
   renderProspectFilters();
   renderProspects();
   renderPipeline();

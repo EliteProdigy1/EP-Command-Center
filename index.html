@@ -49,6 +49,7 @@
       <div class="nav-label">Operate</div>
       <a href="#" class="nav-link active" data-section="mission" data-always><span class="nav-ico">◈</span> Mission Control</a>
       <a href="#" class="nav-link" data-section="callmode" data-always><span class="nav-ico">☎</span> Call Mode</a>
+      <a href="#" class="nav-link" data-section="intelligence" data-always><span class="nav-ico">◍</span> Intelligence Center</a>
       <a href="#" class="nav-link" data-section="prospects" data-always><span class="nav-ico">◎</span> Potential Clients</a>
       <a href="#" class="nav-link" data-section="pipeline" data-always><span class="nav-ico">⇶</span> Pipeline</a>
       <a href="#" class="nav-link" data-section="tasks" data-always><span class="nav-ico">✓</span> Tasks</a>
@@ -122,11 +123,38 @@
       </div>
     </section>
 
+    <!-- INTELLIGENCE CENTER (Sprint 1 prospecting hub) -->
+    <section class="section" id="section-intelligence">
+      <div class="notice"><b>Who should EP Media reach out to next?</b> This is the prospecting cockpit. Phase 1 runs on mock data; the architecture is ready for Apollo, Firecrawl, Google Maps, SiteDrop, and Zapier to connect later.</div>
+      <div class="grid cols-2">
+        <div class="card">
+          <div class="card-head"><div class="card-title">Daily Lead Report</div><div class="card-tag">Work these first</div></div>
+          <div id="daily-report"></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">Opportunity Scoring</div><div class="card-tag">Rubric</div></div>
+          <div id="scoring-rubric"></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">Lead Source Tracker</div><div class="card-tag">Where leads come from</div></div>
+          <div id="lead-sources"></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">Automation Health</div><div class="card-tag">Feeds the engine</div></div>
+          <div id="automation-health"></div>
+        </div>
+        <div class="card" style="grid-column:1/-1;">
+          <div class="card-head"><div class="card-title">Recent Website Audits</div><div class="card-tag">Firecrawl + PageSpeed (Phase 2)</div></div>
+          <div id="recent-audits"></div>
+        </div>
+      </div>
+    </section>
+
     <!-- POTENTIAL CLIENTS -->
     <section class="section" id="section-prospects">
       <div class="card">
         <div class="card-head">
-          <div class="card-title">Who should EP Media reach out to next?</div>
+          <div class="card-title">Potential Clients <span class="card-tag" id="prospect-count" style="margin-left:8px;"></span></div>
           <button class="btn btn-gold btn-sm" onclick="toggleForm('prospect-form')">＋ Add Prospect</button>
         </div>
         <div class="form" id="prospect-form" style="display:none;">
@@ -144,7 +172,7 @@
               <option value="Good website / low priority">Good website / low priority</option>
             </select>
             <select id="pf-opp"><option>High</option><option>Medium</option><option>Low</option></select>
-            <select id="pf-source"><option>Manual</option><option>Google Search</option><option>Firecrawl</option><option>SiteDrop</option><option>Site Source</option><option>Yelp</option><option>Facebook</option><option>Instagram</option></select>
+            <select id="pf-source"><option>Manual</option><option>Firecrawl</option><option>Google Maps</option><option>Apollo</option><option>SiteDrop</option><option>Site Source</option><option>Yelp</option><option>Facebook</option><option>Instagram</option></select>
             <input id="pf-notes" type="text" placeholder="Notes / recommended action">
           </div>
           <div style="display:flex;gap:8px;">
