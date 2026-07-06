@@ -70,8 +70,9 @@
       }
       if (!res.ok) { STATUS[key] = 'error'; return fallback; }
       var data = await res.json();
-      var empty = Array.isArray(data) ? data.length === 0 : (!data || Object.keys(data).length === 0);
-      if (empty) { STATUS[key] = 'fallback'; return fallback; }
+      // A successful response is LIVE — even if the database is empty.
+      // Showing mock data while connected would defeat Sprint 2 ("live data,
+      // not mock"). Only the not-configured / error / offline paths fall back.
       STATUS[key] = 'connected';
       return data;
     } catch (e) {
