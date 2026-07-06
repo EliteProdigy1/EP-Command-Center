@@ -137,6 +137,16 @@ set those two env vars, uncomment the capped live blocks in
 `netlify/functions/firecrawl.js`, and redeploy — the UI and scoring do not
 change. See `docs/SPRINT-3-FIRECRAWL-INTELLIGENCE.md`.
 
+## Sprint 4 — Website Intelligence (prospect → proposal → buildable site)
+Open any prospect → **◍ Website Intelligence**. Generates (locally, no API/keys)
+a website brief, design direction (on-brand palette/type/mood), sitemap, sales
+talking points, and an estimated project value. Three one-click exports:
+**Export to Claude Code** (copies a full build spec + opens claude.ai/code),
+**Create SiteDrop Prompt**, and **Copy Client Proposal**. The Call Queue also
+leads with a live CRM stats strip (goal, calls, pipeline value, top category,
+last scan). See `docs/SPRINT-4-WEBSITE-INTELLIGENCE.md`. Engine:
+`js/website-intel.js`.
+
 ## Security
 - The **251 passcode gate** (js/gate.js) is obscurity, not security — it keeps
   casual eyes out but is trivially bypassed. Treat this dashboard as public.

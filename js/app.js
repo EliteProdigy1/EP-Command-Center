@@ -743,6 +743,7 @@ function openProspect(id) {
 
     <div class="panel-kv">
       <div><div class="kv-k">Opportunity</div><div class="kv-v">${badge(p.opportunityLevel)}</div></div>
+      <div><div class="kv-k">Est. Value</div><div class="kv-v" style="color:var(--gold-light);">${typeof estimateProjectValue === 'function' ? money(estimateProjectValue(p).total) : '—'}</div></div>
       <div><div class="kv-k">Pipeline</div><div class="kv-v">${badge(p.pipelineStatus)}</div></div>
       <div><div class="kv-k">Website</div><div class="kv-v">${p.websiteUrl ? `<a href="https://${esc(p.websiteUrl)}" target="_blank" rel="noopener" style="color:var(--gold);">${esc(p.websiteUrl)} ↗</a>` : esc(p.websiteStatus)}</div></div>
       <div><div class="kv-k">Status</div><div class="kv-v">${esc(p.websiteStatus)}</div></div>
@@ -759,6 +760,7 @@ function openProspect(id) {
     ${p.notes ? `<div class="kv-k" style="margin-bottom:6px;">Notes</div><div style="font-size:12.5px;color:var(--text-2);line-height:1.6;margin-bottom:18px;">${esc(p.notes)}</div>` : '<div style="margin-bottom:12px;"></div>'}
 
     <div style="display:flex;flex-direction:column;gap:9px;">
+      <button class="btn btn-gold" onclick="renderWebsiteIntelligence('${p.id}')">◍ Website Intelligence — brief, value &amp; build</button>
       <button class="btn btn-gold" onclick="promoteProspect('${p.id}');closePanel();">→ Move to Pipeline (start selling)</button>
       <button class="btn btn-ghost" onclick="hookRunAudit('${p.id}')">Run Audit</button>
       <button class="btn btn-ghost" onclick="hookBuildConcept('${p.id}')">Build SiteDrop Concept</button>
@@ -1128,9 +1130,10 @@ function renderCallQueue() {
         ${p.phone ? `<a class="mini" href="tel:${esc(p.phone)}">☎</a>` : ''}
         <button class="mini" onclick="promoteProspect('${p.id}')">→ Call Mode</button>
       </div>
-    </div>`).join('') : '<div class="empty">Add discovered businesses to Prospects and they queue here, hottest first.</div>';
+    </div>`).join('') : '<div class="empty">Add discovered businesses to Prospects and they queue here, hottest first. Your daily targets are live above.</div>';
   const cnt = document.getElementById('call-queue-count');
   if (cnt) cnt.textContent = q.length + ' ready';
+  if (typeof renderCallQueueStats === 'function') renderCallQueueStats();
 }
 
 /* ═══ PIPELINE ═══ */
