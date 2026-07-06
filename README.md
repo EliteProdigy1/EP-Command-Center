@@ -81,31 +81,39 @@ The UI, filters, opportunity scoring, and rankings are unchanged — only the
 4. **Set the environment variables in Netlify** → Site configuration →
    Environment variables (see `.env.example` for the full list):
 
-   | Env var | Value |
+   | Env var | Value (live EP OPERATING SYSTEM database IDs) |
    |---------|-------|
    | `NOTION_API_KEY` | your integration secret (`ntn_...`) |
-   | `NOTION_DATABASE_PROSPECTS` | Prospects database ID |
-   | `NOTION_DATABASE_PROJECTS` | Projects database ID |
-   | `NOTION_DATABASE_TASKS` | Tasks database ID |
-   | `NOTION_DATABASE_AI_WORKFORCE` | AI Workforce database ID |
-   | `NOTION_DATABASE_REVENUE` | Revenue database ID |
+   | `NOTION_DATABASE_PROSPECTS` | `a1ebd034103149098947dcf72498e599` |
+   | `NOTION_DATABASE_PROJECTS` | `717e4629f24148bd96d1b234e1c47d4d` |
+   | `NOTION_DATABASE_TASKS` | `f98f20317d43409896f16c03f56454cb` |
+   | `NOTION_DATABASE_AI_WORKFORCE` | `10dfccc83f7a405da69063c7dd19e611` |
+   | `NOTION_DATABASE_REVENUE` | `6bb3e211a6704d448c40eaa241c1d83a` |
+   | `NOTION_DATABASE_WEBSITE` | `03e0966fd7434c09b91aa932a9855f01` |
 
-   (Website Intelligence reuses the Prospects database's audit columns — no
-   separate ID.)
+   Database IDs are not secrets (useless without the key). Website
+   Intelligence has its own database; if `NOTION_DATABASE_WEBSITE` is unset it
+   falls back to the Prospects DB.
 5. **Redeploy** (Netlify → Deploys → *Trigger deploy*). Each source flips from
    🟡 Fallback to 🟢 Connected on its own — **no code changes**.
 
 ### Column names Notion expects
 The proxy maps Notion columns to the dashboard in `netlify/functions/notion.js`.
-Match these column names in Notion, or edit the mappers to match yours:
-- **Prospects**: Business Name, Industry, Location, Website URL, Website Status,
-  Website Score, Mobile Score, SEO Score, Design Score, Source Tool,
-  Opportunity Level, Pipeline Status, Recommended Action, Contact Name, Phone,
-  Email, Last Checked, Next Follow-Up, Notes
-- **Projects**: Name, Industry, Status, Site, Repo
-- **Tasks**: Title, Client, Priority, Due, Status (`todo` / `in progress` / `done`)
-- **AI Workforce**: Agent, Role, Area, Tools, Status, Permissions, Next Assignment
-- **Revenue**: Name, Price, Detail
+These already match the live EP OPERATING SYSTEM databases — edit a mapper only
+if you rename a column:
+- **Prospects**: Business Name, Industry, City, State, Website, Status,
+  Website Score, Speed Score, SEO Score, Lead Source, Opportunity Score,
+  Proposal, Owner, Phone, Email, Assigned Agent, Next Follow Up, Notes
+- **Projects**: Client, Status, Stage, Domain, Hosting, Maintenance Plan, Launch Date
+- **Tasks**: Task, Owner, Department, Priority, Due Date, Status
+  (Not started / In progress / Done)
+- **AI Workforce**: Role, Responsibilities, Tools, Status, Health, Permissions,
+  Current Sprint, Connected Apps
+- **Revenue**: Client, Monthly Value, Deposit, Balance, Maintenance,
+  Annual Value, Invoice Status, Renewal
+- **Website Intelligence**: Business, URL, Website Grade, Mobile Grade,
+  Performance, SEO, Accessibility, Opportunity Level, Branding, Photos,
+  Firecrawl Status, Apollo Status, Audit Complete, Date Scanned
 
 ### Phase 3 hooks (not connected)
 `services/notion.js` and `.env.example` reserve slots for **Firecrawl** (website
