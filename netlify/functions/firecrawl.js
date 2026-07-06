@@ -222,7 +222,10 @@ exports.handler = async function (event) {
       const target = q.url || q.listing || '';
       if (!target) return json(200, { phone: '', email: '', photos: [] });
       const data = await scrape(target, headers);
-      return json(200, extractEnrichment(data, { industry: q.industry || '', category: q.industry || '' }));
+      const enr = extractEnrichment(data, { industry: q.industry || '', category: q.industry || '' });
+      // Diagnostic (small): did the scrape return content? which metadata keys?
+      enr._debug = { url: target, mdLen: (data.markdown || '').length, metaKeys: Object.keys(data.metadata || {}).slice(0, 14) };
+      return json(200, enr);
     }
 
     if (action === 'audit') {
