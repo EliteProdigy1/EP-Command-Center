@@ -87,7 +87,7 @@ The UI, filters, opportunity scoring, and rankings are unchanged — only the
    | `NOTION_DATABASE_PROSPECTS` | Prospects database ID |
    | `NOTION_DATABASE_PROJECTS` | Projects database ID |
    | `NOTION_DATABASE_TASKS` | Tasks database ID |
-   | `NOTION_DATABASE_AI` | AI Workforce database ID |
+   | `NOTION_DATABASE_AI_WORKFORCE` | AI Workforce database ID |
    | `NOTION_DATABASE_REVENUE` | Revenue database ID |
 
    (Website Intelligence reuses the Prospects database's audit columns — no
