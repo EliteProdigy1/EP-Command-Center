@@ -1025,6 +1025,18 @@ function computeOpportunity(audit) {
 let discoveryResults = [];
 const discoveryPicker = { industry: 'All', location: 'All' };
 
+// Full EP target verticals + Gulf Coast markets for LIVE discovery (the mock
+// pool only covers a few; live search should reach every target industry/city).
+const TARGET_INDUSTRIES = [
+  'Landscaping', 'Lawn Care', 'Pressure Washing', 'Window Cleaning', 'Roofing', 'Concrete',
+  'Fence Companies', 'Tree Service', 'Auto Detailing', 'Barber', 'Hair Studio', 'Gym',
+  'Chiropractor', 'Restaurant', 'Realtor', 'HVAC', 'Electrician', 'Pest Control', 'Fishing Charter',
+];
+const TARGET_CITIES = [
+  'Gulf Shores, AL', 'Orange Beach, AL', 'Foley, AL', 'Daphne, AL', 'Fairhope, AL',
+  'Spanish Fort, AL', 'Robertsdale, AL', 'Mobile, AL', 'Perdido Key, FL',
+];
+
 function discoveryEngineLabel() {
   const svc = window.firecrawlService;
   if (svc && svc.status && svc.status.discover === 'connected') return '<span class="badge b-good">LIVE — Firecrawl</span>';
@@ -1034,8 +1046,9 @@ function discoveryEngineLabel() {
 function renderDiscoveryControls() {
   const el = document.getElementById('discovery-controls');
   if (!el) return;
-  const inds = ['All', ...Array.from(new Set((mockData.discoveryPool || []).map(b => b.industry)))];
-  const locs = ['All', ...Array.from(new Set((mockData.discoveryPool || []).map(b => b.location)))];
+  // Union of target verticals/markets with anything already in the pool.
+  const inds = ['All', ...Array.from(new Set([...TARGET_INDUSTRIES, ...(mockData.discoveryPool || []).map(b => b.industry)]))];
+  const locs = ['All', ...Array.from(new Set([...TARGET_CITIES, ...(mockData.discoveryPool || []).map(b => b.location)]))];
   el.innerHTML = `
     <div class="disc-bar">
       <label class="disc-field"><span>Industry</span>
