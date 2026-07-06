@@ -145,6 +145,31 @@
     return { p: p, kit: kit, val: val, points: talkingPoints(p) };
   }
 
+  // ── Contact & Presence: everything enrichment captured (no re-entry) ──
+  function contactBlock(p) {
+    var s = p.socialLinks || {};
+    var rows = [
+      ['Phone', p.phone ? '<a href="tel:' + esc(p.phone) + '" style="color:var(--gold);">' + esc(p.phone) + '</a>' : ''],
+      ['Email', p.email ? '<a href="mailto:' + esc(p.email) + '" style="color:var(--gold);">' + esc(p.email) + '</a>' : ''],
+      ['Address', p.address ? esc(p.address) : ''],
+      ['Category', p.category ? esc(p.category) : ''],
+      ['Rating', p.rating ? '★ ' + esc(p.rating) + (p.reviews ? ' (' + p.reviews + ' reviews)' : '') : ''],
+      ['Google', p.gbpUrl ? '<a href="' + esc(p.gbpUrl) + '" target="_blank" rel="noopener" style="color:var(--gold);">Business Profile ↗</a>' : ''],
+      ['Facebook', s.facebook ? '<a href="' + esc(s.facebook) + '" target="_blank" rel="noopener" style="color:var(--gold);">Facebook ↗</a>' : ''],
+      ['Instagram', s.instagram ? '<a href="' + esc(s.instagram) + '" target="_blank" rel="noopener" style="color:var(--gold);">Instagram ↗</a>' : ''],
+      ['Notion CRM', p.notionUrl ? '<a href="' + esc(p.notionUrl) + '" target="_blank" rel="noopener" style="color:var(--gold);">Open record ↗</a>' : ''],
+    ].filter(function (r) { return r[1]; });
+    if (!rows.length && !(p.photos && p.photos.length)) return '';
+    var photos = (p.photos && p.photos.length)
+      ? '<div class="wi-photos">' + p.photos.slice(0, 6).map(function (u) { return '<img src="' + esc(u) + '" alt="" loading="lazy" onerror="this.style.display=\'none\'">'; }).join('') + '</div>'
+      : '';
+    return '<div class="kv-k" style="margin:2px 0 6px;">Contact &amp; Presence <span style="color:var(--text-3);font-weight:400;">· auto-captured, no manual entry</span></div>' +
+      '<div class="panel-kv" style="margin-bottom:12px;">' +
+      rows.map(function (r) { return '<div><div class="kv-k">' + esc(r[0]) + '</div><div class="kv-v">' + r[1] + '</div></div>'; }).join('') +
+      '</div>' + photos +
+      (p.logoUrl ? '<div class="wi-kv" style="margin-bottom:12px;"><b>Logo:</b> <a href="' + esc(p.logoUrl) + '" target="_blank" rel="noopener" style="color:var(--gold);">source ↗</a></div>' : '');
+  }
+
   // ── The panel ──
   function renderWebsiteIntelligence(id) {
     var p = S.prospects.find(function (x) { return x.id === id; });
@@ -167,6 +192,8 @@
       '<div style="margin:6px 0 18px;">' + val.items.map(function (x) {
         return '<div class="wi-line"><span>' + esc(x.item) + '</span><span style="color:var(--gold-light);font-variant-numeric:tabular-nums;">' + money(x.amount) + '</span></div>';
       }).join('') + '</div>' +
+
+      contactBlock(p) +
 
       '<div class="kv-k" style="margin-bottom:6px;">Website Brief</div>' +
       '<div class="wi-body">Build a modern, mobile-first site that turns "' + esc(kit.name) + '" searchers in ' + esc(p.location) +
@@ -228,7 +255,21 @@
 '- Business: ' + p.businessName + '\n' +
 '- Industry: ' + p.industry + ' (' + kit.name + ')\n' +
 '- Location: ' + p.location + ' — Gulf Coast, Alabama\n' +
-'- Current site: ' + (p.websiteUrl || 'none') + ' (' + (p.websiteStatus || 'n/a') + ')\n\n' +
+'- Current site: ' + (p.websiteUrl || 'none') + ' (' + (p.websiteStatus || 'n/a') + ')\n' +
+(function () {
+  var lines = [];
+  if (p.phone) lines.push('- Phone: ' + p.phone);
+  if (p.email) lines.push('- Email: ' + p.email);
+  if (p.address) lines.push('- Address: ' + p.address);
+  var s = p.socialLinks || {};
+  if (s.facebook) lines.push('- Facebook: ' + s.facebook);
+  if (s.instagram) lines.push('- Instagram: ' + s.instagram);
+  if (p.gbpUrl) lines.push('- Google Business: ' + p.gbpUrl);
+  if (p.rating) lines.push('- Rating: ' + p.rating + (p.reviews ? ' (' + p.reviews + ' reviews) — feature this as social proof' : ''));
+  if (p.logoUrl) lines.push('- Existing logo (reuse or refine): ' + p.logoUrl);
+  if (p.photos && p.photos.length) lines.push('- Real photos to use: ' + p.photos.slice(0, 6).join('  '));
+  return lines.length ? 'REAL DATA — use these exact details, do not invent contact info:\n' + lines.join('\n') + '\n\n' : '\n';
+}()) +
 'GOAL\n' +
 'A modern, fast, mobile-first site whose primary conversion is "' + kit.cta + '". ' + kit.mood + '.\n\n' +
 'BRAND TOKENS (CSS :root)\n' +

@@ -499,3 +499,25 @@ body.focus .mc-card:not(.urgent) { opacity: 0.35; filter: saturate(0.5); }
   .funnel-stage { min-width: 80px; }
   .agent-row { flex-direction: column; align-items: flex-start; gap: 8px; }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   SPRINT 6 — Enrichment display + toast
+═══════════════════════════════════════════════════════════════ */
+.disc-enrich {
+  display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center;
+  font-size: 11.5px; color: var(--text-2); margin-top: 8px;
+  padding-top: 8px; border-top: 1px dashed var(--hairline);
+}
+.disc-enrich span { color: var(--gold-light); }
+.wi-photos { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.wi-photos img { width: 62px; height: 62px; object-fit: cover; border-radius: 8px; border: 1px solid var(--hairline); }
+.ep-toast {
+  position: fixed; left: 50%; bottom: 26px; transform: translate(-50%, 20px);
+  background: rgba(20, 20, 24, 0.96); color: var(--text);
+  border: 1px solid var(--gold-dim); border-radius: 12px;
+  padding: 12px 18px; font-size: 13px; z-index: 3000; max-width: 88vw;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5); opacity: 0; pointer-events: none;
+  transition: opacity 0.3s var(--ease), transform 0.3s var(--ease);
+}
+.ep-toast.show { opacity: 1; transform: translate(-50%, 0); }
+.ep-toast.warn { border-color: rgba(250, 204, 21, 0.4); }

@@ -68,6 +68,26 @@
     return a;
   }
 
+  // ── MOCK enrichment: realistic contact/social/asset data for the pool ──
+  function mockEnrich(c) {
+    var slug = String(c.businessName || 'biz').toLowerCase().replace(/[^a-z0-9]+/g, '');
+    var area = { 'Gulf Shores, AL': '251-968', 'Orange Beach, AL': '251-981', 'Foley, AL': '251-943', 'Daphne, AL': '251-621', 'Fairhope, AL': '251-928', 'Spanish Fort, AL': '251-626', 'Mobile, AL': '251-432', 'Dauphin Island, AL': '251-861', 'Robertsdale, AL': '251-947', 'Perdido Key, AL': '251-492' }[c.location] || '251-555';
+    var num = area + '-' + String(1000 + Math.floor(Math.random() * 8999));
+    return {
+      phone: num,
+      email: (c.hasWebsite ? 'info@' + slug + '.com' : slug + '@gmail.com'),
+      address: '—',
+      facebook: 'https://facebook.com/' + slug,
+      instagram: 'https://instagram.com/' + slug,
+      gbpUrl: 'https://g.page/' + slug,
+      logoUrl: '',
+      photos: [],
+      category: c.industry,
+      rating: c.rating || null,
+      reviews: c.reviews || 0,
+    };
+  }
+
   async function tryFn(params, mockFn, statusKey) {
     try {
       var res = await fetch(ENDPOINT + '?' + params, { headers: { 'Accept': 'application/json' } });
@@ -113,6 +133,15 @@
       var params = 'action=audit&url=' + encodeURIComponent(candidate.websiteUrl || '') + '&name=' + encodeURIComponent(candidate.businessName || '');
       return tryFn(params, function () { return mockAudit(candidate); }, 'audit')
         .then(function (r) { return (r && (r.hasWebsite !== undefined)) ? r : mockAudit(candidate); });
+    },
+
+    // Enrich a candidate: phone, email, address, socials, GBP, logo, photos,
+    // rating, reviews. Scrapes the business (live) or returns mock enrichment.
+    enrich: function (candidate) {
+      var url = candidate.websiteUrl || candidate.listingUrl || '';
+      var params = 'action=enrich&url=' + encodeURIComponent(url) + '&industry=' + encodeURIComponent(candidate.industry || '');
+      return tryFn(params, function () { return mockEnrich(candidate); }, 'discover')
+        .then(function (r) { return (r && (r.phone !== undefined || r.email !== undefined)) ? r : mockEnrich(candidate); });
     },
   };
 }());

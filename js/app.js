@@ -409,6 +409,18 @@ function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').repla
 function money(n) { return '$' + (Number(n) || 0).toLocaleString(); }
 function todayStr() { return new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); }
 
+// Non-blocking toast (used by auto-save-to-Notion so it never interrupts).
+let _toastTimer = null;
+function toast(msg, warn) {
+  let el = document.getElementById('ep-toast');
+  if (!el) { el = document.createElement('div'); el.id = 'ep-toast'; el.className = 'ep-toast'; document.body.appendChild(el); }
+  el.textContent = msg;
+  el.classList.toggle('warn', !!warn);
+  el.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.classList.remove('show'), 3400);
+}
+
 function exportData() {
   const blob = new Blob([JSON.stringify(S, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
@@ -1058,6 +1070,14 @@ function renderDiscovery() {
             : `<span class="badge b-gold">NO WEBSITE</span>`}
         </div>
         <div class="disc-signal">${esc(c.signal)}</div>
+        ${c.enrich ? `<div class="disc-enrich">${[
+          c.enrich.phone ? '☎ ' + esc(c.enrich.phone) : '',
+          c.enrich.email ? '✉ ' + esc(c.enrich.email) : '',
+          c.enrich.facebook ? '<span>ⓕ FB</span>' : '',
+          c.enrich.instagram ? '<span>IG</span>' : '',
+          c.enrich.gbpUrl ? '<span>Google</span>' : '',
+          (c.rating ? '★ ' + c.rating : ''),
+        ].filter(Boolean).join(' · ')}</div>` : ''}
         ${a ? `
           <div class="disc-audit">
             ${scoreBar('Overall opportunity score', opp.overall)}
@@ -1081,36 +1101,64 @@ function renderDiscovery() {
   renderCallQueue();
 }
 
+// Website Intelligence + enrichment together — one click fills the whole record.
 async function auditCandidate(id) {
   const c = discoveryResults.find(x => x.id === id);
   if (!c) return;
   const svc = window.firecrawlService;
-  c.audit = svc ? await svc.audit(c) : null;
+  const [audit, enr] = await Promise.all([
+    svc ? svc.audit(c) : Promise.resolve(null),
+    svc ? svc.enrich(c) : Promise.resolve({}),
+  ]);
+  c.audit = audit; c.enrich = enr;
+  if (enr) { if (enr.rating != null) c.rating = enr.rating; if (enr.reviews) c.reviews = enr.reviews; }
   renderDiscovery();
 }
 
+// Build a fully enriched prospect (no manual entry) and auto-create the Notion
+// CRM record. Website Intelligence then consumes this record as-is.
 async function addCandidateToProspects(id) {
   const c = discoveryResults.find(x => x.id === id);
   if (!c) return;
-  if (!c.audit) { c.audit = window.firecrawlService ? await window.firecrawlService.audit(c) : null; }
-  const opp = computeOpportunity(c.audit);
   if (S.prospects.some(p => p.businessName === c.businessName)) { renderDiscovery(); return; }
-  S.prospects.unshift({
+  const svc = window.firecrawlService;
+  const [audit, enr] = await Promise.all([
+    c.audit ? Promise.resolve(c.audit) : (svc ? svc.audit(c) : Promise.resolve(null)),
+    c.enrich ? Promise.resolve(c.enrich) : (svc ? svc.enrich(c) : Promise.resolve({})),
+  ]);
+  c.audit = audit; c.enrich = enr || {};
+  const opp = computeOpportunity(audit);
+  const loc = String(c.location || '').split(',');
+  const record = {
     id: uid(), businessName: c.businessName, industry: c.industry, location: c.location,
+    city: (loc[0] || '').trim(), state: (loc[1] || '').trim(),
     websiteUrl: c.websiteUrl || '', websiteStatus: opp.websiteStatus,
-    websiteScore: opp.overall,
-    mobileScore: c.audit ? (c.audit.mobile || 0) : 0,
-    seoScore: c.audit ? (c.audit.seo || 0) : 0,
-    designScore: c.audit ? (c.audit.design || 0) : 0,
+    websiteScore: opp.overall, opportunityScore: opp.overall,
+    mobileScore: audit ? (audit.mobile || 0) : 0,
+    seoScore: audit ? (audit.seo || 0) : 0,
+    designScore: audit ? (audit.design || 0) : 0,
     sourceTool: c.source === 'Google' ? 'Google Maps' : c.source,
     opportunityLevel: opp.level, pipelineStatus: 'Website Audit',
     recommendedAction: c.hasWebsite ? 'Audit done — prep a before/after and call' : 'Build a SiteDrop concept, then cold call — they have no site at all',
-    contactName: '', phone: c.phone || '', email: '', socialLinks: {},
-    lastChecked: todayStr(), nextFollowUp: '',
-    notes: c.signal + ' (discovered via ' + c.source + ', mock run)',
-  });
+    contactName: '', phone: c.enrich.phone || c.phone || '', email: c.enrich.email || '',
+    socialLinks: { facebook: c.enrich.facebook || '', instagram: c.enrich.instagram || '' },
+    address: c.enrich.address || '', category: c.enrich.category || c.industry,
+    gbpUrl: c.enrich.gbpUrl || '', logoUrl: c.enrich.logoUrl || '', photos: c.enrich.photos || [],
+    rating: (c.enrich.rating != null ? c.enrich.rating : c.rating) || null, reviews: c.enrich.reviews || c.reviews || 0,
+    lastChecked: todayStr(), nextFollowUp: '', notionUrl: '',
+    notes: c.signal + ' (discovered via ' + c.source + ')',
+  };
+  S.prospects.unshift(record);
   c.added = true;
-  save(); // persists + re-renders everything (incl. discovery + call queue)
+  save(); // persists + re-renders everything
+
+  // Auto-create the Notion CRM record — no re-entry. Non-blocking.
+  if (window.notionService && notionService.createProspect) {
+    notionService.createProspect(record).then(res => {
+      if (res && res.ok) { record.notionUrl = res.url || ''; toast('“' + record.businessName + '” saved to Notion CRM ✓'); save(); }
+      else { toast('“' + record.businessName + '” added · Notion: ' + ((res && res.reason) || 'not saved'), true); }
+    });
+  }
 }
 
 // ── Call Queue: prospects ready to dial, ranked by opportunity ──

@@ -199,8 +199,49 @@ function mapWebsite(page) {
 
 const MAPPERS = { prospects: mapProspect, projects: mapProject, tasks: mapTask, ai: mapAgent, revenue: mapRevenue, website: mapWebsite };
 
+// ── CREATE: enriched prospect record → Notion Prospects page properties ──
+// Only real columns are set; extras (socials, GBP, address, logo, photo URLs)
+// are packed into Notes so no data is lost even without dedicated columns.
+const LEAD_SOURCE_OK = { Firecrawl: 1, Apollo: 1, Referral: 1, Manual: 1, 'Cold Outreach': 1 };
+function notesBlock(r) {
+  var lines = [];
+  if (r.address) lines.push('Address: ' + r.address);
+  if (r.category) lines.push('Category: ' + r.category);
+  if (r.rating) lines.push('Rating: ' + r.rating + (r.reviews ? ' (' + r.reviews + ' reviews)' : ''));
+  if (r.gbpUrl) lines.push('Google Business: ' + r.gbpUrl);
+  if (r.facebook) lines.push('Facebook: ' + r.facebook);
+  if (r.instagram) lines.push('Instagram: ' + r.instagram);
+  if (r.logoUrl) lines.push('Logo: ' + r.logoUrl);
+  if (r.photos && r.photos.length) lines.push('Photos: ' + r.photos.slice(0, 6).join(' | '));
+  if (r.signal) lines.push('Signal: ' + r.signal);
+  if (r.notes) lines.push(r.notes);
+  return lines.join('\n');
+}
+function buildProspectProperties(r) {
+  var p = {};
+  p['Business Name'] = { title: [{ text: { content: String(r.businessName || 'Untitled').slice(0, 200) } }] };
+  if (r.industry) p['Industry'] = { select: { name: String(r.industry).slice(0, 100) } };
+  if (r.city) p['City'] = { rich_text: [{ text: { content: String(r.city) } }] };
+  if (r.state) p['State'] = { rich_text: [{ text: { content: String(r.state) } }] };
+  if (r.websiteUrl) p['Website'] = { url: (/^https?:/i.test(r.websiteUrl) ? r.websiteUrl : 'https://' + r.websiteUrl) };
+  if (r.phone) p['Phone'] = { phone_number: String(r.phone) };
+  if (r.email) p['Email'] = { email: String(r.email) };
+  if (r.contactName) p['Owner'] = { rich_text: [{ text: { content: String(r.contactName) } }] };
+  if (typeof r.websiteScore === 'number') p['Website Score'] = { number: r.websiteScore };
+  if (typeof r.mobileScore === 'number') p['Speed Score'] = { number: r.mobileScore };
+  if (typeof r.seoScore === 'number') p['SEO Score'] = { number: r.seoScore };
+  if (typeof r.opportunityScore === 'number') p['Opportunity Score'] = { number: r.opportunityScore };
+  var src = LEAD_SOURCE_OK[r.sourceTool] ? r.sourceTool : (/(google|yelp|firecrawl)/i.test(r.sourceTool || '') ? 'Firecrawl' : 'Manual');
+  p['Lead Source'] = { select: { name: src } };
+  p['Assigned Agent'] = { select: { name: 'Claude Code' } };
+  var notes = notesBlock(r);
+  if (notes) p['Notes'] = { rich_text: [{ text: { content: notes.slice(0, 1900) } }] };
+  return p;
+}
+
 exports.handler = async function (event) {
   const db = (event.queryStringParameters && event.queryStringParameters.db) || '';
+  const action = (event.queryStringParameters && event.queryStringParameters.action) || '';
   const probe = !!(event.queryStringParameters && event.queryStringParameters.probe);
   if (!DB_ENV[db]) return json(400, { error: 'Unknown db "' + db + '"' });
 
@@ -216,6 +257,26 @@ exports.handler = async function (event) {
       missing: !key ? 'NOTION_API_KEY' : resolved.name,
       hint: 'Set NOTION_API_KEY and one of [' + DB_ENV[db].join(', ') + '] in Netlify env vars.',
     });
+  }
+
+  // CREATE a CRM record (enriched prospect → Notion page). No data re-entry.
+  if (action === 'create') {
+    let record = {};
+    try { record = JSON.parse(event.body || '{}').record || {}; } catch (e) { return json(400, { error: 'Bad JSON body' }); }
+    if (!record.businessName) return json(400, { error: 'record.businessName required' });
+    try {
+      const res = await fetch('https://api.notion.com/v1/pages', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + key, 'Notion-Version': NOTION_VERSION, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ parent: { database_id: dbId }, properties: buildProspectProperties(record) }),
+      });
+      const text = await res.text();
+      if (!res.ok) return json(502, { error: 'Notion create failed', status: res.status, detail: text.slice(0, 400) });
+      const page = JSON.parse(text);
+      return json(200, { ok: true, id: page.id, url: page.url });
+    } catch (e) {
+      return json(502, { error: 'Notion create request failed', detail: String(e && e.message || e).slice(0, 300) });
+    }
   }
 
   // Website Intelligence, when no dedicated DB is set, falls back to the

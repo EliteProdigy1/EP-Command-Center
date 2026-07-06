@@ -158,6 +158,15 @@ leads with a live CRM stats strip (goal, calls, pipeline value, top category,
 last scan). See `docs/SPRINT-4-WEBSITE-INTELLIGENCE.md`. Engine:
 `js/website-intel.js`.
 
+## Sprint 6 — Discovery Quality & CRM Automation
+Discovery now returns **individual businesses only** (Top 10 listicles + directory
+category pages filtered out). Each business is **enriched** — phone, email,
+address, Facebook, Instagram, Google Business Profile, category, logo, photos,
+rating, reviews — on audit/add. Clicking **Add to Prospects** **auto-creates a
+Notion CRM record** with all enriched data + asset URLs (no manual re-entry), and
+**Website Intelligence** leads with a Contact & Presence block and feeds the real
+assets into the Claude Code export. See `docs/SPRINT-6-DISCOVERY-QUALITY-CRM.md`.
+
 ## Security
 - The **251 passcode gate** (js/gate.js) is obscurity, not security — it keeps
   casual eyes out but is trivially bypassed. Treat this dashboard as public.

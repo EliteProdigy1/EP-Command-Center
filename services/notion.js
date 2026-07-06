@@ -94,6 +94,22 @@
     getRevenue:             function () { return fetchDB('revenue'); },
     getWebsiteIntelligence: function () { return fetchDB('website'); },
 
+    // Create a CRM record from an enriched prospect (Sprint 6). Resolves to
+    // { ok, url } on success, or { ok:false, reason } if Notion isn't wired —
+    // the local prospect is kept either way, so nothing is ever lost.
+    createProspect: function (record) {
+      return fetch(ENDPOINT + '?db=prospects&action=create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ record: record }),
+      }).then(function (res) {
+        if (res.status === 501) return { ok: false, reason: 'Notion not configured — saved locally only' };
+        return res.json().then(function (d) {
+          return res.ok ? { ok: true, url: d.url, id: d.id } : { ok: false, reason: (d && (d.detail || d.error)) || ('HTTP ' + res.status) };
+        });
+      }).catch(function (e) { return { ok: false, reason: String(e && e.message || e) }; });
+    },
+
     // Roll up per-source status into one indicator for the topbar.
     overall: function () {
       var vals = Object.keys(STATUS).map(function (k) { return STATUS[k]; });
