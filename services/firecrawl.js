@@ -82,8 +82,23 @@
     }
   }
 
+  // Ping the function's status action on load so the MOCK/LIVE badge reflects
+  // the ACTUAL env config, not just post-run state. Makes no Firecrawl call.
+  function probeStatus() {
+    return fetch(ENDPOINT + '?action=status', { headers: { 'Accept': 'application/json' } })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        var liveOn = !!(d && d.live);
+        STATUS.discover = liveOn ? 'connected' : 'mock';
+        STATUS.audit = liveOn ? 'connected' : 'mock';
+        return d; // { live, hasKey, keyLength, hasFlag, flagValueSeen, runtime }
+      })
+      .catch(function () { STATUS.discover = 'mock'; STATUS.audit = 'mock'; return null; });
+  }
+
   window.firecrawlService = {
     status: STATUS,
+    probeStatus: probeStatus,
     isMock: function () { return STATUS.discover !== 'connected'; },
 
     // Discover candidate businesses (mock pool until live).

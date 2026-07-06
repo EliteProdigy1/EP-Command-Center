@@ -1566,4 +1566,13 @@ document.addEventListener('DOMContentLoaded', () => {
   setInterval(tickClock, 30000);
   initChrome();
   bootstrap();
+  // Reflect the real Firecrawl env state in the MOCK/LIVE badge on load,
+  // before any discovery run (no Firecrawl call is made by the probe).
+  if (window.firecrawlService && firecrawlService.probeStatus) {
+    firecrawlService.probeStatus().then(() => {
+      renderDiscoveryControls();
+      if (typeof renderCallQueueStats === 'function') renderCallQueueStats();
+      if (typeof renderSalesAgent === 'function') renderSalesAgent();
+    });
+  }
 });

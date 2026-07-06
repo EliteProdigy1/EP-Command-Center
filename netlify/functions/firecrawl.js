@@ -81,15 +81,32 @@ function deriveAudit(data) {
 exports.handler = async function (event) {
   const q = event.queryStringParameters || {};
   const action = q.action || '';
-  const key = process.env.FIRECRAWL_API_KEY;
-  const live = process.env.FIRECRAWL_LIVE === 'true';
+  // Tolerant parsing: trim whitespace; accept true/TRUE/True/1/yes/on for the flag.
+  const key = (process.env.FIRECRAWL_API_KEY || '').trim();
+  const flagRaw = process.env.FIRECRAWL_LIVE;
+  const live = ['true', '1', 'yes', 'on'].indexOf(String(flagRaw == null ? '' : flagRaw).trim().toLowerCase()) !== -1;
+
+  // Status probe — always answers, makes NO Firecrawl call (no credits), and
+  // never returns the key itself. Lets the frontend + you see exactly what the
+  // function's runtime sees, so a stale badge can't be confused with a bad env.
+  if (action === 'status') {
+    return json(200, {
+      live: !!(key && live),
+      hasKey: !!key,
+      keyLength: key.length,           // proves the key reached the runtime, without exposing it
+      hasFlag: live,
+      flagValueSeen: flagRaw == null ? '(unset)' : String(flagRaw),
+      runtime: process.version,
+    });
+  }
 
   // Not explicitly enabled → frontend uses its mock pool (yellow).
   if (!key || !live) {
     return json(501, {
       error: 'Firecrawl in mock mode',
       action,
-      hint: 'Set FIRECRAWL_API_KEY and FIRECRAWL_LIVE=true in Netlify env vars to enable live discovery/audits.',
+      reason: !key ? 'FIRECRAWL_API_KEY not seen by the function runtime' : 'FIRECRAWL_LIVE not truthy (saw: ' + (flagRaw == null ? '(unset)' : JSON.stringify(String(flagRaw))) + ')',
+      hint: 'Set FIRECRAWL_API_KEY and FIRECRAWL_LIVE=true in Netlify env vars (scope must include Functions), then redeploy.',
     });
   }
 
