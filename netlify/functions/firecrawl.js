@@ -19,7 +19,7 @@ const MAX_DISCOVER = 10;
 const FC = 'https://api.firecrawl.dev/v1';
 
 function json(statusCode, body) {
-  return { statusCode, headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }, body: JSON.stringify(body) };
+  return { statusCode, headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }, body: JSON.stringify(body) };
 }
 
 // A result living on a directory/social page = the business has no site of its
@@ -47,19 +47,56 @@ function isListingPage(title, url) {
   if (isAggregator(u) && !isBusinessProfilePath(u)) return true;
   return false;
 }
-function cleanName(title, url) {
-  var t = String(title || '').replace(/\s*[|\-–—:•].*$/, '').trim();
-  if (/^(home|welcome|official site)$/i.test(t) || !t) {
-    try { t = new URL(/^https?:/.test(url) ? url : 'https://' + url).hostname.replace(/^www\./, '').split('.')[0]; } catch (e) { t = t || url; }
-  }
-  return t.slice(0, 80);
+// A title is "generic" when it's basically the search query (industry + city)
+// or filler like "Pro <industry>…"/"…Services in <city>" — i.e. an SEO title,
+// not a brand. Then we derive the real name from the domain instead.
+var TRADE = 'pressure|power|soft|home|gulf|coast|coastal|shore|shores|bay|clean|cleaning|wash|washing|solutions|service|services|landscap\\w*|lawn|turf|roof\\w*|detail\\w*|fence|tree|hvac|heating|cooling|air|electric\\w*|plumb\\w*|paint\\w*|concrete|window|pest|auto|barber|salon|studio|fitness|gym|dental|chiro\\w*';
+function looksGeneric(name, industry, location) {
+  var n = String(name || '').toLowerCase().trim();
+  if (!n) return true;
+  var city = String(location || '').split(',')[0].toLowerCase().trim();
+  var indWords = String(industry || '').toLowerCase().split(/\s+/).filter(function (w) { return w.length > 3; });
+  var hasInd = indWords.some(function (w) { return n.indexOf(w) !== -1; });
+  var hasCity = city && n.indexOf(city) !== -1;
+  if (hasInd && hasCity) return true;
+  if (new RegExp('^(pro|best|top|leading|leader|premier|#?1|your|the|expert|experts|professional|affordable|local|quality|trusted)\\s+(' + TRADE + ')\\b', 'i').test(n)) return true;
+  if (/\b(near me|company|companies)\b/.test(n) && (hasInd || hasCity)) return true;
+  return false;
+}
+function domainBrand(url) {
+  var h; try { h = new URL(/^https?:/i.test(url) ? url : 'https://' + url).hostname.replace(/^www\./, ''); } catch (e) { return ''; }
+  var base = (h.split('.')[0] || '').replace(/[^a-z0-9]/gi, '');
+  if (!base || base.length < 3) return '';
+  base = base.replace(/^(call|get|go|book|my|the)(?=[a-z]{3})/i, '');
+  var spaced = base
+    .replace(new RegExp('(' + TRADE + ')', 'gi'), ' $1')
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(/\s+/g, ' ').trim();
+  if (!spaced) return '';
+  return spaced.replace(/\b\w/g, function (c) { return c.toUpperCase(); }).slice(0, 60);
+}
+function cleanName(title, url, industry, location) {
+  var full = String(title || '').replace(/\s+/g, ' ').trim();
+  var head = full.split(/\s*[|\-–—:•·]\s*/)[0].trim();       // brand before a separator
+  var tail = (full.match(/,\s*(?:AL|FL|MS|GA)\b[\s.:-]*(.+)$/i) || [])[1] || ''; // brand after "…, AL"
+  var cands = [];
+  if (tail && !looksGeneric(tail, industry, location)) cands.push(tail.trim());
+  if (head && !looksGeneric(head, industry, location)) cands.push(head);
+  var db = domainBrand(url);
+  if (db) cands.push(db);
+  if (head) cands.push(head); // last resort: the cleaned title, generic or not
+  var name = cands.find(function (x) { return x && x.length >= 3; }) || head || '';
+  return name.slice(0, 80);
+}
+function rootDomain(url) {
+  try { return new URL(/^https?:/i.test(url) ? url : 'https://' + url).hostname.replace(/^www\./, '').toLowerCase(); } catch (e) { return ''; }
 }
 function mapSearchResult(r, industry, location) {
   var url = r.url || '';
   var dir = isDirectory(url);
   return {
     id: 'fc' + Math.random().toString(36).slice(2, 8),
-    businessName: cleanName(r.title, url),
+    businessName: cleanName(r.title, url, industry, location),
     industry: industry, location: location, source: 'Firecrawl',
     hasWebsite: !dir,
     websiteUrl: dir ? '' : url.replace(/^https?:\/\//, '').replace(/\/$/, ''),
@@ -68,8 +105,8 @@ function mapSearchResult(r, industry, location) {
     gbpUrl: '', facebook: dir && /facebook\./i.test(url) ? url : '', instagram: '',
     logoUrl: '', photos: [], rating: null, reviews: 0,
     signal: dir
-      ? 'Found on a directory/social listing — no website of their own (strongest opportunity)'
-      : 'Has a site (' + (r.description ? String(r.description).slice(0, 60) : url) + ') — audit it for the gaps',
+      ? 'Found on a directory/social listing - no website of their own (strongest opportunity)'
+      : 'Has a site (' + (r.description ? String(r.description).slice(0, 60) : url) + ') - audit it for the gaps',
   };
 }
 
@@ -169,7 +206,13 @@ exports.handler = async function (event) {
       const candidates = raw
         .filter(function (r) { return r && r.url && !isListingPage(r.title, r.url); }) // individual businesses only
         .map(function (r) { return mapSearchResult(r, industry, location); })
-        .filter(function (c) { var k = c.businessName.toLowerCase(); if (!k || seen[k]) return false; seen[k] = 1; return true; })
+        .filter(function (c) {
+          // De-dupe by business name AND by own-site root domain.
+          var k = c.businessName.toLowerCase();
+          var dk = c.hasWebsite ? ('dom:' + rootDomain(c.websiteUrl)) : '';
+          if (!k || seen[k] || (dk && seen[dk])) return false;
+          seen[k] = 1; if (dk) seen[dk] = 1; return true;
+        })
         .sort(function (a, b) { return (a.hasWebsite === b.hasWebsite) ? 0 : (a.hasWebsite ? 1 : -1); })
         .slice(0, MAX_DISCOVER);
       return json(200, { source: 'Firecrawl', candidates: candidates });
