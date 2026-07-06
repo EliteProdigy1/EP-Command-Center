@@ -403,3 +403,10 @@ body.focus .mc-card:not(.urgent) { opacity: 0.35; filter: saturate(0.5); }
 .filter-group { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; width: 100%; margin-bottom: 8px; }
 .filter-label { font-size: 9.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-3); min-width: 78px; }
 #prospect-filters { flex-direction: column; align-items: stretch; }
+
+/* ═══ SPRINT 2 — data source status dots ═══ */
+.ds-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--text-3); vertical-align: middle; margin-right: 4px; }
+.ds-green  { background: var(--green);  box-shadow: 0 0 8px rgba(74,222,128,0.55); }
+.ds-yellow { background: var(--yellow); box-shadow: 0 0 8px rgba(250,204,21,0.5); }
+.ds-red    { background: var(--red);    box-shadow: 0 0 8px rgba(248,113,113,0.5); }
+#data-status-pill { gap: 6px; }

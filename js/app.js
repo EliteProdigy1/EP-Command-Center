@@ -1217,6 +1217,7 @@ const TITLES = {
   deploys: 'Sites &amp; <em>Repos</em>', revenue: 'Revenue &amp; <em>Pricing</em>', aiteam: 'AI <em>Team</em>',
   growth: 'Growth <em>Stack</em>', integrations: 'Integrations <em>Map</em>', workforce: 'Agent <em>Workforce</em>',
   automations: 'Automation <em>Center</em>', knowledge: 'Knowledge <em>Center</em>', personal: 'Personal <em>Command</em>',
+  datastatus: 'Integration <em>Status</em>',
   investor: 'Investor <em>Dashboard</em>', banking: 'Banking &amp; <em>Funding</em>',
 };
 
@@ -1289,11 +1290,70 @@ function renderAll() {
   placeholderCards('personal-grid', mockData.personalCommand);
   placeholderCards('investor-grid', mockData.investorDashboard);
   placeholderCards('banking-grid', mockData.bankingFunding);
+  renderIntegrationStatus();
+}
+
+/* ═══ SPRINT 2 — DATA SERVICE BOOTSTRAP ═══
+   All data flows through notionService. It returns mockData when Notion
+   isn't configured (fallback), so behavior is identical until keys are
+   set. When connected, Notion becomes the source of truth and the same
+   render pipeline draws it — no render/UI changes. */
+async function bootstrap() {
+  renderAll(); // paint immediately with local/mock data
+  if (!window.notionService) return;
+  try {
+    const [prospects, projects, tasks, ai, revenue, website] = await Promise.all([
+      notionService.getProspects(),
+      notionService.getProjects(),
+      notionService.getTasks(),
+      notionService.getAiWorkforce(),
+      notionService.getRevenue(),
+      notionService.getWebsiteIntelligence(),
+    ]);
+    const st = notionService.status;
+    // Only overwrite when a source is actually live from Notion; fallback
+    // keeps the editable local working state (S) and the mock reference data.
+    if (st.projects === 'connected' && Array.isArray(projects)) mockData.clients = projects;
+    if (st.ai === 'connected' && Array.isArray(ai)) mockData.agentWorkforce = ai;
+    if (st.website === 'connected' && Array.isArray(website)) mockData.prospectAudits = website;
+    if (st.revenue === 'connected' && revenue && revenue.pricing) mockData.pricing = revenue.pricing;
+    if (st.prospects === 'connected' && Array.isArray(prospects)) S.prospects = prospects;
+    if (st.tasks === 'connected' && tasks && tasks.todo) S.tasks = tasks;
+    renderAll();
+  } catch (e) {
+    // stay on fallback; status panel will show it
+  }
+  renderIntegrationStatus();
+}
+
+function renderIntegrationStatus() {
+  const svc = window.notionService;
+  const overall = svc ? svc.overall() : 'fallback';
+  const cls = { connected: 'ds-green', partial: 'ds-yellow', fallback: 'ds-yellow', error: 'ds-red' }[overall] || 'ds-yellow';
+  const dot = document.getElementById('ds-dot');
+  const lbl = document.getElementById('ds-label');
+  if (dot) dot.className = 'ds-dot ' + cls;
+  if (lbl) lbl.textContent = overall === 'connected' ? 'Notion' : overall === 'partial' ? 'Partial' : overall === 'error' ? 'API Error' : 'Mock Data';
+
+  const list = document.getElementById('ds-list');
+  if (list && svc) {
+    const map = { connected: ['ds-green', 'Connected', 'Live from Notion'], fallback: ['ds-yellow', 'Fallback', 'Running on mock data'], error: ['ds-red', 'API Error', 'Notion call failed'] };
+    list.innerHTML = Object.keys(svc.sourceLabels).map(k => {
+      const s = svc.status[k] || 'fallback';
+      const [c, label, desc] = map[s] || map.fallback;
+      return `<div class="row">
+        <div class="row-main"><div class="row-title"><span class="ds-dot ${c}"></span> ${esc(svc.sourceLabels[k])}</div><div class="row-sub">${desc}</div></div>
+        <span class="badge ${c === 'ds-green' ? 'b-good' : c === 'ds-red' ? 'b-bad' : 'b-warn'}">${label}</span>
+      </div>`;
+    }).join('');
+  }
+  const ov = document.getElementById('ds-overall');
+  if (ov) ov.textContent = overall === 'connected' ? 'All live' : overall === 'error' ? 'Error' : 'Fallback (mock data)';
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   tickClock();
   setInterval(tickClock, 30000);
-  renderAll();
   initChrome();
+  bootstrap();
 });

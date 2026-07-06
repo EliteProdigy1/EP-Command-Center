@@ -63,6 +63,7 @@
       <a href="#" class="nav-link" data-section="aiteam"><span class="nav-ico">✦</span> AI Team</a>
       <a href="#" class="nav-link" data-section="growth"><span class="nav-ico">⬡</span> Growth Stack</a>
       <a href="#" class="nav-link" data-section="integrations"><span class="nav-ico">⇄</span> Integrations Map</a>
+      <a href="#" class="nav-link" data-section="datastatus"><span class="nav-ico">◐</span> Integration Status</a>
       <a href="#" class="nav-link" data-section="workforce"><span class="nav-ico">♟</span> Agent Workforce</a>
       <a href="#" class="nav-link" data-section="automations"><span class="nav-ico">⚡</span> Automations</a>
       <a href="#" class="nav-link" data-section="knowledge"><span class="nav-ico">▤</span> Knowledge</a>
@@ -93,6 +94,7 @@
         </div>
       </div>
       <div class="top-actions">
+        <button class="btn btn-ghost btn-sm" id="data-status-pill" title="Data source status — click for details" onclick="goSection('datastatus')"><span class="ds-dot" id="ds-dot"></span> <span id="ds-label">Data</span></button>
         <button class="btn btn-ghost btn-sm" id="btn-focus" title="Dim everything that isn't urgent">◐ Focus</button>
         <button class="btn btn-ghost btn-sm" id="btn-export" title="Download JSON backup of your working data">⬇ Backup</button>
         <button class="btn btn-ghost btn-sm" id="btn-import" title="Restore from a backup file">⬆ Restore</button>
@@ -290,6 +292,20 @@
       </div>
     </section>
 
+    <!-- INTEGRATION STATUS (Sprint 2) -->
+    <section class="section" id="section-datastatus">
+      <div class="notice"><b>Data source status.</b> Each source below reads through the Notion service. Until <code>NOTION_API_KEY</code> and the database IDs are set in Netlify, every source runs on built-in mock data (yellow). See the README for setup.</div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">Integration Status</div><div class="card-tag" id="ds-overall"></div></div>
+        <div id="ds-list"></div>
+        <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:16px;padding-top:14px;border-top:1px solid var(--hairline);">
+          <span style="font-size:11px;color:var(--text-2);"><span class="ds-dot ds-green"></span> Connected — live from Notion</span>
+          <span style="font-size:11px;color:var(--text-2);"><span class="ds-dot ds-yellow"></span> Fallback — running on mock data</span>
+          <span style="font-size:11px;color:var(--text-2);"><span class="ds-dot ds-red"></span> API Error — Notion configured but the call failed</span>
+        </div>
+      </div>
+    </section>
+
     <!-- AGENT WORKFORCE -->
     <section class="section" id="section-workforce">
       <div class="card">
@@ -341,5 +357,6 @@
 
 <script src="js/gate.js"></script>
 <script src="js/app.js"></script>
+<script src="services/notion.js"></script>
 </body>
 </html>

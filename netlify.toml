@@ -1,6 +1,11 @@
 [build]
   publish = "."
 
+# Serverless functions — the Notion proxy keeps the API key server-side.
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
 [[headers]]
   for = "/*"
   [headers.values]
