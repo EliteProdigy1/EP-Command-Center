@@ -46,34 +46,69 @@
     </div>
 
     <nav id="nav">
-      <div class="nav-label">Operate</div>
-      <a href="#" class="nav-link active" data-section="mission" data-always><span class="nav-ico">◈</span> Mission Control</a>
-      <a href="#" class="nav-link" data-section="agent" data-always><span class="nav-ico">✦</span> Sales Agent</a>
-      <a href="#" class="nav-link" data-section="callmode" data-always><span class="nav-ico">☎</span> Call Mode</a>
-      <a href="#" class="nav-link" data-section="intelligence" data-always><span class="nav-ico">◍</span> Intelligence Center</a>
-      <a href="#" class="nav-link" data-section="discovery" data-always><span class="nav-ico">⌕</span> Prospect Discovery</a>
-      <a href="#" class="nav-link" data-section="prospects" data-always><span class="nav-ico">◎</span> Potential Clients</a>
-      <a href="#" class="nav-link" data-section="pipeline" data-always><span class="nav-ico">⇶</span> Pipeline</a>
-      <a href="#" class="nav-link" data-section="tasks" data-always><span class="nav-ico">✓</span> Tasks</a>
+      <a href="#" class="nav-link active nav-home" data-section="mission" data-always><span class="nav-ico">◈</span> Home</a>
 
-      <div class="nav-label">Clients &amp; Sites</div>
-      <a href="#" class="nav-link" data-section="clients"><span class="nav-ico">◉</span> Active Clients</a>
-      <a href="#" class="nav-link" data-section="deploys"><span class="nav-ico">▲</span> Sites &amp; Repos</a>
+      <div class="nav-group open">
+        <button class="nav-group-h" onclick="toggleNavGroup(this)" type="button">Sales <span class="ng-caret">▾</span></button>
+        <div class="nav-group-items">
+          <a href="#" class="nav-link" data-section="agent"><span class="nav-ico">✦</span> Sales Agent</a>
+          <a href="#" class="nav-link" data-section="callmode"><span class="nav-ico">☎</span> Call Mode</a>
+          <a href="#" class="nav-link" data-section="discovery"><span class="nav-ico">⌕</span> Prospect Discovery</a>
+          <a href="#" class="nav-link" data-section="intelligence"><span class="nav-ico">◍</span> Intelligence Center</a>
+          <a href="#" class="nav-link" data-section="prospects"><span class="nav-ico">◎</span> Potential Clients</a>
+          <a href="#" class="nav-link" data-section="pipeline"><span class="nav-ico">⇶</span> Pipeline</a>
+          <a href="#" class="nav-link" data-section="revenue"><span class="nav-ico">$</span> Revenue &amp; Pricing</a>
+        </div>
+      </div>
 
-      <div class="nav-label">Intelligence</div>
-      <a href="#" class="nav-link" data-section="revenue"><span class="nav-ico">$</span> Revenue &amp; Pricing</a>
-      <a href="#" class="nav-link" data-section="aiteam"><span class="nav-ico">✦</span> AI Team</a>
-      <a href="#" class="nav-link" data-section="growth"><span class="nav-ico">⬡</span> Growth Stack</a>
-      <a href="#" class="nav-link" data-section="integrations"><span class="nav-ico">⇄</span> Integrations Map</a>
-      <a href="#" class="nav-link" data-section="datastatus"><span class="nav-ico">◐</span> Integration Status</a>
-      <a href="#" class="nav-link" data-section="workforce"><span class="nav-ico">♟</span> Agent Workforce</a>
-      <a href="#" class="nav-link" data-section="automations"><span class="nav-ico">⚡</span> Automations</a>
-      <a href="#" class="nav-link" data-section="knowledge"><span class="nav-ico">▤</span> Knowledge</a>
+      <div class="nav-group">
+        <button class="nav-group-h" onclick="toggleNavGroup(this)" type="button">Operations <span class="ng-caret">▾</span></button>
+        <div class="nav-group-items">
+          <a href="#" class="nav-link" data-section="tasks"><span class="nav-ico">✓</span> Tasks</a>
+          <a href="#" class="nav-link" data-section="automations"><span class="nav-ico">⚡</span> Automations</a>
+          <a href="#" class="nav-link" data-section="growth"><span class="nav-ico">⬡</span> Growth Stack</a>
+        </div>
+      </div>
 
-      <div class="nav-label">Personal</div>
-      <a href="#" class="nav-link" data-section="personal"><span class="nav-ico">☖</span> Personal Command</a>
-      <a href="#" class="nav-link" data-section="investor"><span class="nav-ico">↗</span> Investor Dashboard</a>
-      <a href="#" class="nav-link" data-section="banking"><span class="nav-ico">▦</span> Banking / Funding</a>
+      <div class="nav-group">
+        <button class="nav-group-h" onclick="toggleNavGroup(this)" type="button">Sites &amp; Repos <span class="ng-caret">▾</span></button>
+        <div class="nav-group-items">
+          <a href="#" class="nav-link" data-section="clients"><span class="nav-ico">◉</span> Active Clients</a>
+          <a href="#" class="nav-link" data-section="deploys"><span class="nav-ico">▲</span> Sites &amp; Repos</a>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <button class="nav-group-h" onclick="toggleNavGroup(this)" type="button">AI Team <span class="ng-caret">▾</span></button>
+        <div class="nav-group-items">
+          <a href="#" class="nav-link" data-section="aiteam"><span class="nav-ico">✦</span> AI Team</a>
+          <a href="#" class="nav-link" data-section="workforce"><span class="nav-ico">♟</span> Agent Workforce</a>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <button class="nav-group-h" onclick="toggleNavGroup(this)" type="button">Integrations <span class="ng-caret">▾</span></button>
+        <div class="nav-group-items">
+          <a href="#" class="nav-link" data-section="integrations"><span class="nav-ico">⇄</span> Integrations Map</a>
+          <a href="#" class="nav-link" data-section="datastatus"><span class="nav-ico">◐</span> Integration Status</a>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <button class="nav-group-h" onclick="toggleNavGroup(this)" type="button">Knowledge <span class="ng-caret">▾</span></button>
+        <div class="nav-group-items">
+          <a href="#" class="nav-link" data-section="knowledge"><span class="nav-ico">▤</span> Knowledge</a>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <button class="nav-group-h" onclick="toggleNavGroup(this)" type="button">Personal <span class="ng-caret">▾</span></button>
+        <div class="nav-group-items">
+          <a href="#" class="nav-link" data-section="personal"><span class="nav-ico">☖</span> Personal Command</a>
+          <a href="#" class="nav-link" data-section="investor"><span class="nav-ico">↗</span> Investor Dashboard</a>
+          <a href="#" class="nav-link" data-section="banking"><span class="nav-ico">▦</span> Banking / Funding</a>
+        </div>
+      </div>
     </nav>
 
     <div class="sidebar-foot">

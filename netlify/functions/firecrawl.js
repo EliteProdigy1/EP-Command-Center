@@ -118,6 +118,24 @@ function collectLinks(meta, md) {
   return links;
 }
 function firstMatch(links, re) { for (var i = 0; i < links.length; i++) if (re.test(links[i])) return links[i]; return ''; }
+// Reject template/placeholder values that live in theme boilerplate.
+function cleanPhone(p) {
+  var d = String(p || '').replace(/\D/g, ''); if (d.length < 10) return '';
+  var ten = d.slice(-10);
+  if (/^(\d)\1{9}$/.test(ten) || ten === '1234567890' || ten === '0123456789' || /^555/.test(ten)) return '';
+  return String(p).trim();
+}
+function cleanEmail(e) {
+  e = String(e || '').toLowerCase().trim(); if (!e) return '';
+  if (/(example\.|mailservice\.com|sentry|wixpress|yourdomain|yourcompany|domain\.com|email@|test@|@2x|\.(png|jpe?g|gif|svg|webp))/.test(e)) return '';
+  return e;
+}
+function cleanSocial(u, host) {
+  if (!u) return '';
+  var m = u.match(new RegExp(host + '\\.com/([^/?#]+)', 'i'));
+  if (!m || !m[1] || m[1].length < 2 || /^(sharer|plugins|tr|home|login|pages|profile\.php|p)$/i.test(m[1])) return '';
+  return u;
+}
 
 function extractEnrichment(data, candidate) {
   data = data || {};
@@ -133,9 +151,9 @@ function extractEnrichment(data, candidate) {
   var photos = (md.match(/https?:\/\/[^\s)"'\]]+\.(?:jpg|jpeg|png|webp)(?:\?[^\s)"'\]]*)?/gi) || []).slice(0, 8);
   var logo = meta.ogImage || meta['og:image'] || meta.image || meta.favicon || (photos[0] || '');
   return {
-    phone: phone, email: email, address: address,
-    facebook: firstMatch(links, /facebook\.com/i),
-    instagram: firstMatch(links, /instagram\.com/i),
+    phone: cleanPhone(phone), email: cleanEmail(email), address: address,
+    facebook: cleanSocial(firstMatch(links, /facebook\.com/i), 'facebook'),
+    instagram: cleanSocial(firstMatch(links, /instagram\.com/i), 'instagram'),
     gbpUrl: firstMatch(links, /(google\.[a-z.]+\/maps|g\.page|business\.google|goo\.gl\/maps)/i),
     logoUrl: logo || '', photos: photos,
     category: meta.category || candidate.category || candidate.industry || '',

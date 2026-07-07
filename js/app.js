@@ -551,17 +551,103 @@ function renderKPIs() {
   el.innerHTML = kpis.map(k => `<div class="card stat-tile lift"><div class="stat-num">${k.n}</div><div class="stat-label">${k.l}</div><div class="stat-sub">${k.s}</div></div>`).join('');
 }
 
+/* ═══ TODAY'S MEETINGS (reads the Notion Meetings DB) ═══ */
+let meetingsData = [];
+const MEETING_NEXT = {
+  Discovery: 'Prep proposal & pricing', Proposal: 'Follow up to close',
+  'Check-in': 'Log outcome + next step', Kickoff: 'Confirm assets & timeline', Other: 'Review notes & follow up',
+};
+function meetingDayLabel(d) {
+  if (!d || isNaN(d.getTime())) return 'Date TBD';
+  const t = new Date(); t.setHours(0, 0, 0, 0);
+  const dd = new Date(d); dd.setHours(0, 0, 0, 0);
+  const diff = Math.round((dd - t) / 86400000);
+  if (diff === 0) return 'Today'; if (diff === 1) return 'Tomorrow'; if (diff === -1) return 'Yesterday';
+  if (diff > 1 && diff < 7) return dd.toLocaleDateString('en-US', { weekday: 'long' });
+  return dd.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+function meetingTime(m) { return (m.date && /T\d\d:/.test(m.date)) ? new Date(m.date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : ''; }
+function upcomingMeetings(limit) {
+  const t = new Date(); t.setHours(0, 0, 0, 0);
+  return (meetingsData || [])
+    .filter(m => m && (m.date || m.title || m.with))
+    .map(m => Object.assign({}, m, { _d: m.date ? new Date(m.date) : null }))
+    .filter(m => !m._d || isNaN(m._d.getTime()) || m._d >= t)
+    .sort((a, b) => (a._d && !isNaN(a._d) ? a._d.getTime() : Infinity) - (b._d && !isNaN(b._d) ? b._d.getTime() : Infinity))
+    .slice(0, limit || 4);
+}
+function homeMeetingsHTML() {
+  const ms = upcomingMeetings(4);
+  if (!ms.length) return '<div class="empty">No meetings scheduled. Tap <b>🗓 Meeting</b> to add one.</div>';
+  return ms.map(m => `
+    <div class="home-meeting">
+      <div class="hm-when">${esc(meetingDayLabel(m._d))}${meetingTime(m) ? ' · ' + esc(meetingTime(m)) : ''}</div>
+      <div class="hm-title">${esc(m.with || m.title || 'Meeting')}${m.type ? ' ' + badge(m.type) : ''}</div>
+      ${m.notes ? `<div class="hm-notes">${esc(String(m.notes).slice(0, 130))}${String(m.notes).length > 130 ? '…' : ''}</div>` : ''}
+      <div class="hm-next">▸ ${esc(MEETING_NEXT[m.type] || 'Review notes & follow up')}</div>
+    </div>`).join('');
+}
+
+/* ═══ HOME / MISSION CONTROL — 5 focus cards only ═══ */
 function renderMissionControl() {
   const el = document.getElementById('mc-grid');
   if (!el) return;
-  el.innerHTML = dashboardModules.filter(m => m.enabled).map(m => `
-    <div class="card mc-card lift ${m.urgent ? 'urgent' : ''}" onclick="goSection('${m.section}')" role="button" tabindex="0"
-         onkeydown="if(event.key==='Enter')goSection('${m.section}')" data-module="${m.id}">
-      <span class="go">→</span>
-      <div class="card-tag" style="margin-bottom:8px;">${m.title}</div>
-      ${m.summary()}
-    </div>
-  `).join('');
+
+  // Call Queue (top prospects to dial)
+  const cq = (typeof callQueueProspects === 'function') ? callQueueProspects().slice(0, 5) : [];
+  const cqHTML = cq.length ? cq.map(p => `
+    <div class="home-row" onclick="goSection('prospects');openProspect('${p.id}')">
+      <div><div class="home-row-t">${esc(p.businessName)}${p.websiteStatus === 'No website found' ? ' <span class="badge b-gold">NO SITE</span>' : ''}</div>
+      <div class="home-row-s">${esc(p.industry)} · ${esc(p.location)}</div></div>
+      <div class="home-row-e">${badge(p.opportunityLevel)}${p.phone ? `<a class="mini" href="tel:${esc(p.phone)}" onclick="event.stopPropagation()">☎</a>` : ''}</div>
+    </div>`).join('') : '<div class="empty">Queue empty — discover or add prospects.</div>';
+
+  // Hot Prospects (high opportunity)
+  const hot = S.prospects.filter(p => p.opportunityLevel === 'High' && !['Won', 'Not Fit'].includes(p.pipelineStatus))
+    .sort((a, b) => (a.websiteScore || 0) - (b.websiteScore || 0)).slice(0, 5);
+  const hotHTML = hot.length ? hot.map(p => `
+    <div class="home-row" onclick="goSection('prospects');openProspect('${p.id}')">
+      <div><div class="home-row-t">${esc(p.businessName)}</div><div class="home-row-s">${esc(p.websiteStatus)} · score ${p.websiteScore}</div></div>
+      <div class="home-row-e">${badge('High')}</div>
+    </div>`).join('') : '<div class="empty">No hot prospects yet.</div>';
+
+  // Active Client Sites (live deployments)
+  const sites = mockData.deployments.filter(d => d.status === 'Live').slice(0, 6);
+  const sitesHTML = sites.length ? sites.map(d => `
+    <div class="home-row">
+      <div><div class="home-row-t">${esc(d.name)}</div><div class="home-row-s">${esc(d.url)}</div></div>
+      <a class="mini" href="https://${esc(d.url)}" target="_blank" rel="noopener">↗</a>
+    </div>`).join('') : '<div class="empty">No live sites.</div>';
+
+  // Tasks Due Today (due today or high priority)
+  const today = todayStr();
+  const tasks = S.tasks.todo.filter(t => t.due === today || t.priority === 'high').slice(0, 6);
+  const tasksHTML = tasks.length ? tasks.map(t => `
+    <div class="home-row" onclick="goSection('tasks')">
+      <div><div class="home-row-t">${esc(t.title)}</div><div class="home-row-s">${esc(t.client)} · due ${esc(t.due)}</div></div>
+      <div class="home-row-e">${badge(t.priority)}</div>
+    </div>`).join('') : '<div class="empty">Nothing due today — go sell.</div>';
+
+  const card = (title, section, tag, body, cls) => `
+    <div class="card home-card ${cls || ''}">
+      <div class="card-head"><div class="card-title">${title}</div>
+        <button class="card-tag home-open" onclick="goSection('${section}')">${tag} →</button></div>
+      ${body}
+    </div>`;
+
+  const meetingsCard = `
+    <div class="card home-card home-wide home-accent">
+      <div class="card-head"><div class="card-title">🗓 Today’s Meetings</div>
+        <button class="card-tag home-open" onclick="openMeetingNotes()">＋ Add →</button></div>
+      ${homeMeetingsHTML()}
+    </div>`;
+
+  el.innerHTML =
+    meetingsCard +
+    card('☎ Call Queue', 'callmode', 'Call Mode', cqHTML) +
+    card('🔥 Hot Prospects', 'prospects', 'Prospects', hotHTML) +
+    card('🌐 Active Client Sites', 'deploys', 'Sites', sitesHTML) +
+    card('✓ Tasks Due Today', 'tasks', 'Tasks', tasksHTML);
 }
 
 /* ═══ CALL MODE ═══ */
@@ -1506,11 +1592,17 @@ const TITLES = {
   investor: 'Investor <em>Dashboard</em>', banking: 'Banking &amp; <em>Funding</em>',
 };
 
+function toggleNavGroup(btn) { const g = btn.closest('.nav-group'); if (g) g.classList.toggle('open'); }
+
 function goSection(target) {
   document.querySelectorAll('.nav-link').forEach(n => n.classList.toggle('active', n.getAttribute('data-section') === target));
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   const sec = document.getElementById('section-' + target);
   if (sec) sec.classList.add('active');
+  // Keep the active link's group expanded so the highlight is visible.
+  const active = document.querySelector('.nav-link.active[data-section="' + target + '"]');
+  const grp = active && active.closest ? active.closest('.nav-group') : null;
+  if (grp) grp.classList.add('open');
   const t = document.getElementById('page-title');
   if (t) t.innerHTML = TITLES[target] || target;
   closeSidebar();
@@ -1589,6 +1681,10 @@ function renderAll() {
 async function bootstrap() {
   renderAll(); // paint immediately with local/mock data
   if (!window.notionService) return;
+  // Today's Meetings reads straight from the Notion Meetings DB (source of truth).
+  if (notionService.getMeetings) {
+    notionService.getMeetings().then(m => { if (Array.isArray(m)) { meetingsData = m; renderMissionControl(); } });
+  }
   try {
     const [prospects, projects, tasks, ai, revenue, website] = await Promise.all([
       notionService.getProspects(),

@@ -199,7 +199,20 @@ function mapWebsite(page) {
   };
 }
 
-const MAPPERS = { prospects: mapProspect, projects: mapProject, tasks: mapTask, ai: mapAgent, revenue: mapRevenue, website: mapWebsite };
+function mapMeeting(page) {
+  const f = page.properties || {};
+  return {
+    id: page.id,
+    title: readText(f['Name']),
+    with: readText(f['With']),
+    date: readText(f['Date']),
+    attendees: readText(f['Attendees']),
+    type: readText(f['Type']),
+    notes: readText(f['Notes']),
+    source: readText(f['Source']),
+  };
+}
+const MAPPERS = { prospects: mapProspect, projects: mapProject, tasks: mapTask, ai: mapAgent, revenue: mapRevenue, website: mapWebsite, meetings: mapMeeting };
 
 // ── CREATE: enriched prospect record → Notion Prospects page properties ──
 // Only real columns are set; extras (socials, GBP, address, logo, photo URLs)

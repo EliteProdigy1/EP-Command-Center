@@ -108,6 +108,14 @@
     getAiWorkforce:         function () { return fetchDB('ai'); },
     getRevenue:             function () { return fetchDB('revenue'); },
     getWebsiteIntelligence: function () { return fetchDB('website'); },
+    // Meetings are read-only on the dashboard (Today's Meetings card). Kept out
+    // of the Integration Status roll-up; just returns rows or [] if unwired.
+    getMeetings: function () {
+      return fetch(ENDPOINT + '?db=meetings', { headers: { 'Accept': 'application/json' } })
+        .then(function (r) { return r.ok ? r.json() : []; })
+        .then(function (d) { return Array.isArray(d) ? d : []; })
+        .catch(function () { return []; });
+    },
 
     // ── ONE reusable write layer (Sprint 5A) ────────────────────────
     // Every Notion write goes through writeNotion(). It resolves to
