@@ -790,20 +790,20 @@ function renderProspects() {
   if (!el) return;
   const rows = S.prospects.filter(prospectMatches);
   el.innerHTML = `
-    <thead><tr><th>Business</th><th>Website</th><th>Score</th><th>Opportunity</th><th>Source</th><th>Status</th><th></th></tr></thead>
+    <thead><tr><th>Business</th><th>Website</th><th>Phone</th><th>Opportunity</th><th>Status</th><th></th></tr></thead>
     <tbody>${rows.map(p => `
       <tr>
         <td data-k="Business"><b style="color:var(--text);cursor:pointer;" onclick="openProspect('${p.id}')">${esc(p.businessName)}</b><br><span style="font-size:11px;color:var(--text-3);">${esc(p.industry)} · ${esc(p.location)}</span></td>
-        <td data-k="Website">${esc(p.websiteStatus)}</td>
-        <td data-k="Score"><span style="font-variant-numeric:tabular-nums;">${p.websiteScore}</span></td>
-        <td data-k="Opportunity">${badge(p.opportunityLevel)}</td>
-        <td data-k="Source">${esc(p.sourceTool)}</td>
+        <td data-k="Website">${siteUrl(p.websiteUrl) ? `<a href="${esc(siteUrl(p.websiteUrl))}" target="_blank" rel="noopener" style="color:var(--gold);">Visit ↗</a>` : esc(p.websiteStatus)}</td>
+        <td data-k="Phone">${p.phone ? `<a href="tel:${esc(p.phone)}" style="color:var(--gold);">${esc(p.phone)}</a>` : `<button class="mini" onclick="addPhone('${p.id}')">＋ phone</button>`}</td>
+        <td data-k="Opportunity">${badge(p.opportunityLevel)} <span style="color:var(--text-3);font-size:11px;">${p.websiteScore}</span></td>
         <td data-k="Status">${badge(p.pipelineStatus)}</td>
         <td data-k="Actions"><div class="acts">
           <button class="mini" onclick="openProspect('${p.id}')">Open</button>
           <button class="mini" onclick="promoteProspect('${p.id}')">→ Pipeline</button>
+          <button class="mini danger" onclick="deleteProspect('${p.id}')">🗑</button>
         </div></td>
-      </tr>`).join('') || '<tr><td colspan="7" class="empty">No prospects match these filters.</td></tr>'}
+      </tr>`).join('') || '<tr><td colspan="6" class="empty">No prospects match these filters.</td></tr>'}
     </tbody>`;
   const cnt = document.getElementById('prospect-count');
   if (cnt) cnt.textContent = rows.length + ' of ' + S.prospects.length;
@@ -846,51 +846,54 @@ function scoreBar(label, val) {
   </div>`;
 }
 
+// Normalize any user/scraped URL into a safe absolute https link.
+function siteUrl(u) { u = String(u || '').trim().replace(/^https?:\/\//i, ''); return u ? 'https://' + u : ''; }
+function callProspect(id) { const p = S.prospects.find(x => x.id === id); if (!p) return; if (!p.phone) { const n = prompt('Add a phone number for ' + p.businessName + ':', ''); if (n && n.trim()) { p.phone = n.trim(); save(); pushProspectToNotion(p); } else return; } window.location.href = 'tel:' + p.phone; }
+function addPhone(id) { const p = S.prospects.find(x => x.id === id); if (!p) return; const n = prompt('Phone number for ' + p.businessName + ':', p.phone || ''); if (n !== null) { p.phone = n.trim(); save(); pushProspectToNotion(p); openProspect(id); } }
+function pushProspectToNotion(p) { if (p.notionId && window.notionService) notionService.updateProspect(p.notionId, { phone: p.phone }); }
+function deleteProspect(id) {
+  const p = S.prospects.find(x => x.id === id);
+  if (p && confirm('Delete "' + p.businessName + '" from prospects? This cannot be undone.')) {
+    S.prospects = S.prospects.filter(x => x.id !== id); save(); closePanel(); toast('Deleted “' + p.businessName + '”');
+  }
+}
+
 function openProspect(id) {
   const p = S.prospects.find(x => x.id === id);
   if (!p) return;
-  const social = Object.entries(p.socialLinks || {}).filter(([, v]) => v).map(([k, v]) => `${k}: ${esc(v)}`).join(' · ') || '—';
+  const url = siteUrl(p.websiteUrl);
   openPanel(`
     <div class="panel-title">${esc(p.businessName)}</div>
     <div class="panel-sub">${esc(p.industry)} · ${esc(p.location)} · via ${esc(p.sourceTool)}</div>
 
-    <div class="kv-k" style="margin-bottom:8px;">Opportunity Scoring</div>
-    <div style="margin-bottom:16px;">
-      ${scoreBar('Website (overall)', p.websiteScore)}
-      ${scoreBar('Mobile', p.mobileScore)}
-      ${scoreBar('SEO', p.seoScore)}
-      ${scoreBar('Design', p.designScore)}
+    <div style="display:flex;gap:9px;flex-wrap:wrap;margin:14px 0 18px;">
+      ${p.phone
+        ? `<a class="btn btn-gold btn-sm" href="tel:${esc(p.phone)}">☎ ${esc(p.phone)}</a>`
+        : `<button class="btn btn-gold btn-sm" onclick="addPhone('${p.id}')">☎ Add phone</button>`}
+      ${url ? `<a class="btn btn-ghost btn-sm" href="${esc(url)}" target="_blank" rel="noopener">🌐 Visit website ↗</a>` : ''}
+      ${p.email ? `<a class="btn btn-ghost btn-sm" href="mailto:${esc(p.email)}">✉ Email</a>` : ''}
     </div>
 
     <div class="panel-kv">
       <div><div class="kv-k">Opportunity</div><div class="kv-v">${badge(p.opportunityLevel)}</div></div>
       <div><div class="kv-k">Est. Value</div><div class="kv-v" style="color:var(--gold-light);">${typeof estimateProjectValue === 'function' ? money(estimateProjectValue(p).total) : '—'}</div></div>
       <div><div class="kv-k">Pipeline</div><div class="kv-v">${badge(p.pipelineStatus)}</div></div>
-      <div><div class="kv-k">Website</div><div class="kv-v">${p.websiteUrl ? `<a href="https://${esc(p.websiteUrl)}" target="_blank" rel="noopener" style="color:var(--gold);">${esc(p.websiteUrl)} ↗</a>` : esc(p.websiteStatus)}</div></div>
-      <div><div class="kv-k">Status</div><div class="kv-v">${esc(p.websiteStatus)}</div></div>
-      <div><div class="kv-k">Contact</div><div class="kv-v">${esc(p.contactName || '—')}</div></div>
-      <div><div class="kv-k">Phone</div><div class="kv-v">${p.phone ? `<a href="tel:${esc(p.phone)}" style="color:var(--gold);">${esc(p.phone)}</a>` : '—'}</div></div>
-      <div><div class="kv-k">Email</div><div class="kv-v">${p.email ? `<a href="mailto:${esc(p.email)}" style="color:var(--gold);">${esc(p.email)}</a>` : '—'}</div></div>
-      <div><div class="kv-k">Social</div><div class="kv-v" style="font-size:11px;">${social}</div></div>
-      <div><div class="kv-k">Last Checked</div><div class="kv-v">${esc(p.lastChecked || '—')}</div></div>
+      <div><div class="kv-k">Website</div><div class="kv-v">${url ? `<a href="${esc(url)}" target="_blank" rel="noopener" style="color:var(--gold);">${esc(p.websiteUrl)} ↗</a>` : esc(p.websiteStatus)}</div></div>
+      <div><div class="kv-k">Score</div><div class="kv-v">${p.websiteScore}/100</div></div>
       <div><div class="kv-k">Next Follow-Up</div><div class="kv-v">${esc(p.nextFollowUp || '—')}</div></div>
     </div>
 
-    <div class="kv-k" style="margin-bottom:6px;">Recommended Action</div>
-    <div style="font-size:13px;color:var(--text);line-height:1.6;margin-bottom:8px;">${esc(p.recommendedAction)}</div>
-    ${p.notes ? `<div class="kv-k" style="margin-bottom:6px;">Notes</div><div style="font-size:12.5px;color:var(--text-2);line-height:1.6;margin-bottom:18px;">${esc(p.notes)}</div>` : '<div style="margin-bottom:12px;"></div>'}
+    <div class="kv-k" style="margin:14px 0 6px;">Recommended Action</div>
+    <div style="font-size:13px;color:var(--text);line-height:1.6;margin-bottom:${p.notes ? '8px' : '16px'};">${esc(p.recommendedAction)}</div>
+    ${p.notes ? `<div class="kv-k" style="margin-bottom:6px;">Notes</div><div style="font-size:12.5px;color:var(--text-2);line-height:1.6;margin-bottom:16px;">${esc(p.notes)}</div>` : ''}
 
     <div style="display:flex;flex-direction:column;gap:9px;">
       <button class="btn btn-gold" onclick="renderWebsiteIntelligence('${p.id}')">◍ Website Intelligence — brief, value &amp; build</button>
       <button class="btn btn-gold" onclick="promoteProspect('${p.id}');closePanel();">→ Move to Pipeline (start selling)</button>
-      <button class="btn btn-ghost" onclick="hookRunAudit('${p.id}')">Run Audit</button>
-      <button class="btn btn-ghost" onclick="hookBuildConcept('${p.id}')">Build SiteDrop Concept</button>
-      <button class="btn btn-ghost" onclick="hookMoveToCRM('${p.id}')">Move to CRM</button>
-      <button class="btn btn-ghost" onclick="hookMarkContacted('${p.id}')">Mark Contacted</button>
-      <button class="btn btn-ghost" onclick="hookScheduleFollowUp('${p.id}')">Schedule Follow-Up</button>
-      <button class="btn btn-ghost" onclick="hookOutreachMessage('${p.id}')">Generate Outreach Message</button>
+      <button class="btn btn-ghost" onclick="hookScheduleFollowUp('${p.id}')">📅 Schedule Follow-Up</button>
+      <button class="btn btn-ghost" onclick="hookOutreachMessage('${p.id}')">✉ Outreach Message</button>
       <button class="btn btn-ghost" onclick="editProspect('${p.id}')">✎ Edit details</button>
-      <button class="btn btn-ghost" style="color:var(--red);" onclick="dropProspect('${p.id}')">Mark Not Fit</button>
+      <button class="btn btn-ghost" style="color:var(--red);" onclick="deleteProspect('${p.id}')">🗑 Delete prospect</button>
     </div>`);
 }
 
@@ -1165,12 +1168,16 @@ async function runDiscovery() {
 function renderDiscovery() {
   const el = document.getElementById('discovery-results');
   if (!el) return;
-  if (!discoveryResults.length) {
-    el.innerHTML = '<div class="empty">Pick an industry + location and press <b>Run Discovery</b>. No-website businesses surface first — those are the strongest opportunities.</div>';
+  // Once a business is added (or already a prospect), drop it from this list.
+  const list = discoveryResults.filter(c => !c.added && !S.prospects.some(p => p.businessName === c.businessName));
+  if (!list.length) {
+    el.innerHTML = discoveryResults.length
+      ? '<div class="empty">All discovered businesses added to Prospects ✓ — run another search to find more.</div>'
+      : '<div class="empty">Pick an industry + location and press <b>Run Discovery</b>. No-website businesses surface first — those are the strongest opportunities.</div>';
     renderCallQueue();
     return;
   }
-  el.innerHTML = discoveryResults.map(c => {
+  el.innerHTML = list.map(c => {
     const a = c.audit;
     const opp = a ? computeOpportunity(a) : null;
     const inProspects = S.prospects.some(p => p.businessName === c.businessName);
@@ -1237,6 +1244,7 @@ async function addCandidateToProspects(id) {
   const c = discoveryResults.find(x => x.id === id);
   if (!c) return;
   if (S.prospects.some(p => p.businessName === c.businessName)) { renderDiscovery(); return; }
+  c.added = true; renderDiscovery(); toast('Adding “' + c.businessName + '”…'); // instant: drop it from the list now
   const svc = window.firecrawlService;
   const [audit, enr] = await Promise.all([
     c.audit ? Promise.resolve(c.audit) : (svc ? svc.audit(c) : Promise.resolve(null)),
@@ -1606,6 +1614,8 @@ function goSection(target) {
   const t = document.getElementById('page-title');
   if (t) t.innerHTML = TITLES[target] || target;
   closeSidebar();
+  closePanel(); // close any open slide panel so its backdrop can't block clicks
+  if (typeof closeModal === 'function') closeModal();
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
