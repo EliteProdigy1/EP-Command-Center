@@ -1384,6 +1384,39 @@ function editLead(id) {
 }
 
 /* ═══ TASKS ═══ */
+// Agents a task can be handed off to (name → where it opens + what it does).
+const TASK_AGENTS = {
+  'Claude Code': { url: 'https://claude.ai/code',        icon: '⌘',  how: 'builds/fixes/deploys sites on GitHub + Netlify' },
+  'ChatGPT':     { url: 'https://chatgpt.com',           icon: '🧠', how: 'strategy, sales angles, copy, planning' },
+  'Claude':      { url: 'https://claude.ai',             icon: '✦',  how: 'writing, analysis, client communication' },
+  'Manus':       { url: 'https://manus.im',              icon: '◇',  how: 'ops, research runs, workflow reporting' },
+  'Apollo':      { url: 'https://app.apollo.io',         icon: '◎',  how: 'lead lists + contact enrichment' },
+  'Firecrawl':   { url: 'https://www.firecrawl.dev/app', icon: '🔥', how: 'website audits + scraping' },
+};
+function findTask(id) { for (const c of ['todo', 'inprogress', 'done']) { const t = S.tasks[c].find(x => x.id === id); if (t) return { t, col: c }; } return {}; }
+function assignTask(id, agent) { const { t } = findTask(id); if (!t) return; t.agent = agent || ''; save(); }
+// Hand the task off to its agent: build a brief, copy it, and open the agent.
+function runTask(id) {
+  const { t, col } = findTask(id); if (!t) return;
+  if (!t.agent) t.agent = 'Claude Code';
+  const a = TASK_AGENTS[t.agent] || TASK_AGENTS['Claude Code'];
+  const brief =
+`EP MEDIA — task assignment for ${t.agent}
+
+Task: ${t.title}
+Client: ${t.client || 'Internal'}
+Priority: ${t.priority} · Due: ${t.due}
+Agent role: ${a.how}
+
+Please carry this out and report back. This is an Elite Prodigy Media operations
+task handed off from the EP Command Center.`;
+  if (navigator.clipboard) navigator.clipboard.writeText(brief).catch(() => {});
+  try { window.open(a.url, '_blank', 'noopener'); } catch (e) { /* popup blocked */ }
+  if (col === 'todo') moveTask('todo', id, 'inprogress'); // now in progress with the agent
+  else save();
+  toast('Handed “' + t.title + '” to ' + t.agent + ' ✓  (brief copied — paste it in)');
+}
+
 function renderTasks() {
   const el = document.getElementById('task-board');
   if (!el) return;
@@ -1392,14 +1425,17 @@ function renderTasks() {
     { key: 'inprogress', label: 'In Progress', next: 'done', nextLabel: 'Done ✓' },
     { key: 'done', label: 'Done', next: null },
   ];
+  const agentOpts = t => Object.keys(TASK_AGENTS).map(a => `<option ${t.agent === a ? 'selected' : ''}>${a}</option>`).join('');
   el.innerHTML = cols.map(col => `
     <div class="pipe-col">
       <div class="pipe-head">${col.label}<span class="count">${S.tasks[col.key].length}</span></div>
       ${S.tasks[col.key].map(t => `
         <div class="pipe-card">
           <div style="font-size:13px;font-weight:500;">${esc(t.title)}</div>
-          <div style="font-size:11px;color:var(--text-3);margin-top:4px;">${esc(t.client)} · due ${esc(t.due)} · ${badge(t.priority)}</div>
+          <div style="font-size:11px;color:var(--text-3);margin-top:4px;">${esc(t.client)} · due ${esc(t.due)} · ${badge(t.priority)}${t.agent ? ` · <span style="color:var(--gold-light);">${TASK_AGENTS[t.agent] ? TASK_AGENTS[t.agent].icon : ''} ${esc(t.agent)}</span>` : ''}</div>
           <div class="acts">
+            <select class="mini task-agent" onchange="assignTask('${t.id}',this.value)"><option value=""${!t.agent ? ' selected' : ''}>Assign agent…</option>${agentOpts(t)}</select>
+            <button class="mini" style="color:var(--gold-light);" onclick="runTask('${t.id}')">⚡ Run</button>
             ${col.next ? `<button class="mini" onclick="moveTask('${col.key}','${t.id}','${col.next}')">${col.nextLabel}</button>` : ''}
             <button class="mini danger" onclick="deleteTask('${col.key}','${t.id}')">✕</button>
           </div>
@@ -1414,6 +1450,7 @@ function addTaskFromForm() {
     client: document.getElementById('nt-client').value.trim() || 'Internal',
     priority: document.getElementById('nt-priority').value,
     due: document.getElementById('nt-due').value.trim() || todayStr(),
+    agent: (document.getElementById('nt-agent') || {}).value || '',
   });
   ['nt-title', 'nt-client', 'nt-due'].forEach(i => document.getElementById(i).value = '');
   toggleForm('task-form', false);
