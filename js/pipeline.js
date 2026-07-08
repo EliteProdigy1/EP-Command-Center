@@ -43,7 +43,7 @@
       const stage = p.buildStage || 'Research', tool = p.buildTool || 'Claude Code', pv = preview(p);
       return `<div class="bq-row">
         <div class="bq-main">
-          <div class="bq-name" onclick="goSection('prospects');openProspect('${p.id}')">${esc(p.businessName)} ${badge(p.pipelineStatus)}</div>
+          <div class="bq-name" onclick="goSection('prospects');openProspect('${p.id}')">${esc(p.businessName)} ${badge(p.pipelineStatus)} ${adaBadge(p)}</div>
           <div class="bq-sub">${esc(p.industry)} · ${esc(p.location)}${pv ? ` · <a href="${esc(pv)}" target="_blank" rel="noopener" style="color:var(--gold);">preview ↗</a>` : ''}</div>
         </div>
         <div class="bq-controls">
@@ -119,5 +119,44 @@
         ${m.notes ? `<div class="hm-notes">${esc(String(m.notes).slice(0, 180))}</div>` : ''}
         ${m.type ? `<div class="hm-next">▸ ${esc((typeof MEETING_NEXT !== 'undefined' && MEETING_NEXT[m.type]) || 'Review & follow up')}</div>` : ''}
       </div>`).join('') : '<div class="empty">No meetings yet. Tap <b>🗓 Meeting</b> to add one — it saves to Notion.</div>';
+  };
+
+  /* ── ADA / Accessibility QA (per website project) ────────────────── */
+  const ADA_CHECKS = ['Image alt text', 'Color contrast 4.5:1', 'Keyboard navigable', 'Visible focus states', 'Form labels present', 'Logical heading order', 'Descriptive link text', 'Zoom to 200% works'];
+  const ADA_STATUSES = ['Not Checked', 'Needs Fixes', 'Passed'];
+  function ada(p) { p.ada = p.ada || { status: 'Not Checked', checks: {}, lighthouse: '', axe: '', notes: '' }; return p.ada; }
+  window.adaBadge = function (p) { return (p.ada && p.ada.status === 'Passed') ? '<span class="badge b-good">ADA Passed</span>' : '<span class="badge b-warn">ADA Pending</span>'; };
+  window.openADA = function (id) {
+    const p = S.prospects.find(x => x.id === id); if (!p) return; const a = ada(p);
+    openPanel(
+      '<div class="panel-title">ADA / Accessibility QA</div>' +
+      '<div class="panel-sub">' + esc(p.businessName) + ' · WCAG 2.1 AA basics</div>' +
+      '<div class="kv-k" style="margin:6px 0;">Status</div>' +
+      '<select class="prospect-filter-select" onchange="setAdaStatus(\'' + p.id + '\',this.value)">' + ADA_STATUSES.map(s => '<option ' + (a.status === s ? 'selected' : '') + '>' + s + '</option>').join('') + '</select>' +
+      '<div class="kv-k" style="margin:16px 0 6px;">WCAG AA checklist</div>' +
+      '<div class="ada-checks">' + ADA_CHECKS.map((c, i) => '<label class="ada-check"><input type="checkbox" ' + (a.checks[i] ? 'checked' : '') + ' onchange="toggleAdaCheck(\'' + p.id + '\',' + i + ',this.checked)"> ' + esc(c) + '</label>').join('') + '</div>' +
+      '<div class="ep-form-grid" style="margin:16px 0 4px;">' +
+        '<label class="ep-field"><span>Lighthouse a11y (0–100)</span><input id="ada-lh" type="number" value="' + esc(a.lighthouse) + '"></label>' +
+        '<label class="ep-field"><span>axe issues (count)</span><input id="ada-axe" type="number" value="' + esc(a.axe) + '"></label>' +
+      '</div>' +
+      '<label class="ep-field ep-wide" style="margin-bottom:16px;"><span>Accessibility fix notes</span><textarea id="ada-notes" rows="4">' + esc(a.notes) + '</textarea></label>' +
+      '<div style="display:flex;flex-direction:column;gap:9px;">' +
+        '<button class="btn btn-gold" onclick="runAdaChecklist(\'' + p.id + '\')">⚡ Run ADA Checklist → task for Claude Code</button>' +
+        '<button class="btn btn-ghost" onclick="saveAda(\'' + p.id + '\')">Save</button>' +
+        '<button class="btn btn-ghost" onclick="openProspect(\'' + p.id + '\')">← Back to prospect</button>' +
+      '</div>'
+    );
+  };
+  window.setAdaStatus = function (id, v) { const p = S.prospects.find(x => x.id === id); if (!p) return; ada(p).status = v; save(); if (p.notionId && window.notionService) notionService.appendTimelineEvent(p.notionId, 'ADA → ' + v); };
+  window.toggleAdaCheck = function (id, i, on) { const p = S.prospects.find(x => x.id === id); if (!p) return; ada(p).checks[i] = on; save(); };
+  window.saveAda = function (id) { const p = S.prospects.find(x => x.id === id); if (!p) return; const a = ada(p); a.lighthouse = (document.getElementById('ada-lh') || {}).value || ''; a.axe = (document.getElementById('ada-axe') || {}).value || ''; a.notes = (document.getElementById('ada-notes') || {}).value || ''; save(); toast('ADA QA saved'); openProspect(id); };
+  window.runAdaChecklist = function (id) {
+    const p = S.prospects.find(x => x.id === id); if (!p) return; const a = ada(p);
+    if (a.status === 'Not Checked') a.status = 'Needs Fixes';
+    S.tasks.todo.unshift({ id: uid(), title: 'ADA WCAG AA checklist — ' + p.businessName, client: p.businessName, priority: 'high', due: todayStr(), agent: 'Claude Code' });
+    save();
+    if (p.notionId && window.notionService) notionService.appendTimelineEvent(p.notionId, 'ADA checklist task created (Claude Code)');
+    toast('ADA checklist task created → assigned to Claude Code');
+    openProspect(id);
   };
 }());

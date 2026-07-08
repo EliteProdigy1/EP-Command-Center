@@ -760,21 +760,29 @@ const prospectFilters = { industry: 'All', location: 'All', opportunity: 'All', 
 
 function uniq(key) { return ['All', ...Array.from(new Set(S.prospects.map(p => p[key]).filter(Boolean)))]; }
 
+// One scroll-through filter (native select w/ optgroups) instead of chip rows.
 function renderProspectFilters() {
   const el = document.getElementById('prospect-filters');
   if (!el) return;
-  const chip = (group, label) => `<button class="chip ${prospectFilters[group] === label ? 'on' : ''}" onclick="setProspectFilter('${group}','${esc(label)}')">${esc(label)}</button>`;
   const groups = [
-    ['Opportunity', 'opportunity', ['All', 'High', 'Medium', 'Low']],
-    ['Status', 'status', ['All', ...PROSPECT_STAGES]],
-    ['Website', 'website', ['All', 'No website found', 'Poor website', 'Outdated website', 'Slow mobile site', 'No clear CTA', 'Good website / low priority']],
-    ['Industry', 'industry', uniq('industry')],
-    ['Location', 'location', uniq('location')],
-    ['Source', 'source', uniq('sourceTool')],
+    ['Opportunity', 'opportunity', ['High', 'Medium', 'Low']],
+    ['Status', 'status', PROSPECT_STAGES],
+    ['Website', 'website', ['No website found', 'Poor website', 'Outdated website', 'Slow mobile site', 'No clear CTA', 'Good website / low priority']],
+    ['Industry', 'industry', uniq('industry').filter(v => v !== 'All')],
+    ['Location', 'location', uniq('location').filter(v => v !== 'All')],
+    ['Source', 'source', uniq('sourceTool').filter(v => v !== 'All')],
   ];
-  el.innerHTML = groups.map(([label, group, opts]) =>
-    `<div class="filter-group"><span class="filter-label">${label}</span>${opts.map(o => chip(group, o)).join('')}</div>`
-  ).join('');
+  let cur = 'all';
+  for (const [, g] of groups) { if (prospectFilters[g] !== 'All') { cur = g + '|' + prospectFilters[g]; break; } }
+  el.innerHTML = `<select class="prospect-filter-select" onchange="applyProspectFilter(this.value)">
+    <option value="all"${cur === 'all' ? ' selected' : ''}>All prospects</option>
+    ${groups.map(([label, g, opts]) => `<optgroup label="${label}">${opts.map(o => `<option value="${g}|${esc(o)}"${cur === g + '|' + o ? ' selected' : ''}>${label}: ${esc(o)}</option>`).join('')}</optgroup>`).join('')}
+  </select>`;
+}
+function applyProspectFilter(v) {
+  Object.keys(prospectFilters).forEach(k => (prospectFilters[k] = 'All'));
+  if (v && v !== 'all') { const i = v.indexOf('|'); const dim = v.slice(0, i), val = v.slice(i + 1); if (prospectFilters[dim] !== undefined) prospectFilters[dim] = val; }
+  renderProspects();
 }
 function setProspectFilter(group, val) { prospectFilters[group] = val; renderProspectFilters(); renderProspects(); }
 
@@ -799,13 +807,12 @@ function renderProspects() {
       <tr>
         <td data-k="Business"><b style="color:var(--text);cursor:pointer;" onclick="openProspect('${p.id}')">${esc(p.businessName)}</b><br><span style="font-size:11px;color:var(--text-3);">${esc(p.industry)} · ${esc(p.location)}</span></td>
         <td data-k="Website">${siteUrl(p.websiteUrl) ? `<a href="${esc(siteUrl(p.websiteUrl))}" target="_blank" rel="noopener" style="color:var(--gold);">Visit ↗</a>` : esc(p.websiteStatus)}</td>
-        <td data-k="Phone">${p.phone ? `<a href="tel:${esc(p.phone)}" style="color:var(--gold);">${esc(p.phone)}</a>` : `<button class="mini" onclick="addPhone('${p.id}')">＋ phone</button>`}</td>
+        <td data-k="Phone">${p.phone ? `<a href="tel:${esc(p.phone)}" style="color:var(--gold);">${esc(p.phone)}</a>` : `<button class="mini" onclick="findPhone('${p.id}')" title="Look up phone from Google/Yelp/site">🔍 find</button>`}</td>
         <td data-k="Opportunity">${badge(p.opportunityLevel)} <span style="color:var(--text-3);font-size:11px;">${p.websiteScore}</span></td>
-        <td data-k="Status">${badge(p.pipelineStatus)}</td>
+        <td data-k="Status">${badge(p.pipelineStatus)}${p.ada && p.ada.status === 'Passed' ? ' <span class="badge b-good">ADA</span>' : ''}</td>
         <td data-k="Actions"><div class="acts">
-          <button class="mini" onclick="openProspect('${p.id}')">Open</button>
           <button class="mini" onclick="promoteProspect('${p.id}')">→ Pipeline</button>
-          <button class="mini danger" onclick="deleteProspect('${p.id}')">🗑</button>
+          <button class="mini danger" onclick="deleteProspect('${p.id}')">🗑 Delete</button>
         </div></td>
       </tr>`).join('') || '<tr><td colspan="6" class="empty">No prospects match these filters.</td></tr>'}
     </tbody>`;
@@ -854,6 +861,27 @@ function scoreBar(label, val) {
 function siteUrl(u) { u = String(u || '').trim().replace(/^https?:\/\//i, ''); return u ? 'https://' + u : ''; }
 function callProspect(id) { const p = S.prospects.find(x => x.id === id); if (!p) return; if (!p.phone) { const n = prompt('Add a phone number for ' + p.businessName + ':', ''); if (n && n.trim()) { p.phone = n.trim(); save(); pushProspectToNotion(p); } else return; } window.location.href = 'tel:' + p.phone; }
 function addPhone(id) { const p = S.prospects.find(x => x.id === id); if (!p) return; const n = prompt('Phone number for ' + p.businessName + ':', p.phone || ''); if (n !== null) { p.phone = n.trim(); save(); pushProspectToNotion(p); openProspect(id); } }
+// Try to pull a phone (and email/socials) from the business's site or its
+// Google/Yelp/Facebook listing — best-effort scrape via Firecrawl (live only).
+async function findPhone(id) {
+  const p = S.prospects.find(x => x.id === id); if (!p) return;
+  toast('Looking up ' + p.businessName + '…');
+  const s = p.socialLinks || {};
+  const cand = { businessName: p.businessName, industry: p.industry, hasWebsite: !!p.websiteUrl, websiteUrl: p.websiteUrl || '', listingUrl: p.listingUrl || p.gbpUrl || s.facebook || s.instagram || '' };
+  let enr = {};
+  try { enr = window.firecrawlService ? await firecrawlService.enrich(cand) : {}; } catch (e) { enr = {}; }
+  const found = [];
+  if (enr) {
+    if (enr.phone && !p.phone) { p.phone = enr.phone; found.push('phone'); }
+    if (enr.email && !p.email) { p.email = enr.email; found.push('email'); }
+    if (enr.gbpUrl && !p.gbpUrl) p.gbpUrl = enr.gbpUrl;
+    if (enr.facebook) { p.socialLinks = p.socialLinks || {}; if (!p.socialLinks.facebook) p.socialLinks.facebook = enr.facebook; }
+  }
+  save();
+  if (p.notionId && window.notionService && found.length) notionService.updateProspect(p.notionId, { phone: p.phone, email: p.email });
+  toast(found.length ? ('Found ' + found.join(' + ') + ' ✓') : ('No public phone found — add it manually (Google/Yelp often block scraping)'), !found.length);
+  openProspect(id);
+}
 function pushProspectToNotion(p) { if (p.notionId && window.notionService) notionService.updateProspect(p.notionId, { phone: p.phone }); }
 function deleteProspect(id) {
   const p = S.prospects.find(x => x.id === id);
@@ -881,7 +909,7 @@ function openProspect(id) {
     <div style="display:flex;gap:9px;flex-wrap:wrap;margin:14px 0 18px;">
       ${p.phone
         ? `<a class="btn btn-gold btn-sm" href="tel:${esc(p.phone)}">☎ ${esc(p.phone)}</a>`
-        : `<button class="btn btn-gold btn-sm" onclick="addPhone('${p.id}')">☎ Add phone</button>`}
+        : `<button class="btn btn-gold btn-sm" onclick="findPhone('${p.id}')">🔍 Find phone</button><button class="btn btn-ghost btn-sm" onclick="addPhone('${p.id}')">＋ Add phone</button>`}
       ${url ? `<a class="btn btn-ghost btn-sm" href="${esc(url)}" target="_blank" rel="noopener">🌐 Visit website ↗</a>` : ''}
       ${p.email ? `<a class="btn btn-ghost btn-sm" href="mailto:${esc(p.email)}">✉ Email</a>` : ''}
     </div>
@@ -903,6 +931,7 @@ function openProspect(id) {
     <div style="display:flex;flex-direction:column;gap:9px;">
       <button class="btn btn-gold" onclick="renderWebsiteIntelligence('${p.id}')">◍ Website Intelligence — brief, value &amp; build</button>
       <button class="btn btn-gold" onclick="sendToBuildQueue('${p.id}')">🏗 Send to Build Queue</button>
+      <button class="btn btn-ghost" onclick="openADA('${p.id}')">♿ ADA / Accessibility QA${p.ada && p.ada.status ? ' · ' + (p.ada.status === 'Passed' ? 'Passed' : 'Pending') : ''}</button>
       <button class="btn btn-ghost" onclick="promoteProspect('${p.id}');closePanel();">→ Move to Pipeline (start selling)</button>
       <button class="btn btn-ghost" onclick="hookScheduleFollowUp('${p.id}')">📅 Schedule Follow-Up</button>
       <button class="btn btn-ghost" onclick="hookOutreachMessage('${p.id}')">✉ Outreach Message</button>
@@ -1282,7 +1311,7 @@ async function addCandidateToProspects(id) {
     contactName: '', phone: c.enrich.phone || c.phone || '', email: c.enrich.email || '',
     socialLinks: { facebook: c.enrich.facebook || '', instagram: c.enrich.instagram || '' },
     address: c.enrich.address || '', category: c.enrich.category || c.industry,
-    gbpUrl: c.enrich.gbpUrl || '', logoUrl: c.enrich.logoUrl || '', photos: c.enrich.photos || [],
+    gbpUrl: c.enrich.gbpUrl || '', listingUrl: c.listingUrl || '', logoUrl: c.enrich.logoUrl || '', photos: c.enrich.photos || [],
     rating: (c.enrich.rating != null ? c.enrich.rating : c.rating) || null, reviews: c.enrich.reviews || c.reviews || 0,
     lastChecked: todayStr(), nextFollowUp: '', notionUrl: '',
     notes: c.signal + ' (discovered via ' + c.source + ')',

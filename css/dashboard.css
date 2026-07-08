@@ -620,3 +620,13 @@ body.focus .mc-card:not(.urgent) { opacity: 0.35; filter: saturate(0.5); }
   .bq-controls { justify-content: flex-start; }
   .bq-controls select { flex: 1; min-width: 0; }
 }
+
+/* One scroll-through prospect filter + ADA checklist */
+.prospect-filter-select {
+  width: 100%; background: var(--panel-strong); border: 1px solid var(--hairline);
+  color: var(--text); border-radius: 10px; padding: 11px 12px; font-size: 14px; font-family: var(--sans);
+}
+.prospect-filter-select:focus { outline: none; border-color: var(--gold-dim); }
+.ada-checks { display: flex; flex-direction: column; gap: 9px; margin-bottom: 4px; }
+.ada-check { display: flex; align-items: center; gap: 9px; font-size: 13px; color: var(--text-2); cursor: pointer; }
+.ada-check input { width: 17px; height: 17px; accent-color: var(--gold); flex-shrink: 0; }
