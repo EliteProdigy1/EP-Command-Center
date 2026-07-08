@@ -595,12 +595,14 @@ function renderMissionControl() {
 
   // Call Queue (top prospects to dial)
   const cq = (typeof callQueueProspects === 'function') ? callQueueProspects().slice(0, 5) : [];
-  const cqHTML = cq.length ? cq.map(p => `
+  void cq;
+  // Follow-ups Due (prospects with a next follow-up date)
+  const followups = S.prospects.filter(p => p.nextFollowUp && !['Won', 'Not Fit'].includes(p.pipelineStatus)).slice(0, 6);
+  const cqHTML = followups.length ? followups.map(p => `
     <div class="home-row" onclick="goSection('prospects');openProspect('${p.id}')">
-      <div><div class="home-row-t">${esc(p.businessName)}${p.websiteStatus === 'No website found' ? ' <span class="badge b-gold">NO SITE</span>' : ''}</div>
-      <div class="home-row-s">${esc(p.industry)} · ${esc(p.location)}</div></div>
-      <div class="home-row-e">${badge(p.opportunityLevel)}${p.phone ? `<a class="mini" href="tel:${esc(p.phone)}" onclick="event.stopPropagation()">☎</a>` : ''}</div>
-    </div>`).join('') : '<div class="empty">Queue empty — discover or add prospects.</div>';
+      <div><div class="home-row-t">${esc(p.businessName)}</div><div class="home-row-s">${esc(p.industry)} · due ${esc(p.nextFollowUp)}</div></div>
+      <div class="home-row-e">${p.phone ? `<a class="mini" href="tel:${esc(p.phone)}" onclick="event.stopPropagation()">☎</a>` : badge(p.pipelineStatus)}</div>
+    </div>`).join('') : '<div class="empty">No follow-ups scheduled.</div>';
 
   // Hot Prospects (high opportunity)
   const hot = S.prospects.filter(p => p.opportunityLevel === 'High' && !['Won', 'Not Fit'].includes(p.pipelineStatus))
@@ -611,13 +613,13 @@ function renderMissionControl() {
       <div class="home-row-e">${badge('High')}</div>
     </div>`).join('') : '<div class="empty">No hot prospects yet.</div>';
 
-  // Active Client Sites (live deployments)
-  const sites = mockData.deployments.filter(d => d.status === 'Live').slice(0, 6);
-  const sitesHTML = sites.length ? sites.map(d => `
-    <div class="home-row">
-      <div><div class="home-row-t">${esc(d.name)}</div><div class="home-row-s">${esc(d.url)}</div></div>
-      <a class="mini" href="https://${esc(d.url)}" target="_blank" rel="noopener">↗</a>
-    </div>`).join('') : '<div class="empty">No live sites.</div>';
+  // Sites Being Built (prospects in the production pipeline)
+  const building = S.prospects.filter(p => ['Website Audit', 'Concept Ready', 'Proposal Sent', 'Won'].includes(p.pipelineStatus) || p.buildStage).slice(0, 6);
+  const sitesHTML = building.length ? building.map(p => `
+    <div class="home-row" onclick="goSection('buildqueue')">
+      <div><div class="home-row-t">${esc(p.businessName)}</div><div class="home-row-s">${esc(p.buildStage || 'Research')} · ${esc(p.pipelineStatus)}</div></div>
+      <div class="home-row-e">${badge(p.buildStage || 'Research')}</div>
+    </div>`).join('') : '<div class="empty">No sites in build yet — move a prospect into the Build Queue.</div>';
 
   // Tasks Due Today (due today or high priority)
   const today = todayStr();
@@ -644,11 +646,13 @@ function renderMissionControl() {
 
   el.innerHTML =
     meetingsCard +
-    card('☎ Call Queue', 'callmode', 'Call Mode', cqHTML) +
-    card('🔥 Hot Prospects', 'prospects', 'Prospects', hotHTML) +
-    card('🌐 Active Client Sites', 'deploys', 'Sites', sitesHTML) +
+    card('📅 Follow-ups Due', 'prospects', 'Prospects', cqHTML) +
+    card('🔥 Top Prospects', 'prospects', 'Prospects', hotHTML) +
+    card('🏗 Sites Being Built', 'buildqueue', 'Build Queue', sitesHTML) +
     card('✓ Tasks Due Today', 'tasks', 'Tasks', tasksHTML);
 }
+// Quick "＋ Task" — jump to Tasks with the new-task form open + focused.
+function quickAddTask() { goSection('tasks'); toggleForm('task-form', true); const el = document.getElementById('nt-title'); if (el) el.focus(); }
 
 /* ═══ CALL MODE ═══ */
 const OUTCOMES = [
@@ -857,6 +861,14 @@ function deleteProspect(id) {
     S.prospects = S.prospects.filter(x => x.id !== id); save(); closePanel(); toast('Deleted “' + p.businessName + '”');
   }
 }
+// Move a prospect into the Build Queue (production pipeline).
+function sendToBuildQueue(id) {
+  const p = S.prospects.find(x => x.id === id); if (!p) return;
+  if (!p.buildStage) p.buildStage = 'Research';
+  if (['New Prospect', 'Needs Research'].includes(p.pipelineStatus)) p.pipelineStatus = 'Website Audit';
+  if (p.notionId && window.notionService) notionService.updateProspect(p.notionId, { status: p.pipelineStatus, note: 'Moved to Build Queue' });
+  save(); closePanel(); goSection('buildqueue'); toast('“' + p.businessName + '” → Build Queue');
+}
 
 function openProspect(id) {
   const p = S.prospects.find(x => x.id === id);
@@ -879,6 +891,7 @@ function openProspect(id) {
       <div><div class="kv-k">Est. Value</div><div class="kv-v" style="color:var(--gold-light);">${typeof estimateProjectValue === 'function' ? money(estimateProjectValue(p).total) : '—'}</div></div>
       <div><div class="kv-k">Pipeline</div><div class="kv-v">${badge(p.pipelineStatus)}</div></div>
       <div><div class="kv-k">Website</div><div class="kv-v">${url ? `<a href="${esc(url)}" target="_blank" rel="noopener" style="color:var(--gold);">${esc(p.websiteUrl)} ↗</a>` : esc(p.websiteStatus)}</div></div>
+      <div><div class="kv-k">Preview URL</div><div class="kv-v">${siteUrl(p.previewUrl) ? `<a href="${esc(siteUrl(p.previewUrl))}" target="_blank" rel="noopener" style="color:var(--gold);">preview ↗</a>` : '—'}</div></div>
       <div><div class="kv-k">Score</div><div class="kv-v">${p.websiteScore}/100</div></div>
       <div><div class="kv-k">Next Follow-Up</div><div class="kv-v">${esc(p.nextFollowUp || '—')}</div></div>
     </div>
@@ -889,7 +902,8 @@ function openProspect(id) {
 
     <div style="display:flex;flex-direction:column;gap:9px;">
       <button class="btn btn-gold" onclick="renderWebsiteIntelligence('${p.id}')">◍ Website Intelligence — brief, value &amp; build</button>
-      <button class="btn btn-gold" onclick="promoteProspect('${p.id}');closePanel();">→ Move to Pipeline (start selling)</button>
+      <button class="btn btn-gold" onclick="sendToBuildQueue('${p.id}')">🏗 Send to Build Queue</button>
+      <button class="btn btn-ghost" onclick="promoteProspect('${p.id}');closePanel();">→ Move to Pipeline (start selling)</button>
       <button class="btn btn-ghost" onclick="hookScheduleFollowUp('${p.id}')">📅 Schedule Follow-Up</button>
       <button class="btn btn-ghost" onclick="hookOutreachMessage('${p.id}')">✉ Outreach Message</button>
       <button class="btn btn-ghost" onclick="editProspect('${p.id}')">✎ Edit details</button>
@@ -971,6 +985,7 @@ function editProspect(id) {
   const phone = prompt('Phone:', p.phone || ''); if (phone !== null) p.phone = phone.trim();
   const email = prompt('Email:', p.email || ''); if (email !== null) p.email = email.trim();
   const site = prompt('Website URL:', p.websiteUrl || ''); if (site !== null) p.websiteUrl = site.trim().replace(/^https?:\/\//, '');
+  const prev = prompt('Preview URL (the site we built for them):', p.previewUrl || ''); if (prev !== null) p.previewUrl = prev.trim().replace(/^https?:\/\//, '');
   const ws = prompt('Overall website score (0–100):', p.websiteScore); if (ws !== null && !isNaN(Number(ws))) p.websiteScore = Number(ws);
   const ms = prompt('Mobile score (0–100):', p.mobileScore); if (ms !== null && !isNaN(Number(ms))) p.mobileScore = Number(ms);
   const ss = prompt('SEO score (0–100):', p.seoScore); if (ss !== null && !isNaN(Number(ss))) p.seoScore = Number(ss);
@@ -1629,6 +1644,7 @@ function closePanel() {
 const TITLES = {
   mission: 'Mission <em>Control</em>', callmode: 'Call <em>Mode</em>', prospects: 'Potential <em>Clients</em>',
   intelligence: 'Intelligence <em>Center</em>', discovery: 'Prospect <em>Discovery</em>', agent: 'Sales <em>Agent</em>',
+  buildqueue: 'Build <em>Queue</em>', meetings: '<em>Meetings</em>', settings: '<em>Settings</em>',
   pipeline: 'Client <em>Pipeline</em>', tasks: 'Task <em>Queue</em>', clients: 'Active <em>Clients</em>',
   deploys: 'Sites &amp; <em>Repos</em>', revenue: 'Revenue &amp; <em>Pricing</em>', aiteam: 'AI <em>Team</em>',
   growth: 'Growth <em>Stack</em>', integrations: 'Integrations <em>Map</em>', workforce: 'Agent <em>Workforce</em>',
@@ -1672,8 +1688,8 @@ function tickClock() {
 }
 
 function closeSidebar() {
-  document.getElementById('sidebar').classList.remove('open');
-  document.getElementById('overlay').classList.remove('open');
+  const sb = document.getElementById('sidebar'); if (sb) sb.classList.remove('open');
+  const ov = document.getElementById('overlay'); if (ov) ov.classList.remove('open');
 }
 
 function initChrome() {
@@ -1698,6 +1714,9 @@ function renderAll() {
   renderMissionControl();
   renderCallMode();
   renderIntelligenceCenter();
+  if (typeof renderBuildQueue === 'function') renderBuildQueue();
+  if (typeof renderPurchaseFunnel === 'function') renderPurchaseFunnel();
+  if (typeof renderMeetingsSection === 'function') renderMeetingsSection();
   if (typeof renderSalesAgent === 'function') renderSalesAgent();
   renderDiscoveryControls();
   renderDiscovery();

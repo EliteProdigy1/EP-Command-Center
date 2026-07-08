@@ -46,64 +46,31 @@
     </div>
 
     <nav id="nav">
-      <a href="#" class="nav-link active nav-home" data-section="mission" data-always><span class="nav-ico">◈</span> Home</a>
+      <a href="#" class="nav-link active nav-home" data-section="mission" data-always><span class="nav-ico">◈</span> Today</a>
+      <a href="#" class="nav-link" data-section="prospects"><span class="nav-ico">◎</span> Prospects</a>
+      <a href="#" class="nav-link" data-section="buildqueue"><span class="nav-ico">🏗</span> Build Queue</a>
+      <a href="#" class="nav-link" data-section="meetings"><span class="nav-ico">🗓</span> Meetings</a>
+      <a href="#" class="nav-link" data-section="tasks"><span class="nav-ico">✓</span> Tasks</a>
+      <a href="#" class="nav-link" data-section="deploys"><span class="nav-ico">▲</span> Sites</a>
+      <a href="#" class="nav-link" data-section="aiteam"><span class="nav-ico">✦</span> Agents</a>
+      <a href="#" class="nav-link" data-section="settings"><span class="nav-ico">⚙</span> Settings</a>
 
-      <div class="nav-group open">
-        <button class="nav-group-h" onclick="toggleNavGroup(this)" type="button">Sales <span class="ng-caret">▾</span></button>
+      <div class="nav-group">
+        <button class="nav-group-h" onclick="toggleNavGroup(this)" type="button">More <span class="ng-caret">▾</span></button>
         <div class="nav-group-items">
           <a href="#" class="nav-link" data-section="agent"><span class="nav-ico">✦</span> Sales Agent</a>
-          <a href="#" class="nav-link" data-section="callmode"><span class="nav-ico">☎</span> Call Mode</a>
           <a href="#" class="nav-link" data-section="discovery"><span class="nav-ico">⌕</span> Prospect Discovery</a>
           <a href="#" class="nav-link" data-section="intelligence"><span class="nav-ico">◍</span> Intelligence Center</a>
-          <a href="#" class="nav-link" data-section="prospects"><span class="nav-ico">◎</span> Potential Clients</a>
+          <a href="#" class="nav-link" data-section="callmode"><span class="nav-ico">☎</span> Call Mode</a>
           <a href="#" class="nav-link" data-section="pipeline"><span class="nav-ico">⇶</span> Pipeline</a>
           <a href="#" class="nav-link" data-section="revenue"><span class="nav-ico">$</span> Revenue &amp; Pricing</a>
-        </div>
-      </div>
-
-      <div class="nav-group">
-        <button class="nav-group-h" onclick="toggleNavGroup(this)" type="button">Operations <span class="ng-caret">▾</span></button>
-        <div class="nav-group-items">
-          <a href="#" class="nav-link" data-section="tasks"><span class="nav-ico">✓</span> Tasks</a>
+          <a href="#" class="nav-link" data-section="clients"><span class="nav-ico">◉</span> Active Clients</a>
+          <a href="#" class="nav-link" data-section="workforce"><span class="nav-ico">♟</span> Agent Workforce</a>
           <a href="#" class="nav-link" data-section="automations"><span class="nav-ico">⚡</span> Automations</a>
           <a href="#" class="nav-link" data-section="growth"><span class="nav-ico">⬡</span> Growth Stack</a>
-        </div>
-      </div>
-
-      <div class="nav-group">
-        <button class="nav-group-h" onclick="toggleNavGroup(this)" type="button">Sites &amp; Repos <span class="ng-caret">▾</span></button>
-        <div class="nav-group-items">
-          <a href="#" class="nav-link" data-section="clients"><span class="nav-ico">◉</span> Active Clients</a>
-          <a href="#" class="nav-link" data-section="deploys"><span class="nav-ico">▲</span> Sites &amp; Repos</a>
-        </div>
-      </div>
-
-      <div class="nav-group">
-        <button class="nav-group-h" onclick="toggleNavGroup(this)" type="button">AI Team <span class="ng-caret">▾</span></button>
-        <div class="nav-group-items">
-          <a href="#" class="nav-link" data-section="aiteam"><span class="nav-ico">✦</span> AI Team</a>
-          <a href="#" class="nav-link" data-section="workforce"><span class="nav-ico">♟</span> Agent Workforce</a>
-        </div>
-      </div>
-
-      <div class="nav-group">
-        <button class="nav-group-h" onclick="toggleNavGroup(this)" type="button">Integrations <span class="ng-caret">▾</span></button>
-        <div class="nav-group-items">
           <a href="#" class="nav-link" data-section="integrations"><span class="nav-ico">⇄</span> Integrations Map</a>
           <a href="#" class="nav-link" data-section="datastatus"><span class="nav-ico">◐</span> Integration Status</a>
-        </div>
-      </div>
-
-      <div class="nav-group">
-        <button class="nav-group-h" onclick="toggleNavGroup(this)" type="button">Knowledge <span class="ng-caret">▾</span></button>
-        <div class="nav-group-items">
           <a href="#" class="nav-link" data-section="knowledge"><span class="nav-ico">▤</span> Knowledge</a>
-        </div>
-      </div>
-
-      <div class="nav-group">
-        <button class="nav-group-h" onclick="toggleNavGroup(this)" type="button">Personal <span class="ng-caret">▾</span></button>
-        <div class="nav-group-items">
           <a href="#" class="nav-link" data-section="personal"><span class="nav-ico">☖</span> Personal Command</a>
           <a href="#" class="nav-link" data-section="investor"><span class="nav-ico">↗</span> Investor Dashboard</a>
           <a href="#" class="nav-link" data-section="banking"><span class="nav-ico">▦</span> Banking / Funding</a>
@@ -133,6 +100,7 @@
       <div class="top-actions">
         <button class="btn btn-gold btn-sm" title="Quick add a prospect straight to Notion" onclick="openQuickAddProspect()">＋ Prospect</button>
         <button class="btn btn-ghost btn-sm" title="Save meeting notes to Notion" onclick="openMeetingNotes()">🗓 Meeting</button>
+        <button class="btn btn-ghost btn-sm" title="Add a task" onclick="quickAddTask()">✓ Task</button>
         <button class="btn btn-ghost btn-sm" title="Pull the latest from Notion" onclick="syncFromNotion()">⟳ Sync</button>
         <button class="btn btn-ghost btn-sm" id="data-status-pill" title="Data source status — click for details" onclick="goSection('datastatus')"><span class="ds-dot" id="ds-dot"></span> <span id="ds-label">Data</span></button>
         <button class="btn btn-ghost btn-sm" id="btn-focus" title="Dim everything that isn't urgent">◐ Focus</button>
@@ -248,6 +216,42 @@
         <div id="prospect-filters" style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px;"></div>
         <input id="prospect-search" type="text" placeholder="Search prospects…" style="width:100%;margin-bottom:14px;" oninput="renderProspects()">
         <div class="tbl-wrap"><table class="tbl" id="prospect-table"></table></div>
+      </div>
+    </section>
+
+    <!-- BUILD QUEUE (Production Pipeline v1) -->
+    <section class="section" id="section-buildqueue">
+      <div class="notice"><b>EP Media build pipeline.</b> Prospects at Website Audit · Concept Ready · Proposal Sent · Won. Set the stage, pick the tool/agent, and hit <b>⚡ Run</b> to hand it off.</div>
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-head"><div class="card-title">Build Queue <span class="card-tag" id="buildqueue-count"></span></div><div class="card-tag">Research → Launched</div></div>
+        <div id="buildqueue-list"></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">Purchase Funnel</div><div class="card-tag">Preview · deposit · claim</div></div>
+        <div id="funnel-list"></div>
+        <div id="funnel-plans" class="fn-plans"></div>
+      </div>
+    </section>
+
+    <!-- MEETINGS -->
+    <section class="section" id="section-meetings">
+      <div class="card">
+        <div class="card-head"><div class="card-title">Meetings</div><button class="btn btn-gold btn-sm" onclick="openMeetingNotes()">＋ Meeting</button></div>
+        <div id="meetings-list"></div>
+      </div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="section" id="section-settings">
+      <div class="notice"><b>Settings.</b> Notion is the source of truth. Back up your local working data or open the live Integration Status.</div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">Data &amp; Sync</div><div class="card-tag">Notion source of truth</div></div>
+        <div style="display:flex;gap:9px;flex-wrap:wrap;">
+          <button class="btn btn-ghost btn-sm" onclick="syncFromNotion()">⟳ Sync from Notion</button>
+          <button class="btn btn-ghost btn-sm" onclick="goSection('datastatus')">◐ Integration Status</button>
+          <button class="btn btn-ghost btn-sm" onclick="exportData()">⬇ Backup</button>
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('import-file').click()">⬆ Restore</button>
+        </div>
       </div>
     </section>
 
@@ -423,6 +427,7 @@
 <script src="js/app.js"></script>
 <script src="js/website-intel.js"></script>
 <script src="js/sales-agent.js"></script>
+<script src="js/pipeline.js"></script>
 <script src="services/notion.js"></script>
 <script src="services/firecrawl.js"></script>
 <script src="js/notion-io.js"></script>
