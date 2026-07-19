@@ -51,6 +51,7 @@
       <a href="#" class="nav-link" data-section="buildqueue"><span class="nav-ico">🏗</span> Build Queue</a>
       <a href="#" class="nav-link" data-section="meetings"><span class="nav-ico">🗓</span> Meetings</a>
       <a href="#" class="nav-link" data-section="agentops"><span class="nav-ico">✦</span> Agents</a>
+      <a href="#" class="nav-link" data-section="handoffs"><span class="nav-ico">⇄</span> Handoffs</a>
       <a href="#" class="nav-link" data-section="skills"><span class="nav-ico">◆</span> Skills</a>
       <a href="#" class="nav-link" data-section="knowledge"><span class="nav-ico">▤</span> Knowledge</a>
       <a href="#" class="nav-link" data-section="tasks"><span class="nav-ico">✓</span> Tasks</a>
@@ -114,9 +115,18 @@
 
     <!-- MISSION CONTROL -->
     <section class="section active" id="section-mission">
-      <!-- Agent Operations command strip — answers the 6 questions in 5 seconds -->
+      <!-- Agent Operations first: who's working · approvals · blockers · next -->
       <div id="mc-agentstrip"></div>
-      <div class="grid cols-4" id="kpi-row" style="margin-top:18px;margin-bottom:16px;"></div>
+      <!-- Work flow next: active handoffs + recent agent activity -->
+      <div class="mc-2col" style="margin-top:14px;">
+        <div id="mc-handoffs"></div>
+        <div id="mc-activity"></div>
+      </div>
+      <!-- Capabilities + commands -->
+      <div id="mc-actions" style="margin-top:14px;"></div>
+      <!-- Business metrics kept secondary, below the workforce -->
+      <div class="mc-secondary-h">Business snapshot</div>
+      <div class="grid cols-4" id="kpi-row" style="margin-bottom:16px;"></div>
       <div class="mc-grid" id="mc-grid"></div>
     </section>
 
@@ -355,6 +365,11 @@
       <div id="skills-grid"></div>
     </section>
 
+    <!-- WORK HANDOFFS (Stage 4) — chain of custody -->
+    <section class="section" id="section-handoffs">
+      <div id="handoffs-grid"></div>
+    </section>
+
     <section class="section" id="section-aiteam">
       <div class="notice"><b>One tap to your agents.</b> Each card opens the tool in a new tab. Phase 2 wires these into live status + automations through secure backend functions.</div>
       <div class="grid cols-3" id="aiteam-grid"></div>
@@ -443,6 +458,7 @@
 <script src="js/gate.js"></script>
 <script src="js/app.js"></script>
 <script src="js/agent-ops.js"></script>
+<script src="js/handoffs.js"></script>
 <script src="js/website-intel.js"></script>
 <script src="js/sales-agent.js"></script>
 <script src="js/pipeline.js"></script>

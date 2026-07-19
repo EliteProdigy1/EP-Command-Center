@@ -502,6 +502,48 @@ const dashboardModules = [
   { id: 'banking-funding',   title: 'Banking / Funding',   enabled: true, size: 'medium', section: 'banking',      summary: sumBanking },
 ];
 
+/* ═══ STAGE 1 REFINEMENTS — data provenance + split agent status ═══ */
+
+/* Provenance: where a number/record comes from. Rendered as srcTag() (agent-ops.js). */
+const PROVENANCE = {
+  verified:  { label: 'Live',      cls: 'src-verified', title: 'Verified live connection or confirmed by you' },
+  registry:  { label: 'Registry',  cls: 'src-registry', title: 'Derived from the repo / project registry' },
+  manual:    { label: 'Manual',    cls: 'src-manual',   title: 'Manually entered' },
+  demo:      { label: 'Demo',      cls: 'src-demo',     title: 'Seeded demo data — not a live event' },
+  untracked: { label: 'Not tracked', cls: 'src-untracked', title: 'The system does not track this yet' },
+};
+
+/* Availability (the agent itself) is separate from assignment (its current work). */
+const AGENT_STATE = {
+  atlas:  { availability: 'Running',   assignmentStatus: 'In progress' },
+  colt:   { availability: 'Available', assignmentStatus: 'Awaiting approval' },
+  vera:   { availability: 'Available', assignmentStatus: 'Queued' },
+  quinn:  { availability: 'Available', assignmentStatus: 'Complete' },
+  sol:    { availability: 'Running',   assignmentStatus: 'In progress' },
+  ledger: { availability: 'Planned',   assignmentStatus: 'Queued' },
+};
+mockData.agentWorkforce.forEach(a => Object.assign(a, AGENT_STATE[a.id] || { availability: 'Offline', assignmentStatus: 'Idle' }));
+
+/* Skill drawer extras — limitations + related knowledge assets. */
+const SKILL_EXTRA = {
+  'website-build':      { limitations: 'One template (premium-service) today. Needs a verified config + real assets; will not invent facts.', related: ['Premium Service (Contractor / Home Services)', 'Industrial / Rugged'] },
+  'responsive-qa':      { limitations: 'Structural + Lighthouse + scripted browser checks. Not a substitute for human visual review.', related: ['Website review'] },
+  'media-generation':   { limitations: 'Branded treatments are ready; full AI video/image via Higgsfield needs credits. No fake project photos.', related: ['Hero video prompts', 'Industrial / Rugged'] },
+  'brand-kit':          { limitations: 'Maps onto EP tokens — will not fork the token system.', related: ['Dark Luxury (EP cinematic)'] },
+  'seo-schema':         { limitations: 'JSON-LD from verified data only.', related: ['Website review'] },
+  'deployment':         { limitations: 'Netlify Drop is manual; per-client auto-deploy is planned.', related: ['Deployment'] },
+  'service-categorize': { limitations: 'Keyword scoring; confirm groupings with the client.', related: [] },
+  'client-wizard':      { limitations: 'CLI wizard; not yet in the dashboard UI.', related: ['Client onboarding'] },
+  'cc-registry':        { limitations: 'Reads build output; live analytics/deploy state read as preview until wired.', related: [] },
+  'prospect-discovery': { limitations: 'Gated behind FIRECRAWL_LIVE; mock pool until enabled.', related: [] },
+  'lead-capture':       { limitations: 'Netlify Forms only; unified inbox is a later stage.', related: ['Client onboarding'] },
+  'review-automation':  { limitations: 'Planned — needs Gmail + Google Business connections.', related: ['Maintenance'] },
+};
+mockData.skills.forEach(s => Object.assign(s, SKILL_EXTRA[s.id] || { limitations: '—', related: [] }));
+
+/* ═══ STAGE 4 — HANDOFF WORKFLOW STATES ═══ */
+const HANDOFF_STATES = ['REQUESTED', 'PLANNED', 'ASSIGNED', 'IN PROGRESS', 'READY TO HAND OFF', 'AWAITING ACCEPTANCE', 'AWAITING HUMAN APPROVAL', 'BLOCKED', 'ACCEPTED', 'COMPLETED', 'MONITORING'];
+
 /* ═══ WORKING STATE (persisted) ═══ */
 const STORE_KEY = 'epcc-v2';
 const STAGES = ['Lead', 'Contacted', 'Interested', 'Proposal Sent', 'Closed Won', 'Lost'];
@@ -535,6 +577,91 @@ const SEED = {
   // Prospects seed from the canonical mockData.prospects (20-field records).
   prospects: JSON.parse(JSON.stringify(mockData.prospects)),
   callLog: [],
+
+  /* ═══ STAGE 4 — HANDOFFS: chain of custody for a unit of work.
+     Seeded with the H&M chain. Every record is demo:true (a realistic
+     reconstruction of real work — labeled DEMO) until a live user action
+     mutates it, which appends a verified timeline entry. ═══ */
+  handoffs: [
+    { id: 'HO-1', project: 'H&M Services', task: 'Business direction + verified facts',
+      prevOwner: 'Jonathan', prevType: 'human', owner: 'Atlas', ownerType: 'agent', nextOwner: 'Vera', nextType: 'agent',
+      state: 'COMPLETED', demo: true, source: 'demo',
+      deliverables: ['Structured business facts', '15 services grouped into 5 categories', 'pendingVerification list'],
+      attachments: [{ label: 'config/hm-services.json', kind: 'file', ref: 'EP-Media-Agency/config/hm-services.json' }],
+      skills: ['client-wizard', 'service-categorize'], tools: ['EP Website Factory'],
+      decisions: ['Kept client phone on-site; routed only the purchase CTA to EP'], missing: [], blockers: [],
+      approvalRequired: false, approvalOwner: '',
+      createdAt: 'Jul 18', acceptedAt: 'Jul 18', completedAt: 'Jul 18', escalation: '',
+      timeline: [{ t: 'Jul 18', who: 'Jonathan', what: 'Provided verified H&M facts (flyer + Facebook)', src: 'manual' }, { t: 'Jul 18', who: 'Atlas', what: 'Structured facts, auto-categorized services', src: 'registry' }] },
+
+    { id: 'HO-2', project: 'H&M Services', task: 'Brand + image assets',
+      prevOwner: 'Atlas', prevType: 'agent', owner: 'Vera', ownerType: 'agent', nextOwner: 'Colt', nextType: 'agent',
+      state: 'COMPLETED', demo: true, source: 'demo',
+      deliverables: ['Branded hero treatment (from logo)', '4 branded gallery tiles', 'Brand token mapping (gold #B88A32)'],
+      attachments: [{ label: 'assets/hm-services/hero-hm-services.jpg', kind: 'file', ref: 'assets/hm-services/hero-hm-services.jpg' }],
+      skills: ['media-generation', 'brand-kit'], tools: ['Sharp', 'EP Website Factory'],
+      decisions: ['Branded placeholders, not fabricated project photos'], missing: ['Real H&M job-site photos from Josh'], blockers: [],
+      approvalRequired: false, approvalOwner: '',
+      createdAt: 'Jul 18', acceptedAt: 'Jul 18', completedAt: 'Jul 18', escalation: '',
+      timeline: [{ t: 'Jul 18', who: 'Vera', what: 'Generated branded hero + tiles from the logo', src: 'registry' }] },
+
+    { id: 'HO-3', project: 'H&M Services', task: 'Website build',
+      prevOwner: 'Vera', prevType: 'agent', owner: 'Colt', ownerType: 'agent', nextOwner: 'Quinn', nextType: 'agent',
+      state: 'COMPLETED', demo: true, source: 'demo',
+      deliverables: ['Production website (dist/hm-services)', 'JSON-LD schema', 'Contact form (hm-services-contact)', 'BUILD-REPORT.md'],
+      attachments: [{ label: 'dist/hm-services/', kind: 'branch', ref: 'claude/deploy-client-sites-netlify-b5n1s0' }, { label: 'BUILD-REPORT.md', kind: 'report', ref: 'dist/hm-services/BUILD-REPORT.md' }],
+      skills: ['website-build', 'seo-schema', 'brand-kit'], tools: ['Claude Code', 'EP Website Factory', 'GitHub'],
+      decisions: ['Deposit-only pricing on purchase block', 'Pillars + 5 grouped service categories'], missing: [], blockers: [],
+      approvalRequired: false, approvalOwner: '',
+      createdAt: 'Jul 18', acceptedAt: 'Jul 18', completedAt: 'Jul 18', escalation: '',
+      timeline: [{ t: 'Jul 18', who: 'Colt', what: 'Built H&M review build; status READY FOR CLIENT REVIEW', src: 'registry' }] },
+
+    { id: 'HO-4', project: 'H&M Services', task: 'QA + Lighthouse',
+      prevOwner: 'Colt', prevType: 'agent', owner: 'Quinn', ownerType: 'agent', nextOwner: 'Jonathan', nextType: 'human',
+      state: 'COMPLETED', demo: true, source: 'demo',
+      deliverables: ['Preflight 32/32', 'Lighthouse 82 / 100 / 96 / 100', 'Browser-verified interactions'],
+      attachments: [{ label: 'factory/reports/lighthouse-hm-services.json', kind: 'report', ref: 'factory/reports/lighthouse-hm-services.json' }],
+      skills: ['responsive-qa'], tools: ['Lighthouse', 'Playwright'],
+      decisions: ['Raised a11y 95→100 (inline-link underline)'], missing: [], blockers: [],
+      approvalRequired: false, approvalOwner: '',
+      createdAt: 'Jul 18', acceptedAt: 'Jul 18', completedAt: 'Jul 18', escalation: '',
+      timeline: [{ t: 'Jul 18', who: 'Quinn', what: 'Preflight passed 32/32, 0 review blockers', src: 'registry' }] },
+
+    { id: 'HO-5', project: 'H&M Services', task: 'Client-review approval',
+      prevOwner: 'Quinn', prevType: 'agent', owner: 'Jonathan', ownerType: 'human', nextOwner: 'Colt', nextType: 'agent',
+      state: 'AWAITING HUMAN APPROVAL', demo: true, source: 'demo',
+      deliverables: ['Review preview (Netlify Drop)', 'Deposit-only purchase block', 'Purchase CTA → EP number'],
+      attachments: [{ label: 'H&M review preview', kind: 'preview', ref: 'https://app.netlify.com/drop' }, { label: 'BUILD-REPORT.md', kind: 'report', ref: 'dist/hm-services/BUILD-REPORT.md' }],
+      skills: ['responsive-qa'], tools: ['Netlify'],
+      decisions: [], missing: ['Real gallery photos', 'purchaseUrl', 'form-notification email'], blockers: [],
+      approvalRequired: true, approvalOwner: 'Jonathan',
+      createdAt: 'Jul 18', acceptedAt: 'Jul 18', completedAt: '', escalation: '',
+      review: { previewUrl: 'https://app.netlify.com/drop', branch: 'claude/deploy-client-sites-netlify-b5n1s0',
+        lighthouse: { performance: 82, accessibility: 100, bestPractices: 96, seo: 100 },
+        launchBlockers: ['purchaseUrl missing', 'intakeUrl missing', 'form-notification email not documented'],
+        changes: ['Purchase CTA routes to EP (251-223-0812)', 'Deposit-only pricing ($500)', 'Phone-first hero'] },
+      timeline: [{ t: 'Jul 18', who: 'Quinn', what: 'Handed off for client-review approval', src: 'registry' }, { t: 'Jul 18', who: 'Jonathan', what: 'Reviewing on iPad', src: 'manual' }] },
+
+    { id: 'HO-6', project: 'H&M Services', task: 'Preview / public deployment',
+      prevOwner: 'Jonathan', prevType: 'human', owner: 'Colt', ownerType: 'agent', nextOwner: 'Ledger', nextType: 'agent',
+      state: 'PLANNED', demo: true, source: 'demo',
+      deliverables: ['Netlify preview URL', 'Public deploy on approval'],
+      attachments: [], skills: ['deployment'], tools: ['Netlify', 'GitHub'],
+      decisions: [], missing: ['Approve-for-launch decision'], blockers: ['Waiting on HO-5 approval'],
+      approvalRequired: true, approvalOwner: 'Jonathan',
+      createdAt: 'Jul 18', acceptedAt: '', completedAt: '', escalation: '',
+      timeline: [{ t: 'Jul 18', who: 'Atlas', what: 'Queued deployment behind client-review approval', src: 'registry' }] },
+
+    { id: 'HO-7', project: 'H&M Services', task: 'Maintenance + lead monitoring',
+      prevOwner: 'Colt', prevType: 'agent', owner: 'Ledger', ownerType: 'agent', nextOwner: '', nextType: '',
+      state: 'PLANNED', demo: true, source: 'demo',
+      deliverables: ['Form → inbox monitoring', 'Monthly health check'],
+      attachments: [], skills: ['lead-capture', 'review-automation'], tools: ['Netlify Forms', 'Gmail'],
+      decisions: [], missing: ['Public launch first'], blockers: ['Waiting on deployment'],
+      approvalRequired: false, approvalOwner: '',
+      createdAt: 'Jul 18', acceptedAt: '', completedAt: '', escalation: '',
+      timeline: [{ t: 'Jul 18', who: 'Atlas', what: 'Queued maintenance after launch', src: 'registry' }] },
+  ],
 };
 
 let S = load();
@@ -548,6 +675,8 @@ function load() {
       if (d.prospects.length && d.prospects[0].websiteUrl === undefined) {
         d.prospects = JSON.parse(JSON.stringify(SEED.prospects));
       }
+      // Stage 4: seed handoffs for existing users without touching their other data
+      if (!d.handoffs) d.handoffs = JSON.parse(JSON.stringify(SEED.handoffs));
       return d;
     }
   } catch (e) { /* fall through */ }
@@ -1825,7 +1954,7 @@ const TITLES = {
   intelligence: 'Intelligence <em>Center</em>', discovery: 'Prospect <em>Discovery</em>', agent: 'Sales <em>Agent</em>',
   buildqueue: 'Build <em>Queue</em>', meetings: '<em>Meetings</em>', settings: '<em>Settings</em>',
   pipeline: 'Client <em>Pipeline</em>', tasks: 'Task <em>Queue</em>', clients: 'Active <em>Clients</em>',
-  agentops: 'Agent <em>Operations</em>', skills: 'Skills <em>Registry</em>',
+  agentops: 'Agent <em>Operations</em>', skills: 'Skills <em>Registry</em>', handoffs: 'Work <em>Handoffs</em>',
   deploys: 'Sites &amp; <em>Repos</em>', revenue: 'Revenue &amp; <em>Pricing</em>', aiteam: 'AI <em>Team</em>',
   growth: 'Growth <em>Stack</em>', integrations: 'Integrations <em>Map</em>', workforce: 'Agent <em>Workforce</em>',
   automations: 'Automation <em>Center</em>', knowledge: 'Knowledge <em>Center</em>', personal: 'Personal <em>Command</em>',
@@ -1922,6 +2051,11 @@ function renderAll() {
   if (typeof renderAgentOps === 'function') renderAgentOps();
   if (typeof renderSkills === 'function') renderSkills();
   if (typeof renderKnowledgeLayer === 'function') renderKnowledgeLayer();
+  // ── Work Handoffs (Stage 4; defined in js/handoffs.js) ──
+  if (typeof renderActiveHandoffs === 'function') renderActiveHandoffs();
+  if (typeof renderRecentActivity === 'function') renderRecentActivity();
+  if (typeof renderMissionActions === 'function') renderMissionActions();
+  if (typeof renderHandoffs === 'function') renderHandoffs();
 }
 
 /* ═══ SPRINT 2 — DATA SERVICE BOOTSTRAP ═══
