@@ -50,9 +50,11 @@
       <a href="#" class="nav-link" data-section="prospects"><span class="nav-ico">◎</span> Prospects</a>
       <a href="#" class="nav-link" data-section="buildqueue"><span class="nav-ico">🏗</span> Build Queue</a>
       <a href="#" class="nav-link" data-section="meetings"><span class="nav-ico">🗓</span> Meetings</a>
+      <a href="#" class="nav-link" data-section="agentops"><span class="nav-ico">✦</span> Agents</a>
+      <a href="#" class="nav-link" data-section="skills"><span class="nav-ico">◆</span> Skills</a>
+      <a href="#" class="nav-link" data-section="knowledge"><span class="nav-ico">▤</span> Knowledge</a>
       <a href="#" class="nav-link" data-section="tasks"><span class="nav-ico">✓</span> Tasks</a>
       <a href="#" class="nav-link" data-section="deploys"><span class="nav-ico">▲</span> Sites</a>
-      <a href="#" class="nav-link" data-section="aiteam"><span class="nav-ico">✦</span> Agents</a>
       <a href="#" class="nav-link" data-section="settings"><span class="nav-ico">⚙</span> Settings</a>
 
       <div class="nav-group">
@@ -65,12 +67,12 @@
           <a href="#" class="nav-link" data-section="pipeline"><span class="nav-ico">⇶</span> Pipeline</a>
           <a href="#" class="nav-link" data-section="revenue"><span class="nav-ico">$</span> Revenue &amp; Pricing</a>
           <a href="#" class="nav-link" data-section="clients"><span class="nav-ico">◉</span> Active Clients</a>
-          <a href="#" class="nav-link" data-section="workforce"><span class="nav-ico">♟</span> Agent Workforce</a>
+          <a href="#" class="nav-link" data-section="aiteam"><span class="nav-ico">✦</span> AI Team (tools)</a>
+          <a href="#" class="nav-link" data-section="workforce"><span class="nav-ico">♟</span> Agent Workforce (table)</a>
           <a href="#" class="nav-link" data-section="automations"><span class="nav-ico">⚡</span> Automations</a>
           <a href="#" class="nav-link" data-section="growth"><span class="nav-ico">⬡</span> Growth Stack</a>
           <a href="#" class="nav-link" data-section="integrations"><span class="nav-ico">⇄</span> Integrations Map</a>
           <a href="#" class="nav-link" data-section="datastatus"><span class="nav-ico">◐</span> Integration Status</a>
-          <a href="#" class="nav-link" data-section="knowledge"><span class="nav-ico">▤</span> Knowledge</a>
           <a href="#" class="nav-link" data-section="personal"><span class="nav-ico">☖</span> Personal Command</a>
           <a href="#" class="nav-link" data-section="investor"><span class="nav-ico">↗</span> Investor Dashboard</a>
           <a href="#" class="nav-link" data-section="banking"><span class="nav-ico">▦</span> Banking / Funding</a>
@@ -112,7 +114,9 @@
 
     <!-- MISSION CONTROL -->
     <section class="section active" id="section-mission">
-      <div class="grid cols-4" id="kpi-row" style="margin-bottom:16px;"></div>
+      <!-- Agent Operations command strip — answers the 6 questions in 5 seconds -->
+      <div id="mc-agentstrip"></div>
+      <div class="grid cols-4" id="kpi-row" style="margin-top:18px;margin-bottom:16px;"></div>
       <div class="mc-grid" id="mc-grid"></div>
     </section>
 
@@ -341,6 +345,16 @@
     </section>
 
     <!-- AI TEAM -->
+    <!-- AGENT OPERATIONS (Stage 1) — enriched, profession-grouped agent cards -->
+    <section class="section" id="section-agentops">
+      <div id="agentops-grid"></div>
+    </section>
+
+    <!-- SKILLS REGISTRY (Stage 1) — reusable capabilities, first-class -->
+    <section class="section" id="section-skills">
+      <div id="skills-grid"></div>
+    </section>
+
     <section class="section" id="section-aiteam">
       <div class="notice"><b>One tap to your agents.</b> Each card opens the tool in a new tab. Phase 2 wires these into live status + automations through secure backend functions.</div>
       <div class="grid cols-3" id="aiteam-grid"></div>
@@ -392,6 +406,9 @@
 
     <!-- KNOWLEDGE -->
     <section class="section" id="section-knowledge">
+      <!-- Knowledge Library (Stage 1) — reusable templates, playbooks, prompts, SOPs -->
+      <div id="knowledge-library"></div>
+      <div class="notice" style="margin-top:20px;">Reference links · every completed win should land here so it compounds.</div>
       <div class="grid cols-3" id="knowledge-grid"></div>
     </section>
 
@@ -425,6 +442,7 @@
 
 <script src="js/gate.js"></script>
 <script src="js/app.js"></script>
+<script src="js/agent-ops.js"></script>
 <script src="js/website-intel.js"></script>
 <script src="js/sales-agent.js"></script>
 <script src="js/pipeline.js"></script>

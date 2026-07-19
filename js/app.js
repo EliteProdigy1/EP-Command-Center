@@ -148,16 +148,166 @@ const mockData = {
     { name: 'Runway',                 icon: '→', note: 'Revenue minus expenses over time — Phase 2.' },
   ],
 
+  /* ═══════════════════════════════════════════════════════════════
+     AGENT WORKFORCE — persona agents grouped by profession.
+     Enriched for Agent Operations + Agent Profile pages. Existing
+     keys (agent/role/area/tools/status/permissions/next) are kept so
+     the legacy Agent Workforce table still renders; new keys power the
+     Agent Ops cards and profiles. `runsOn` names the REAL underlying
+     tools so the persona never hides what actually does the work.
+     `stats` shows only real, derivable numbers — untracked = null.
+  ═══════════════════════════════════════════════════════════════ */
   agentWorkforce: [
-    { agent: 'Junior (ChatGPT)', role: 'COO / Strategy Agent',    area: 'Sales strategy, systems, daily planning', tools: 'ChatGPT + Zapier',        status: 'Active',  permissions: 'Draft-only', next: 'Tomorrow call-block plan' },
-    { agent: 'Claude Code',      role: 'CTO / Build Agent',       area: 'Websites, repos, deploys',                tools: 'GitHub + Netlify',        status: 'Active',  permissions: 'Commit + deploy', next: 'Phase 2 API functions' },
-    { agent: 'Manus',            role: 'Ops Agent',               area: 'SOPs, research runs, reporting',          tools: 'Zapier + Calendar',       status: 'Active',  permissions: 'Draft-only', next: 'Prospect research batch' },
-    { agent: 'Apollo',           role: 'Prospecting Agent',       area: 'Lead lists, contact data',                tools: 'Apollo + Claude',         status: 'Pending', permissions: 'Read-only',  next: 'First scored lead list' },
-    { agent: 'SiteDrop',         role: 'Concept Agent',           area: 'Rapid demo sites for prospects',          tools: 'SiteDrop',                status: 'Active',  permissions: 'Draft-only', next: 'Next prospect concept' },
-    { agent: 'Higgsfield',       role: 'Video Producer Agent',    area: 'Client media, hero video',                tools: 'Higgsfield',              status: 'Active',  permissions: 'Draft-only', next: 'Athlete spotlight reel' },
-    { agent: 'ElevenLabs',       role: 'Briefing Agent',          area: 'Morning audio briefing',                  tools: 'ElevenLabs + automation', status: 'Planned', permissions: 'Read-only',  next: 'Phase 2 pipeline' },
-    { agent: '(Recruit)',        role: 'Finance Agent',           area: 'Bookkeeping, invoices, runway',           tools: 'Stripe / QuickBooks',     status: 'Planned', permissions: 'Read-only',  next: 'Pick the stack' },
+    { agent: 'Atlas', id: 'atlas', group: 'Strategy & Orchestration', role: 'Command Agent',
+      area: 'Breaks requests into tasks, selects agents + skills, routes work, flags approvals',
+      tools: 'ChatGPT + Claude + Command Center', runsOn: ['ChatGPT', 'Claude', 'EP Command Center'],
+      status: 'Active', permissions: 'Draft + route', supervisor: 'Jonathan',
+      skills: ['client-wizard', 'service-categorize', 'cc-registry'],
+      client: 'EP Media', activeTask: 'Planning EP Command Center Agent Ops layer',
+      lastAction: 'Produced the Command Center audit + staged plan',
+      next: 'Route Stage 2 work once Stage 1 is approved',
+      approval: 'None', history: ['Audited Command Center', 'Mapped reuse vs new', 'Staged the plan'] },
+
+    { agent: 'Colt', id: 'colt', group: 'Website Production', role: 'Website Production Agent',
+      area: 'Builds, tests, and ships client websites from a verified config',
+      tools: 'Claude Code + GitHub + Netlify + Lighthouse', runsOn: ['Claude Code', 'GitHub', 'Netlify', 'Lighthouse', 'EP Website Factory'],
+      status: 'Working', permissions: 'Commit + deploy', supervisor: 'Jonathan',
+      skills: ['website-build', 'responsive-qa', 'seo-schema', 'brand-kit', 'deployment'],
+      client: 'H&M Services', activeTask: 'H&M homepage — review build (deposit-only pricing, EP purchase CTA)',
+      lastAction: 'Rebuilt H&M preview; Lighthouse 82/100/96/100',
+      next: 'Replace branded gallery tiles with approved client photos',
+      approval: 'Awaiting Jonathan — client-review approval', history: ['Built H&M review build', 'Routed purchase CTA to EP', 'Set deposit-only pricing'] },
+
+    { agent: 'Vera', id: 'vera', group: 'Media & Creative', role: 'Media & Creative Agent',
+      area: 'Hero visuals, gallery assets, brand kits, video concepts',
+      tools: 'Higgsfield + Sharp + Canva', runsOn: ['Higgsfield', 'Sharp', 'Canva', 'ChatGPT image'],
+      status: 'Idle', permissions: 'Draft-only', supervisor: 'Jonathan',
+      skills: ['media-generation', 'brand-kit'],
+      client: 'H&M Services', activeTask: '—',
+      lastAction: 'Generated H&M branded hero + placeholder tiles from the logo',
+      next: 'Produce real H&M hero once Josh sends job-site photos',
+      approval: 'None', history: ['Branded H&M hero treatment', 'Logo-based placeholder tiles'] },
+
+    { agent: 'Quinn', id: 'quinn', group: 'Website Production', role: 'Quality Assurance Agent',
+      area: 'Responsive, accessibility, links, forms, and Lighthouse checks before review',
+      tools: 'Lighthouse + axe + Playwright', runsOn: ['Lighthouse', 'Playwright', 'EP Website Factory preflight'],
+      status: 'Waiting on review', permissions: 'Report-only', supervisor: 'Jonathan',
+      skills: ['responsive-qa', 'website-build'],
+      client: 'H&M Services', activeTask: 'Preflight passed — 32 checks, 0 review blockers',
+      lastAction: 'Verified mobile menu, skip link, reduced-motion, a11y 100',
+      next: 'Re-run QA after gallery photos are swapped in',
+      approval: 'None', history: ['Preflight 32/32', 'Browser-verified interactions', 'A11y raised 95→100'] },
+
+    { agent: 'Sol', id: 'sol', group: 'Sales & Client Success', role: 'Sales & Prospecting Agent',
+      area: 'Prospect discovery, website audits, outreach, proposals, follow-up',
+      tools: 'Apollo + Firecrawl + Call Mode', runsOn: ['Apollo', 'Firecrawl', 'Call Mode'],
+      status: 'Active', permissions: 'Draft-only', supervisor: 'Jonathan',
+      skills: ['prospect-discovery', 'lead-capture'],
+      client: 'Pipeline', activeTask: 'Working the High-opportunity prospect list',
+      lastAction: 'Scored discovery pool (no-website businesses first)',
+      next: 'Prep before/after audits for top 3 prospects',
+      approval: 'None', history: ['Scored prospects', 'Flagged no-website businesses'] },
+
+    { agent: 'Ledger', id: 'ledger', group: 'Business Operations', role: 'Business Ops Agent',
+      area: 'Lead intake, scheduling, invoices, maintenance, monthly reporting',
+      tools: 'Netlify Forms + Calendar + Gmail (Stripe planned)', runsOn: ['Netlify Forms', 'Google Calendar', 'Gmail'],
+      status: 'Planned', permissions: 'Read-only', supervisor: 'Jonathan',
+      skills: ['lead-capture', 'review-automation'],
+      client: 'All clients', activeTask: '—',
+      lastAction: 'Netlify form → Gmail notifications live on client sites',
+      next: 'Stand up the Client Growth Loop (leads → jobs → reviews) in a later stage',
+      approval: 'None', history: ['Form → Gmail wired'] },
   ],
+
+  /* ═══ SKILLS REGISTRY — reusable capabilities, separate from agents.
+        Grounded in what the system ACTUALLY does today. status vocab:
+        Ready · Connected · Ready to connect · Planned · Needs credentials ═══ */
+  skills: [
+    { id: 'website-build', name: 'Premium Service Website Build', category: 'Website Production', status: 'Ready', version: '1.1',
+      purpose: 'Generate a responsive, EPSG-styled local-service website from a verified client config.',
+      inputs: ['Business facts', 'Logo', 'Services', 'Brand colors', 'Hero + gallery assets'],
+      outputs: ['Production website', 'JSON-LD schema', 'Contact form', 'Build report', 'Lighthouse report'],
+      agents: ['colt', 'quinn'], tools: ['EP Website Factory', 'Sharp', 'Lighthouse', 'GitHub', 'Netlify'],
+      approval: 'Required before public deployment', lastUsed: 'Today — H&M Services', workflows: ['Build Website', 'New Client'] },
+    { id: 'responsive-qa', name: 'Responsive & Accessibility QA', category: 'Website Production', status: 'Ready', version: '1.0',
+      purpose: 'Preflight + Lighthouse + real-browser checks: mobile menu, a11y, links, forms, reduced-motion.',
+      inputs: ['Built site (dist)'], outputs: ['Preflight report', 'Lighthouse scores', 'Blocker list'],
+      agents: ['quinn', 'colt'], tools: ['Lighthouse', 'Playwright', 'EP Website Factory preflight'],
+      approval: 'None', lastUsed: 'Today — H&M (32/32, a11y 100)', workflows: ['Build Website', 'Review'] },
+    { id: 'media-generation', name: 'Media Generation (Hero & Gallery)', category: 'Media & Creative', status: 'Ready', version: '0.9',
+      purpose: 'Branded hero + gallery treatments from the client logo (Sharp/SVG); full AI video/image via Higgsfield.',
+      inputs: ['Logo', 'Brand palette', 'Industry'], outputs: ['Hero image', 'Gallery tiles', 'Optimized WebP variants'],
+      agents: ['vera'], tools: ['Sharp', 'Higgsfield', 'ChatGPT image'],
+      approval: 'Human review before publish', lastUsed: 'Today — H&M branded hero', workflows: ['Build Website', 'Generate Assets'] },
+    { id: 'brand-kit', name: 'Brand Kit & Color Mapping', category: 'Media & Creative', status: 'Ready', version: '1.0',
+      purpose: 'Map a client palette onto EP design tokens without forking the token system.',
+      inputs: ['Primary/accent hex', 'Style notes'], outputs: ['Brand override CSS', 'Theme color'],
+      agents: ['vera', 'colt'], tools: ['EP Website Factory'], approval: 'None', lastUsed: 'Today — H&M gold #B88A32', workflows: ['Build Website'] },
+    { id: 'seo-schema', name: 'SEO & Schema', category: 'Website Production', status: 'Ready', version: '1.0',
+      purpose: 'Generate title/meta/OG, canonical, JSON-LD LocalBusiness, robots + sitemap from verified data only.',
+      inputs: ['Business facts', 'Location', 'Services'], outputs: ['Meta head', 'JSON-LD', 'robots.txt', 'sitemap.xml'],
+      agents: ['colt'], tools: ['EP Website Factory'], approval: 'None', lastUsed: 'Today — H&M', workflows: ['Build Website'] },
+    { id: 'deployment', name: 'Deployment', category: 'Deployment', status: 'Ready', version: '1.0',
+      purpose: 'Package a build for Netlify Drop, or ship via GitHub→Netlify auto-deploy.',
+      inputs: ['dist/<slug>'], outputs: ['Preview URL', 'Netlify site'],
+      agents: ['colt'], tools: ['Netlify', 'GitHub'], approval: 'Approve-for-launch required', lastUsed: 'Today — H&M drop package', workflows: ['Deploy'] },
+    { id: 'service-categorize', name: 'Service Auto-Categorization', category: 'Website Production', status: 'Ready', version: '1.0',
+      purpose: 'Group a flat service list into logical sections by deterministic keyword scoring (no AI).',
+      inputs: ['Service names'], outputs: ['Grouped services'], agents: ['atlas', 'colt'], tools: ['EP Website Factory'],
+      approval: 'None', lastUsed: 'H&M — 15 services → 5 groups', workflows: ['New Client', 'Build Website'] },
+    { id: 'client-wizard', name: 'Client Wizard / Intake', category: 'Sales & Client Success', status: 'Ready', version: '1.0',
+      purpose: 'Interactive intake that turns business facts + photos into a buildable client config.',
+      inputs: ['Owner answers', 'Photos folder'], outputs: ['client.json', 'Imported media'],
+      agents: ['atlas', 'sol'], tools: ['EP Website Factory'], approval: 'None', lastUsed: 'Wizard verified (Bayside test)', workflows: ['New Client'] },
+    { id: 'cc-registry', name: 'Command Center Registry', category: 'Operations', status: 'Ready', version: '1.0',
+      purpose: 'Emit projects.json so every generated site appears as a managed project (status, deploy, analytics, maintenance).',
+      inputs: ['config/*.json', 'build output'], outputs: ['projects.json', 'Dashboard feed'],
+      agents: ['colt', 'atlas'], tools: ['EP Website Factory'], approval: 'None', lastUsed: 'Phase 2 bridge', workflows: ['Review'] },
+    { id: 'prospect-discovery', name: 'Prospect Discovery & Audit', category: 'Sales & Client Success', status: 'Ready to connect', version: '0.9',
+      purpose: 'Discover local businesses and audit their sites to score opportunity (no-website first).',
+      inputs: ['Industry', 'Location'], outputs: ['Scored prospects', 'Audit findings'],
+      agents: ['sol'], tools: ['Firecrawl'], approval: 'None', lastUsed: 'Mock pool scored', workflows: ['New Client'] },
+    { id: 'lead-capture', name: 'Website Lead Capture', category: 'Client Management', status: 'Connected', version: '1.0',
+      purpose: 'Capture inbound quote-form submissions from client sites and route them to the inbox.',
+      inputs: ['Website form'], outputs: ['Lead notification'], agents: ['ledger'], tools: ['Netlify Forms', 'Gmail'],
+      approval: 'None', lastUsed: 'Live on client sites', workflows: ['Client Growth Loop'] },
+    { id: 'review-automation', name: 'Review Request Automation', category: 'Client Management', status: 'Planned', version: '0.1',
+      purpose: 'After a completed job, request a rating and direct satisfied customers to Google Business.',
+      inputs: ['Completed job'], outputs: ['Review request', 'Google review'], agents: ['ledger'], tools: ['Gmail', 'Google Business'],
+      approval: 'Client opt-in', lastUsed: '—', workflows: ['Client Growth Loop'] },
+  ],
+
+  /* ═══ KNOWLEDGE LIBRARY — reusable assets so wins compound.
+        status: Ready (in the system now) · Reference (exists as a live site)
+        · Planned. Nothing here claims to exist that doesn't. ═══ */
+  knowledgeLibrary: {
+    'Website Templates': [
+      { name: 'Premium Service (Contractor / Home Services)', status: 'Ready', note: 'Live factory template — H&M, ready for landscapers, pressure washing, gyms, barbers' },
+      { name: 'Landscaping variant', status: 'Reference', note: 'Azalea + Warren live sites — fold into the factory' },
+      { name: 'Artisan / Product', status: 'Reference', note: 'Metal & Mud, Clay Retreat — storytelling layout' },
+      { name: 'Hair / Beauty Studio', status: 'Planned', note: 'Head Loc\'d styling — extract into a template' },
+      { name: 'Real Estate / Cinematic Listing', status: 'Reference', note: 'EPSG cinematic-listings engine' },
+      { name: 'Sports / Athlete', status: 'Reference', note: 'EPSG athlete profiles + badge system' },
+    ],
+    'Brand Playbooks': [
+      { name: 'Dark Luxury (EP cinematic)', status: 'Ready', note: 'Silver / black / gold, Playfair + Montserrat — the EP house style' },
+      { name: 'Industrial / Rugged', status: 'Ready', note: 'H&M build: black steel, weathered silver, construction gold' },
+      { name: 'Minimal', status: 'Planned', note: 'Clean editorial variant' },
+      { name: 'Island Luxury', status: 'Planned', note: 'Gulf-coast coastal premium' },
+    ],
+    'Prompt Library': [
+      { name: 'Hero video prompts', status: 'Ready', note: 'EPSG Higgsfield hero prompts (cinematic Gulf Coast)' },
+      { name: 'Athlete / action prompts', status: 'Ready', note: 'From EPSG design skill' },
+      { name: 'Gallery + logo prompts', status: 'Planned', note: 'Standardize per industry' },
+      { name: 'Animation prompts', status: 'Planned', note: 'GSAP scroll patterns A–E reference' },
+    ],
+    'SOPs': [
+      { name: 'Client onboarding', status: 'Ready', note: 'EP Media OS client-workflow (11 stages)' },
+      { name: 'Website review', status: 'Ready', note: 'Preflight + Lighthouse + review-ready vs launch-ready' },
+      { name: 'Deployment', status: 'Ready', note: 'Netlify Drop / GitHub→Netlify' },
+      { name: 'Maintenance', status: 'Planned', note: 'Monthly checks + form monitoring' },
+    ],
+  },
 
   calendar: [
     { when: 'Tomorrow 9:00 AM', what: 'Call block #1 — demo-built prospects (6 calls)', kind: 'Outreach' },
@@ -1675,6 +1825,7 @@ const TITLES = {
   intelligence: 'Intelligence <em>Center</em>', discovery: 'Prospect <em>Discovery</em>', agent: 'Sales <em>Agent</em>',
   buildqueue: 'Build <em>Queue</em>', meetings: '<em>Meetings</em>', settings: '<em>Settings</em>',
   pipeline: 'Client <em>Pipeline</em>', tasks: 'Task <em>Queue</em>', clients: 'Active <em>Clients</em>',
+  agentops: 'Agent <em>Operations</em>', skills: 'Skills <em>Registry</em>',
   deploys: 'Sites &amp; <em>Repos</em>', revenue: 'Revenue &amp; <em>Pricing</em>', aiteam: 'AI <em>Team</em>',
   growth: 'Growth <em>Stack</em>', integrations: 'Integrations <em>Map</em>', workforce: 'Agent <em>Workforce</em>',
   automations: 'Automation <em>Center</em>', knowledge: 'Knowledge <em>Center</em>', personal: 'Personal <em>Command</em>',
@@ -1766,6 +1917,11 @@ function renderAll() {
   placeholderCards('investor-grid', mockData.investorDashboard);
   placeholderCards('banking-grid', mockData.bankingFunding);
   renderIntegrationStatus();
+  // ── Agent Operations layer (additive; defined in js/agent-ops.js) ──
+  if (typeof renderMissionStrip === 'function') renderMissionStrip();
+  if (typeof renderAgentOps === 'function') renderAgentOps();
+  if (typeof renderSkills === 'function') renderSkills();
+  if (typeof renderKnowledgeLayer === 'function') renderKnowledgeLayer();
 }
 
 /* ═══ SPRINT 2 — DATA SERVICE BOOTSTRAP ═══
