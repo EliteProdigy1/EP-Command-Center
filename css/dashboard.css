@@ -865,3 +865,35 @@ button.strip-line:hover { background: var(--panel-strong); }
 .ha.approve.alt { background: linear-gradient(135deg, var(--gold), var(--gold-light)); color: #0a0a0c; }
 .ha.accept { border-color: rgba(74,222,128,0.4); color: var(--green); }
 .ha.escalate:hover { color: var(--red); border-color: rgba(248,113,113,0.4); }
+
+/* ══════════════════════════════════════════════════════════════════
+   N1 — UNIVERSAL NAVIGATION (additive)
+   ══════════════════════════════════════════════════════════════════ */
+.nav-back { width: 34px; height: 34px; border-radius: 9px; border: 1px solid var(--hairline); background: var(--panel-strong); color: var(--text-2); font-size: 20px; line-height: 1; cursor: pointer; flex: none; transition: 0.2s; }
+.nav-back:hover { color: var(--gold-light); border-color: var(--gold-dim); }
+.nav-back.disabled { opacity: 0.35; }
+.breadcrumbs { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; flex-wrap: wrap; }
+.crumb { background: none; border: none; padding: 0; font-size: 11px; letter-spacing: 0.03em; color: var(--text-3); cursor: pointer; font-family: var(--sans); }
+.crumb:hover { color: var(--gold-light); }
+.crumb.cur { color: var(--text-2); cursor: default; }
+.crumb-sep { color: var(--text-3); font-size: 11px; }
+
+/* Recent locations dropdown */
+.recent-wrap { position: relative; }
+.recent-menu { position: absolute; top: calc(100% + 6px); right: 0; min-width: 210px; background: var(--pitch); border: 1px solid var(--hairline); border-radius: 11px; padding: 6px; box-shadow: 0 18px 50px rgba(0,0,0,0.7); display: none; z-index: 3000; }
+.recent-menu.open { display: block; }
+.recent-menu button { display: block; width: 100%; text-align: left; background: none; border: none; color: var(--text-2); font-size: 12.5px; padding: 9px 11px; border-radius: 8px; cursor: pointer; font-family: var(--sans); }
+.recent-menu button:hover { background: var(--panel-strong); color: var(--text); }
+.recent-empty { padding: 10px 11px; font-size: 12px; color: var(--text-3); }
+
+/* Sticky back/title bar — mobile & iPad only */
+.mobile-navbar { display: none; }
+@media (max-width: 900px) {
+  .mobile-navbar { display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 1500;
+    background: var(--glass, rgba(10,10,12,0.9)); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--hairline); padding: 11px 16px; }
+  .mnb-back { background: var(--panel-strong); border: 1px solid var(--hairline); color: var(--gold-light); font-size: 13px; font-weight: 600; border-radius: 8px; padding: 7px 13px; cursor: pointer; flex: none; }
+  .mnb-title { font-family: var(--serif); font-size: 16px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .breadcrumbs { display: none; }        /* desktop-only breadcrumbs */
+  .nav-back { display: none; }           /* mobile uses the sticky bar's Back */
+}

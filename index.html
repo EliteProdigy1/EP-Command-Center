@@ -92,15 +92,23 @@
   <!-- ═══ MAIN ═══ -->
   <main class="main">
 
+    <!-- Sticky back/title bar — mobile & iPad only (CSS) -->
+    <div class="mobile-navbar" id="mobile-navbar">
+      <button class="mnb-back" onclick="epBack()" aria-label="Back">‹ Back</button>
+      <span class="mnb-title" id="mnb-title">Mission Control</span>
+    </div>
     <header class="topbar">
-      <div style="display:flex;align-items:center;gap:14px;">
+      <div style="display:flex;align-items:center;gap:12px;">
         <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+        <button class="nav-back" id="nav-back" title="Back" aria-label="Back" onclick="epBack()">‹</button>
         <div>
+          <div class="breadcrumbs" id="breadcrumbs"></div>
           <h1 class="top-title" id="page-title">Mission <em>Control</em></h1>
           <div class="top-meta"><span id="live-date"></span> · <span class="clock" id="live-clock"></span></div>
         </div>
       </div>
       <div class="top-actions">
+        <div class="recent-wrap"><button class="btn btn-ghost btn-sm" id="btn-recent" title="Recent locations" onclick="toggleRecent(event)">◷ Recent</button><div class="recent-menu" id="recent-menu"></div></div>
         <button class="btn btn-gold btn-sm" title="Quick add a prospect straight to Notion" onclick="openQuickAddProspect()">＋ Prospect</button>
         <button class="btn btn-ghost btn-sm" title="Save meeting notes to Notion" onclick="openMeetingNotes()">🗓 Meeting</button>
         <button class="btn btn-ghost btn-sm" title="Add a task" onclick="quickAddTask()">✓ Task</button>
@@ -459,6 +467,7 @@
 <script src="js/app.js"></script>
 <script src="js/agent-ops.js"></script>
 <script src="js/handoffs.js"></script>
+<script src="js/router.js"></script>
 <script src="js/website-intel.js"></script>
 <script src="js/sales-agent.js"></script>
 <script src="js/pipeline.js"></script>
