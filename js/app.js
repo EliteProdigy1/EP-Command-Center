@@ -2050,6 +2050,7 @@ function renderAll() {
   if (typeof renderMissionStrip === 'function') renderMissionStrip();
   if (typeof renderAgentOps === 'function') renderAgentOps();
   if (typeof renderSkills === 'function') renderSkills();
+  if (typeof renderSkillReviewQueue === 'function') renderSkillReviewQueue();
   if (typeof renderKnowledgeLayer === 'function') renderKnowledgeLayer();
   // ── Work Handoffs (Stage 4; defined in js/handoffs.js) ──
   if (typeof renderActiveHandoffs === 'function') renderActiveHandoffs();
@@ -2065,6 +2066,15 @@ function renderAll() {
    render pipeline draws it — no render/UI changes. */
 async function bootstrap() {
   renderAll(); // paint immediately with local/mock data
+  // Consume the generated skills registry (source of truth = EP Website
+  // Factory). Ported pilot skills become source-of-truth records with live
+  // operational metadata; unported ones stay tagged interim. Non-blocking.
+  if (window.skillsRegistry) {
+    Promise.all([window.skillsRegistry.load(), window.skillsRegistry.loadAudit()]).then(() => {
+      if (typeof renderSkills === 'function') renderSkills();
+      if (typeof renderSkillReviewQueue === 'function') renderSkillReviewQueue();
+    });
+  }
   if (!window.notionService) return;
   // Today's Meetings reads straight from the Notion Meetings DB (source of truth).
   if (notionService.getMeetings) {

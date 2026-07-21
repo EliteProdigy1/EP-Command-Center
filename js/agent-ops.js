@@ -219,8 +219,15 @@
     if (skillFilter.category !== 'all') list = list.filter(s => s.category === skillFilter.category);
     const shownCats = [...new Set(list.map(s => s.category))];
 
+    const reg = window.skillsRegistry || {};
+    const ported = SK().filter(s => s.sourceOfTruth === 'registry').length;
+    const regLine = reg.status === 'connected'
+      ? `<div class="sk-reg-line">${srcTag('registry')} <b>${ported}</b> skill${ported === 1 ? '' : 's'} sourced from the generated Website-Factory registry <span class="mut">(${esc(reg.source || '')} · gen ${esc(reg.generatedAt || '')})</span>. The rest are <b>interim</b> until ported — the Command Center never hand-copies a definition.</div>`
+      : `<div class="sk-reg-line">${srcTag('demo')} Skill registry not loaded — showing interim definitions only.</div>`;
+
     el.innerHTML = `
       <div class="notice"><b>Your capability library.</b> A skill is something the workforce knows how to do — reusable across every client. <b>${ready}</b> of ${SK().length} ready. Click any skill for agents · tools · inputs · outputs · approval rules · limitations · related knowledge.</div>
+      ${regLine}
       <div class="filterbar">
         <span class="fb-label">Status</span>${statuses.map(s => chip('status', s)).join('')}
         <span class="fb-sep"></span><span class="fb-label">Area</span>${cats.map(c => chip('category', c)).join('')}
@@ -239,6 +246,12 @@
     return `<span class="badge ${cls}">${esc(status)}</span>`;
   }
 
+  function skillSrcChip(s) {
+    return s.sourceOfTruth === 'registry'
+      ? `<span class="sk-src sk-src-reg" title="Sourced from the generated Website Factory skill registry">◆ Registry</span>`
+      : `<span class="sk-src sk-src-int" title="Interim definition — not yet ported to the skill registry">Interim</span>`;
+  }
+
   function skillCard(s) {
     const agents = (s.agents || []).map(id => agentById(id)).filter(Boolean);
     return `
@@ -249,7 +262,7 @@
           <div><span class="sk-k">Uses</span>${agents.map(a => `<span class="chip">${esc(a.agent)}</span>`).join('') || '—'}</div>
           <div><span class="sk-k">Tools</span>${(s.tools || []).slice(0, 4).map(t => `<span class="chip tool">${esc(t)}</span>`).join('')}</div>
         </div>
-        <div class="sk-foot"><span class="sk-k">v${esc(s.version)}</span><span class="sk-k">Last: ${esc(s.lastUsed || '—')}</span><span class="sk-more">Details →</span></div>
+        <div class="sk-foot"><span class="sk-k">v${esc(s.version)}</span>${skillSrcChip(s)}<span class="sk-more">Details →</span></div>
       </div>`;
   }
 
@@ -276,8 +289,147 @@
       <h4 class="drawer-h">Related knowledge</h4>
       <div class="drawer-skills">${(s.related || []).map(r => `<button class="chip chip-btn" onclick="closeDrawer();goSection('knowledge')">${esc(r)}</button>`).join('') || '<span class="mut">—</span>'}</div>
       <h4 class="drawer-h">Workflows</h4>
-      <div class="drawer-tools">${(s.workflows || []).map(w => `<span class="chip">${esc(w)}</span>`).join('') || '<span class="mut">—</span>'}</div>`;
+      <div class="drawer-tools">${(s.workflows || []).map(w => `<span class="chip">${esc(w)}</span>`).join('') || '<span class="mut">—</span>'}</div>
+      ${skillOpsBlock(s)}`;
     openDrawer(body);
+  };
+
+  /* Operational + registry metadata block — layered by skill id.
+     Operational (assignment, execution history) shows for every skill;
+     registry-only detail (connectors, compatibility, source of truth) only
+     renders when the skill came from the generated registry. */
+  function skillOpsBlock(s) {
+    const out = [];
+
+    // ── Operational: who's assigned right now (reuses agentWorkforce state) ──
+    if (Array.isArray(s.assignedAgents) && s.assignedAgents.length) {
+      out.push(`<h4 class="drawer-h">Assigned now ${srcTag('registry')}</h4>
+        <div class="sk-ops-rows">${s.assignedAgents.map(a => `
+          <div class="sk-ops-row"><span class="sk-ops-name">${esc(a.name)}</span>
+            <span class="mut">${esc(a.availability)}</span>
+            <span class="chip">${esc(a.assignment)}</span></div>`).join('')}</div>`);
+    }
+
+    // ── Operational: execution history from the handoff chain (S.handoffs) ──
+    const runs = s.execHistory || [];
+    out.push(`<h4 class="drawer-h">Execution history ${srcTag(runs.length ? 'registry' : 'untracked')}</h4>`);
+    out.push(runs.length
+      ? `<div class="sk-ops-rows">${runs.map(r => `
+          <div class="sk-ops-row"><span class="sk-ops-name">${esc(r.project)}</span>
+            <span class="mut">${esc(r.task)}</span>
+            <span class="chip ${/complete/i.test(r.state) ? 'tool' : ''}">${esc(r.state)}</span>
+            <span class="mut">${esc(r.when || '')}</span></div>`).join('')}</div>
+         <p class="mut" style="font-size:12px;margin-top:6px;">${runs.length} recorded run${runs.length === 1 ? '' : 's'}.</p>`
+      : `<p class="mut" style="font-size:12.5px;">No runs recorded in the handoff log yet.</p>`);
+
+    // ── Registry-only: live connector status ──
+    if (Array.isArray(s.connectorStatus) && s.connectorStatus.length) {
+      out.push(`<h4 class="drawer-h">Connectors</h4>
+        <div class="sk-ops-rows">${s.connectorStatus.map(c => `
+          <div class="sk-ops-row"><span class="sk-ops-name">${esc(c.name)}</span>
+            <span class="chip ${c.live ? 'tool' : ''}">${c.live ? 'CONNECTED (live)' : esc(c.declared)}</span></div>`).join('')}</div>`);
+    }
+
+    // ── Registry-only: cross-tool compatibility ──
+    if (s.compatibility && Object.keys(s.compatibility).length) {
+      out.push(`<h4 class="drawer-h">Cross-tool compatibility</h4>
+        <div class="drawer-tools">${Object.keys(s.compatibility).map(k =>
+          `<span class="chip" title="${esc(k)}">${esc(k)}: ${esc(s.compatibility[k])}</span>`).join('')}</div>`);
+    }
+
+    // ── Registry-only: source of truth ──
+    if (s.sourceOfTruth === 'registry') {
+      out.push(`<h4 class="drawer-h">Source of truth ${srcTag('registry')}</h4>
+        <p class="mut" style="font-size:12.5px;line-height:1.6;">
+          <b>${esc(s.sourceRepo || '')}</b> · <code>${esc(s.skillPath || '')}</code><br>
+          Verified ${esc(s.lastVerified || '—')} · defined in
+          ${(s.sourcePaths || []).map(p => `<code>${esc(p)}</code>`).join(', ') || '—'}
+        </p>`);
+    } else {
+      out.push(`<h4 class="drawer-h">Source of truth</h4>
+        <p class="mut" style="font-size:12.5px;">Interim definition — not yet ported to the Website-Factory skill registry.</p>`);
+    }
+
+    return out.join('');
+  }
+
+  /* ══ SKILL REVIEW QUEUE (N2C) — non-destructive audit surface ══
+     Renders the generated audit report. Every action records a HUMAN
+     DECISION only (persisted in S.skillReview). Nothing here renames,
+     moves, deletes, merges, or marks a skill Ready — those remain manual. */
+  const AUDIT_LABELS = {
+    'used-but-unsaved':       { label: 'Used but unsaved', cls: 'b-warn', hint: 'A consumer uses this skill, but it is not saved as a package yet.' },
+    'missing-manifest':       { label: 'Missing manifest', cls: 'b-bad',  hint: 'A skill folder has no manifest.json.' },
+    'duplicate':              { label: 'Duplicate',        cls: 'b-warn', hint: 'Two skills share an id or name.' },
+    'outdated':               { label: 'Outdated',         cls: 'b-warn', hint: 'lastVerified is stale.' },
+    'missing-connector-docs': { label: 'Connector docs',   cls: 'b-info', hint: 'A not-yet-connected connector is undocumented in the portable prompt.' },
+    'possible-unregistered':  { label: 'Possibly unregistered', cls: 'b-info', hint: 'Referenced in docs, but has no registered package.' },
+    'registered':             { label: 'Registered',       cls: 'b-good', hint: 'Folder + valid manifest.' },
+  };
+  // Non-destructive intents a human can record against a finding.
+  const REVIEW_INTENTS = [
+    { key: 'approve', label: 'Approve to port' },
+    { key: 'merge',   label: 'Flag as merge' },
+    { key: 'rename',  label: 'Flag rename' },
+    { key: 'reject',  label: 'Reject / ignore' },
+  ];
+
+  function findingKey(f) { return f.category + ':' + f.id; }
+
+  window.recordSkillReview = function (cat, id, intent) {
+    if (!S.skillReview) S.skillReview = {};
+    const key = cat + ':' + id;
+    if (S.skillReview[key] && S.skillReview[key].intent === intent) {
+      delete S.skillReview[key]; // toggle off
+    } else {
+      S.skillReview[key] = { intent: intent, at: todayStr() };
+    }
+    save(); // persists + re-renders; no skill file is touched
+    toast('Recorded review decision — no files changed. Porting stays a manual step.');
+  };
+
+  window.renderSkillReviewQueue = function () {
+    const el = document.getElementById('skill-review-queue');
+    if (!el) return;
+    const reg = window.skillsRegistry || {};
+    const audit = reg.audit;
+    if (!audit) {
+      el.innerHTML = `<div class="notice" style="margin-top:22px;">${srcTag('untracked')} <b>Skill review queue.</b> Audit report not loaded — run <code>npm run ep:skills:audit</code> in the Website Factory to generate it.</div>`;
+      return;
+    }
+    const decisions = S.skillReview || {};
+    const findings = (audit.findings || []).slice().sort((a, b) => {
+      const rank = { warn: 0, bad: 0, info: 1 };
+      return (rank[a.severity] || 1) - (rank[b.severity] || 1);
+    });
+    const counts = audit.summary || {};
+    const chips = Object.keys(counts).map(k =>
+      `<span class="rq-count ${(AUDIT_LABELS[k] || {}).cls || 'b-info'}">${(AUDIT_LABELS[k] || { label: k }).label}: <b>${counts[k]}</b></span>`).join('');
+
+    el.innerHTML = `
+      <div class="rq-head">
+        <h3 class="rq-title">Skill Review Queue ${srcTag('registry')}</h3>
+        <p class="rq-sub">Non-destructive audit from the Website Factory (<code>${esc(audit.source || '')}</code> · gen ${esc(audit.generatedAt || '')}). ${esc(audit.note || '')}</p>
+        <div class="rq-counts">${chips}</div>
+        ${audit.consumersScanned && audit.consumersScanned.length ? `<p class="mut" style="font-size:11px;">Consumers scanned: ${audit.consumersScanned.map(esc).join(', ')}</p>` : ''}
+      </div>
+      ${findings.length ? `<div class="rq-list">${findings.map(f => {
+        const meta = AUDIT_LABELS[f.category] || { label: f.category, cls: 'b-info' };
+        const dec = decisions[findingKey(f)];
+        return `
+          <div class="rq-item">
+            <div class="rq-row">
+              <span class="badge ${meta.cls}">${esc(meta.label)}</span>
+              <span class="rq-id">${esc(f.id)}</span>
+              ${dec ? `<span class="rq-decision">✓ ${esc(dec.intent)} · ${esc(dec.at)}</span>` : ''}
+            </div>
+            <div class="rq-detail">${esc(f.detail)}</div>
+            <div class="rq-evidence">${esc(f.evidence || '')}${f.suggestedIntent ? ` — <span class="mut">${esc(f.suggestedIntent)}</span>` : ''}</div>
+            <div class="rq-actions">${REVIEW_INTENTS.map(it =>
+              `<button class="rq-btn ${dec && dec.intent === it.key ? 'on' : ''}" onclick="recordSkillReview('${esc(f.category)}','${esc(f.id)}','${it.key}')">${esc(it.label)}</button>`).join('')}</div>
+          </div>`;
+      }).join('')}</div>` : `<div class="empty" style="padding:26px;">No audit findings — every used skill is saved and current.</div>`}
+      <p class="rq-foot mut">Recording a decision is a note to yourself. Porting, merging, renaming, and marking Ready all stay manual in the Website Factory.</p>`;
   };
 
   window.highlightSkill = function (id) {
